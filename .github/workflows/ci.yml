@@ -23,7 +23,6 @@ jobs:
         run: npm ci
 
       - name: Run Prisma migrations
-        # Ensure your repository has the DATABASE_URL secret configured in GitHub
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
