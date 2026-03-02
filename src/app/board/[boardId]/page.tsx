@@ -1,14 +1,19 @@
-// src/app/board/[boardId]/page.tsx
+// OR extract the header into its own Client Component (e.g., BoardHeader.tsx).
+// Assuming you extract it to keep the page a Server Component:
+
+
 import { getBoardData } from '../../../lib/dataAccessLayer';
 import KanbanBoard from '../../../components/features/board/KanbanBoard';
 import { notFound } from 'next/navigation';
 import { getUserRole } from '../../../lib/permission';
+import BoardHeader from '../../../components/features/board/BoardHeader';
 
 // Never pre-render at build time — this page queries the database at runtime
 export const dynamic = 'force-dynamic';
 
 
 export default async function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
+
     // 1. Fetch data on the server
     const { boardId } = await params;
     // Fetch data AND the current user's role simultaneously 
@@ -22,9 +27,7 @@ export default async function BoardPage({ params }: { params: Promise<{ boardId:
 
     return (
         <main className="min-h-screen bg-gray-50 p-8 flex flex-col">
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">{board.title}</h1>
-            </header>
+            <BoardHeader board={board} userRole={userRole} />
 
             <div className="flex-1 overflow-hidden">
                 {/* Pass the role into the board! */}

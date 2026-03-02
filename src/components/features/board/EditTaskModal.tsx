@@ -3,7 +3,7 @@
 import { useRef, useTransition } from 'react';
 import Modal from '../../../components/ui/Modal';
 import { updateTask } from '../../../actions/taskActions';
-import { Prisma } from '../../../generated/prisma/client';
+import type { Prisma } from '../../../generated/prisma/browser';
 import { TaskCategory } from '../../../generated/prisma/enums';
 
 type TaskType = Prisma.TaskModel;

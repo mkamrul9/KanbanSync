@@ -14,9 +14,14 @@ export default async function Dashboard() {
   const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!dbUser) redirect('/login'); // user row missing — force fresh sign-in
 
-  // Fetch ONLY the boards belonging to this specific user
+  // Fetch boards the user owns OR is a member of
   const boards = await prisma.board.findMany({
-    where: { userId: dbUser.id },
+    where: {
+      OR: [
+        { userId: dbUser.id },
+        { members: { some: { userId: dbUser.id } } }
+      ]
+    },
     orderBy: { createdAt: 'desc' },
   });
 
