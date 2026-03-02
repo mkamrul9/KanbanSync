@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Add this block to fix the Vercel internal output error!
-  serverExternalPackages: ['pg', '@prisma/client', '@auth/prisma-adapter'],
-
-  // (Keep any other config you already had here)
+  // Keep Node.js-only packages out of the client/edge bundle
+  serverExternalPackages: ['pg', '@prisma/client', '@auth/prisma-adapter', 'pusher'],
 };
 
 export default nextConfig;

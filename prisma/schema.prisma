@@ -19,6 +19,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  boardMemberships BoardMember[]
+  assignedTasks    Task[]       @relation("AssignedTasks")
+  comments         Comment[]
+
   @@map("users")
 }
 
@@ -73,15 +77,29 @@ model Board {
   columns   Column[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  members   BoardMember[] // NEW: Team members
 
   @@map("boards")
+}
+
+model BoardMember {
+  id        String    @id @default(cuid())
+  boardId   String
+  userId    String
+  role      BoardRole @default(MEMBER)
+  
+  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId]) // A user can only be in a board once
+  @@map("board_members")
 }
 
 model Column {
   id        String   @id @default(cuid())
   title     String
   order     Int      
-  wipLimit  Int?     // NEW: Optional WIP limit (e.g., max 3 items)
+  wipLimit  Int?     // Optional WIP limit (e.g., max 3 items)
   boardId   String
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   tasks     Task[]
@@ -95,17 +113,40 @@ model Column {
 model Task {
   id          String       @id @default(cuid())
   title       String
-  description String?
-  status      TaskStatus   
-  category    TaskCategory @default(FEATURE) // NEW: Enforce task types
-  order       Int          
+  description String?     @db.Text
+  status      String   
+  category    TaskCategory @default(TASK) // NEW: Enforce task types
+  order       Int   
+
+  // NEW: Assignment
+  assigneeId  String?
+  assignee    User?        @relation("AssignedTasks", fields: [assigneeId], references: [id], onDelete: SetNull)
+
   columnId    String
   column      Column       @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  comments    Comment[]
+
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@map("tasks")
 }
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  taskId    String
+  userId    String
+  
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@map("comments")
+}
+
 
 enum TaskStatus {
   TODO
@@ -114,9 +155,21 @@ enum TaskStatus {
 }
 
 enum TaskCategory {
-  FEATURE
+  NEW_FEATURE
+  EPIC
+  STORY
+  TASK
+  SUB_TASK
   BUG
-  CHORE
+  ENHANCEMENT
+  PATCH
+  HOTFIX
+}
+
+enum BoardRole {
+  LEADER
+  REVIEWER
+  MEMBER
 }
 
 // TODO:

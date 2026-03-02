@@ -43,6 +43,11 @@ export type VerificationToken = Prisma.VerificationTokenModel
  */
 export type Board = Prisma.BoardModel
 /**
+ * Model BoardMember
+ * 
+ */
+export type BoardMember = Prisma.BoardMemberModel
+/**
  * Model Column
  * 
  */
@@ -52,3 +57,8 @@ export type Column = Prisma.ColumnModel
  * 
  */
 export type Task = Prisma.TaskModel
+/**
+ * Model Comment
+ * 
+ */
+export type Comment = Prisma.CommentModel

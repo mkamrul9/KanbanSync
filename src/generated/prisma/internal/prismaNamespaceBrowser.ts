@@ -56,8 +56,10 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   Board: 'Board',
+  BoardMember: 'BoardMember',
   Column: 'Column',
-  Task: 'Task'
+  Task: 'Task',
+  Comment: 'Comment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -137,6 +139,16 @@ export const BoardScalarFieldEnum = {
 export type BoardScalarFieldEnum = (typeof BoardScalarFieldEnum)[keyof typeof BoardScalarFieldEnum]
 
 
+export const BoardMemberScalarFieldEnum = {
+  id: 'id',
+  boardId: 'boardId',
+  userId: 'userId',
+  role: 'role'
+} as const
+
+export type BoardMemberScalarFieldEnum = (typeof BoardMemberScalarFieldEnum)[keyof typeof BoardMemberScalarFieldEnum]
+
+
 export const ColumnScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -157,12 +169,24 @@ export const TaskScalarFieldEnum = {
   status: 'status',
   category: 'category',
   order: 'order',
+  assigneeId: 'assigneeId',
   columnId: 'columnId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const CommentScalarFieldEnum = {
+  id: 'id',
+  text: 'text',
+  taskId: 'taskId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+} as const
+
+export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
 
 
 export const SortOrder = {

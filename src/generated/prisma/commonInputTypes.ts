@@ -162,6 +162,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumBoardRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.BoardRole | Prisma.EnumBoardRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBoardRoleFilter<$PrismaModel> | $Enums.BoardRole
+}
+
+export type EnumBoardRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BoardRole | Prisma.EnumBoardRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBoardRoleWithAggregatesFilter<$PrismaModel> | $Enums.BoardRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBoardRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBoardRoleFilter<$PrismaModel>
+}
+
 export type IntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
@@ -189,28 +206,11 @@ export type IntWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntFilter<$PrismaModel>
 }
 
-export type EnumTaskStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.TaskStatus | Prisma.EnumTaskStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTaskStatusFilter<$PrismaModel> | $Enums.TaskStatus
-}
-
 export type EnumTaskCategoryFilter<$PrismaModel = never> = {
   equals?: $Enums.TaskCategory | Prisma.EnumTaskCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.TaskCategory[] | Prisma.ListEnumTaskCategoryFieldRefInput<$PrismaModel>
   notIn?: $Enums.TaskCategory[] | Prisma.ListEnumTaskCategoryFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel> | $Enums.TaskCategory
-}
-
-export type EnumTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.TaskStatus | Prisma.EnumTaskStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTaskStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaskStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumTaskStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumTaskStatusFilter<$PrismaModel>
 }
 
 export type EnumTaskCategoryWithAggregatesFilter<$PrismaModel = never> = {
@@ -384,6 +384,23 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
+export type NestedEnumBoardRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.BoardRole | Prisma.EnumBoardRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBoardRoleFilter<$PrismaModel> | $Enums.BoardRole
+}
+
+export type NestedEnumBoardRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BoardRole | Prisma.EnumBoardRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BoardRole[] | Prisma.ListEnumBoardRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBoardRoleWithAggregatesFilter<$PrismaModel> | $Enums.BoardRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBoardRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBoardRoleFilter<$PrismaModel>
+}
+
 export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
@@ -411,28 +428,11 @@ export type NestedFloatFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
 }
 
-export type NestedEnumTaskStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.TaskStatus | Prisma.EnumTaskStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTaskStatusFilter<$PrismaModel> | $Enums.TaskStatus
-}
-
 export type NestedEnumTaskCategoryFilter<$PrismaModel = never> = {
   equals?: $Enums.TaskCategory | Prisma.EnumTaskCategoryFieldRefInput<$PrismaModel>
   in?: $Enums.TaskCategory[] | Prisma.ListEnumTaskCategoryFieldRefInput<$PrismaModel>
   notIn?: $Enums.TaskCategory[] | Prisma.ListEnumTaskCategoryFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel> | $Enums.TaskCategory
-}
-
-export type NestedEnumTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.TaskStatus | Prisma.EnumTaskStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.TaskStatus[] | Prisma.ListEnumTaskStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumTaskStatusWithAggregatesFilter<$PrismaModel> | $Enums.TaskStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumTaskStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumTaskStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumTaskCategoryWithAggregatesFilter<$PrismaModel = never> = {

@@ -19,9 +19,24 @@ export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
 
 
 export const TaskCategory = {
-  FEATURE: 'FEATURE',
+  NEW_FEATURE: 'NEW_FEATURE',
+  EPIC: 'EPIC',
+  STORY: 'STORY',
+  TASK: 'TASK',
+  SUB_TASK: 'SUB_TASK',
   BUG: 'BUG',
-  CHORE: 'CHORE'
+  ENHANCEMENT: 'ENHANCEMENT',
+  PATCH: 'PATCH',
+  HOTFIX: 'HOTFIX'
 } as const
 
 export type TaskCategory = (typeof TaskCategory)[keyof typeof TaskCategory]
+
+
+export const BoardRole = {
+  LEADER: 'LEADER',
+  REVIEWER: 'REVIEWER',
+  MEMBER: 'MEMBER'
+} as const
+
+export type BoardRole = (typeof BoardRole)[keyof typeof BoardRole]
