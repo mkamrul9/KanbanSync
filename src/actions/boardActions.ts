@@ -8,16 +8,21 @@ import { revalidatePath } from 'next/cache';
 export async function createBoard(formData: FormData) {
     // Verify Authentication
     const session = await auth();
-    if (!session?.user?.id) throw new Error('Unauthorized');
+    if (!session?.user?.email) throw new Error('Unauthorized');
 
     const title = formData.get('title') as string;
     if (!title) throw new Error('Title is required');
+
+    // Look up the user by email so we always use the current DB id,
+    // even if the JWT was issued before a DB reset (stale session.user.id).
+    const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!dbUser) throw new Error('User record not found – please sign out and sign back in.');
 
     // Create the Board WITH default columns in a single transaction
     const board = await prisma.board.create({
         data: {
             title,
-            userId: session.user.id,
+            userId: dbUser.id,
             columns: {
                 create: [
                     { title: 'To Do', order: 0 },

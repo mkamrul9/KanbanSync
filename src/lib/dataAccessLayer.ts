@@ -11,13 +11,18 @@ export const getBoardData = cache(async (boardId: string): Promise<BoardWithColu
 
     // 1. Get the current user session
     const session = await auth();
-    if (!session?.user?.id) throw new Error('Unauthorized');
+    if (!session?.user?.email) throw new Error('Unauthorized');
+
+    // Look up user by email so ownership check works even with a stale JWT
+    // (e.g. after a DB reset, where session.user.id no longer matches the DB row)
+    const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!dbUser) throw new Error('User record not found – please sign out and sign back in.');
 
     // 2. Fetch the board AND verify ownership simultaneously
     const board = await prisma.board.findFirst({
         where: {
             id: boardId,
-            userId: session.user.id // Security checkpoint! 
+            userId: dbUser.id, // Security checkpoint!
         },
         include: {
             columns: {

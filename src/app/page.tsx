@@ -8,11 +8,15 @@ export default async function Dashboard() {
   const session = await auth();
 
   // Middleware should catch this, but it's good defensive programming
-  if (!session?.user?.id) redirect('/login');
+  if (!session?.user?.email) redirect('/login');
+
+  // Resolve the current DB user by email (safe even after a DB reset with stale JWT)
+  const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
+  if (!dbUser) redirect('/login'); // user row missing — force fresh sign-in
 
   // Fetch ONLY the boards belonging to this specific user
   const boards = await prisma.board.findMany({
-    where: { userId: session.user.id },
+    where: { userId: dbUser.id },
     orderBy: { createdAt: 'desc' },
   });
 
