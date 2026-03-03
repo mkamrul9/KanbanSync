@@ -31,7 +31,7 @@ export default memo(function BoardColumn({ column, boardId, userRole, members, c
     return (
         <div
             ref={setNodeRef}
-            className={`flex-1 min-w-55 max-w-[320px] rounded-xl p-4 flex flex-col gap-4 shadow-sm transition-colors
+            className={`min-w-0 rounded-xl p-4 flex flex-col gap-4 shadow-sm transition-colors
                 ${isOverLimit ? 'bg-red-50 border-2 border-red-300' : 'bg-gray-200/80 border-2 border-transparent'}
             `}
         >

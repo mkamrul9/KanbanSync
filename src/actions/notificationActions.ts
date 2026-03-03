@@ -46,6 +46,34 @@ export async function acceptInvite(inviteId: string) {
     }
 }
 
+/**
+ * Notify a user that they have been assigned to a task.
+ */
+export async function notifyAssignedUser(
+    assigneeId: string,
+    assignedById: string | null,
+    taskId: string,
+    taskTitle: string,
+    boardId: string,
+    boardTitle: string | null,
+) {
+    if (!assigneeId) return;
+    if (assigneeId === assignedById) return; // don't ping yourself
+
+    const assigner = assignedById
+        ? await prisma.user.findUnique({ where: { id: assignedById }, select: { name: true } })
+        : null;
+
+    await pusherServer.trigger(`user-${assigneeId}`, 'notification', {
+        type: 'task-assigned',
+        taskId,
+        boardId,
+        boardTitle,
+        taskTitle,
+        fromName: assigner?.name ?? null,
+    });
+}
+
 export async function declineInvite(inviteId: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const invite = await (prisma as any).boardInvite.findUnique({ where: { id: inviteId } });

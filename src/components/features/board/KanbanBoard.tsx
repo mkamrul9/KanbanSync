@@ -243,7 +243,10 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 onDragEnd={isSearchActive ? undefined : handleDragEnd}
                 onDragCancel={handleDragCancel}
             >
-                <div className="flex flex-1 gap-6 overflow-x-auto pb-4 items-start">
+                <div
+                    style={{ gridTemplateColumns: `repeat(${Math.min(filteredColumns.length, 5)}, minmax(260px, 1fr))` }}
+                    className="grid gap-5 pb-6 items-start"
+                >
                     {filteredColumns.map((column) => (
                         <BoardColumn key={column.id} column={column} boardId={initialBoard.id} userRole={userRole} members={initialBoard.members} currentUserEmail={currentUserEmail} />
                     ))}

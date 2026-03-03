@@ -91,11 +91,29 @@ export async function updateTaskDescription(taskId: string, boardId: string, des
 
 export async function assignTask(taskId: string, boardId: string, assigneeId: string) {
     try {
+        const session = await auth();
+        const [task, board] = await Promise.all([
+            prisma.task.findUnique({ where: { id: taskId }, select: { title: true } }),
+            prisma.board.findUnique({ where: { id: boardId }, select: { title: true } }),
+        ]);
+
         await prisma.task.update({
             where: { id: taskId },
             data: { assigneeId },
         });
         await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Task assigned' });
+
+        // Notify the newly assigned user
+        const { notifyAssignedUser } = await import('./notificationActions');
+        await notifyAssignedUser(
+            assigneeId,
+            session?.user?.id ?? null,
+            taskId,
+            task?.title ?? 'A task',
+            boardId,
+            board?.title ?? null,
+        );
+
         revalidatePath(`/board/${boardId}`);
         return { success: true };
     } catch (error) {

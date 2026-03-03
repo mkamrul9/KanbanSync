@@ -7,6 +7,8 @@ import { TaskStatus, TaskCategory } from '../generated/prisma/client';
 import { pusherServer } from '../lib/pusher-server';
 import { getUserRole } from '../lib/permission';
 import { BoardRole } from '../generated/prisma/client';
+import { auth } from '../../auth';
+import { notifyAssignedUser } from './notificationActions';
 
 export async function moveTask(
     taskId: string,
@@ -112,6 +114,21 @@ export async function createTask(
         });
 
         await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Task created' });
+
+        // Notify the assignee (if someone was assigned and it's not the creator)
+        if (assigneeId) {
+            const session = await auth();
+            const board = await prisma.board.findUnique({ where: { id: boardId }, select: { title: true } });
+            await notifyAssignedUser(
+                assigneeId,
+                session?.user?.id ?? null,
+                task.id,
+                title,
+                boardId,
+                board?.title ?? null,
+            );
+        }
+
         revalidatePath(`/board/${boardId}`);
         return { success: true, task };
     } catch (error) {
