@@ -22,6 +22,15 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const router = useRouter();
     // Add a new "movedTask" property to the state, which we can use to render the dragging task in the overlay
     const [activeTask, setActiveTask] = useState<TaskType | null>(null);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+    // Auto-dismiss toast after 4 seconds
+    useEffect(() => {
+        if (!toastMessage) return;
+        const t = setTimeout(() => setToastMessage(null), 4000);
+        return () => clearTimeout(t);
+    }, [toastMessage]);
+
     // Optimistic Hook
     // It takes the real data from the server, and a "reducer" to calculate the fake instant UI updates when we drag tasks around. It returns the "fake" state to render, and a function to trigger fake updates.   
     const [optimisticColumns, addOptimisticUpdate] = useOptimistic(
@@ -162,9 +171,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
         // If the server rejected it (e.g., a MEMBER dragged to Done)
         if (!result?.success) {
-            console.error(result?.error);
-            // In a real app, fire a Toast notification here: toast.error(result.error)
-
+            setToastMessage(result?.error ?? 'Move not allowed.');
             // Revert the Optimistic UI by triggering a hard refresh from the server
             router.refresh();
         }
@@ -177,6 +184,20 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
     return (
         <div className="flex flex-col w-full h-full">
+            {/* Toast notification */}
+            {toastMessage && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl shadow-2xl">
+                    <span className="text-lg">🚫</span>
+                    <span>{toastMessage}</span>
+                    <button
+                        onClick={() => setToastMessage(null)}
+                        className="ml-2 text-gray-400 hover:text-white transition-colors text-base leading-none"
+                        aria-label="Dismiss"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
             {/* Industry Standard Search Bar UI */}
             <div className="mb-6 relative w-80">
                 {/* Search Icon */}

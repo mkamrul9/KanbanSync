@@ -5,6 +5,7 @@ import Modal from '../../../components/ui/Modal';
 import { addComment, updateTaskDescription, assignTask } from '../../../actions/detailActions';
 import { formatDistanceToNow } from 'date-fns';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
+import { BoardRole } from '../../../generated/prisma/enums';
 
 type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number] & {
     column?: { title: string } | null;
@@ -35,6 +36,9 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
     const cat = categoryConfig[task.category] ?? { label: task.category, color: 'bg-gray-100 text-gray-600' };
     const assignee = members.find(m => m.user.id === task.assigneeId);
+    const isLeader = members.some(
+        (m) => m.user.email === currentUserEmail && m.role === BoardRole.LEADER
+    );
 
     const handleDescriptionSave = () => {
         if (description !== task.description) {
@@ -90,11 +94,15 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                             </span>
                         </div>
                         <textarea
-                            className="w-full h-28 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent text-sm text-gray-700 placeholder-gray-400 resize-none transition-all"
-                            placeholder="Add a description…"
+                            className={`w-full h-28 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 resize-none transition-all ${isLeader
+                                    ? 'focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent cursor-text'
+                                    : 'opacity-60 cursor-not-allowed'
+                                }`}
+                            placeholder={isLeader ? 'Add a description…' : 'Only Leaders can edit the description.'}
                             value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            onBlur={handleDescriptionSave}
+                            onChange={(e) => isLeader && setDescription(e.target.value)}
+                            onBlur={isLeader ? handleDescriptionSave : undefined}
+                            readOnly={!isLeader}
                         />
                     </div>
 
@@ -112,7 +120,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                             )}
                             {task.comments?.map((comment: CommentType) => (
                                 <div key={comment.id} className="flex gap-2.5">
-                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5">
+                                    <div className="w-7 h-7 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5">
                                         {comment.user.name?.[0]?.toUpperCase() || 'U'}
                                     </div>
                                     <div className="flex-1 bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100">
@@ -128,7 +136,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
                         {/* Comment input */}
                         <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-400 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
                                 {currentUserEmail?.[0]?.toUpperCase() || 'M'}
                             </div>
                             <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
@@ -160,7 +168,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Assignee</p>
                         {assignee ? (
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[11px] font-bold text-white">
+                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[11px] font-bold text-white">
                                     {assignee.user.name?.[0]?.toUpperCase() ?? 'U'}
                                 </div>
                                 <span className="text-sm font-medium text-gray-800">{assignee.user.name || assignee.user.email}</span>
@@ -171,18 +179,22 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 <span className="text-sm">Unassigned</span>
                             </div>
                         )}
-                        <select
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
-                            value={task.assigneeId || ''}
-                            onChange={(e) => handleAssign(e.target.value)}
-                        >
-                            <option value="">Unassigned</option>
-                            {members.map((m: MemberType) => (
-                                <option key={m.user.id} value={m.user.id}>
-                                    {m.user.name || m.user.email}
-                                </option>
-                            ))}
-                        </select>
+                        {isLeader ? (
+                            <select
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                value={task.assigneeId || ''}
+                                onChange={(e) => handleAssign(e.target.value)}
+                            >
+                                <option value="">Unassigned</option>
+                                {members.map((m: MemberType) => (
+                                    <option key={m.user.id} value={m.user.id}>
+                                        {m.user.name || m.user.email}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p className="text-xs text-gray-400 italic mt-1">Only Leaders can reassign tasks.</p>
+                        )}
                     </div>
 
                     {/* Category (read-only badge) */}
