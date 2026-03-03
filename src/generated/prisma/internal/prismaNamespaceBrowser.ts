@@ -133,6 +133,7 @@ export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFi
 export const BoardScalarFieldEnum = {
   id: 'id',
   title: 'title',
+  description: 'description',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

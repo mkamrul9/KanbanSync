@@ -1,9 +1,9 @@
 import { auth, signOut } from '../../auth';
 import { prisma } from '../lib/db';
-import { createBoard } from '../actions/boardActions';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import NotificationsBell from '../components/ui/NotificationsBell';
+import CreateBoardButton from '../components/ui/CreateBoardButton';
+import BoardsGrid from '../components/ui/BoardsGrid';
 
 export default async function Dashboard() {
   const session = await auth();
@@ -50,38 +50,14 @@ export default async function Dashboard() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* List Existing Boards */}
-          {boards.map((board) => (
-            <Link
-              href={`/board/${board.id}`}
-              key={board.id}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group h-32 flex flex-col justify-between"
-            >
-              <h2 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                {board.title}
-              </h2>
-              <span className="text-sm text-gray-400">Open board →</span>
-            </Link>
-          ))}
+          <BoardsGrid boards={boards} />
 
-          {/* Create New Board Form */}
-          <form action={createBoard} className="h-32">
-            <div className="bg-blue-50/50 p-6 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 transition-colors h-full flex flex-col justify-center items-center relative overflow-hidden group">
-              <input
-                type="text"
-                name="title"
-                placeholder="New board title..."
-                required
-                className="w-full bg-transparent border-b border-blue-300 focus:outline-none focus:border-blue-600 px-2 py-1 mb-3 text-center transition-colors z-10"
-              />
-              <button
-                type="submit"
-                className="text-blue-600 font-medium z-10 hover:text-blue-800"
-              >
-                + Create Board
-              </button>
+          {/* Create New Board Button + Modal */}
+          <div className="col-span-1 md:col-span-3">
+            <div className="flex justify-end">
+              <CreateBoardButton />
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </main>

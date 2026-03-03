@@ -73,6 +73,7 @@ model VerificationToken {
 model Board {
   id        String        @id @default(cuid())
   title     String
+  description String?     @db.Text
   userId    String
   // The foreign key column. Stores the id of the User who owns this board. This is the actual column in the database.
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
