@@ -22,9 +22,9 @@ interface TaskDetailsModalProps {
 }
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-    BUG:         { label: '🐛 Bug',      color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
-    NEW_FEATURE: { label: '✨ Feature',  color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
-    TASK:        { label: '🧹 Chore',    color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
+    BUG: { label: '🐛 Bug', color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
+    NEW_FEATURE: { label: '✨ Feature', color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
+    TASK: { label: '🧹 Chore', color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
 };
 
 export default function TaskDetailsModal({ isOpen, onClose, task, boardId, members, currentUserEmail }: TaskDetailsModalProps) {

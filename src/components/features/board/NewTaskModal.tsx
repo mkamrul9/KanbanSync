@@ -18,18 +18,18 @@ interface NewTaskModalProps {
 }
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-    BUG:         { label: '🐛 Bug',     color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
+    BUG: { label: '🐛 Bug', color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
     NEW_FEATURE: { label: '✨ Feature', color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
-    TASK:        { label: '🧹 Chore',   color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
+    TASK: { label: '🧹 Chore', color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
 };
 
 export default function NewTaskModal({ isOpen, onClose, boardId, columnId, columnTitle, members = [] }: NewTaskModalProps) {
-    const [title, setTitle]           = useState('');
-    const [category, setCategory]     = useState<TaskCategory>(TaskCategory.NEW_FEATURE);
+    const [title, setTitle] = useState('');
+    const [category, setCategory] = useState<TaskCategory>(TaskCategory.NEW_FEATURE);
     const [description, setDescription] = useState('');
     const [assigneeId, setAssigneeId] = useState('');
     const [isPending, startTransition] = useTransition();
-    const [errorMsg, setErrorMsg]     = useState<string | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     const cat = categoryConfig[category] ?? { label: category, color: 'bg-gray-100 text-gray-600' };
     const selectedMember = members.find(m => m.user.id === assigneeId);
@@ -122,8 +122,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             {isPending ? (
                                 <span className="flex items-center gap-1.5">
                                     <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                                     </svg>
                                     Creating…
                                 </span>
