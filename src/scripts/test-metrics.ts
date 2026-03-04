@@ -31,7 +31,7 @@ const board = {
 };
 
 try {
-    const metrics = computeBoardMetrics(board as any, { throughputDays: 7, cfdDays: 7 });
+    const metrics = computeBoardMetrics(board as unknown as Parameters<typeof computeBoardMetrics>[0], { throughputDays: 7, cfdDays: 7 });
 
     console.log('Computed metrics:', JSON.stringify(metrics, null, 2));
 

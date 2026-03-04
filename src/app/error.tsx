@@ -1,6 +1,6 @@
 'use client'; // must be a Client Component
 
-export default function Error({ error: _error, reset }: { error: Error; reset: () => void }) {
+export default function Error({ reset }: { error: Error; reset: () => void }) {
     return (
         <div>
             <h2>Something went wrong</h2>

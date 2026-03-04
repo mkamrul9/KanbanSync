@@ -5,7 +5,7 @@ type MetricsOptions = {
     cfdDays?: number;
 };
 
-function toDate(d: string | Date) {
+function toDate(d: string | Date | null | undefined): Date | null {
     if (!d) return null;
     return d instanceof Date ? d : new Date(d);
 }
@@ -41,10 +41,10 @@ export function computeBoardMetrics(board: BoardWithColumnsAndTasks, opts?: Metr
     });
 
     const completedWithTimes = completedTasks.map(t => {
-        const created = toDate((t as any).createdAt);
+        const created = toDate(t.createdAt);
         // prefer completedAt if present (server-side), else fallback to updatedAt
-        const completed = toDate((t as any).completedAt) ?? toDate((t as any).updatedAt) ?? null;
-        const started = toDate((t as any).startedAt) ?? null;
+        const completed = toDate(t.completedAt) ?? toDate(t.updatedAt) ?? null;
+        const started = toDate(t.startedAt) ?? null;
         return { id: t.id, title: t.title, created, started, completed };
     }).filter(x => x.created && x.completed);
 
@@ -84,7 +84,7 @@ export function computeBoardMetrics(board: BoardWithColumnsAndTasks, opts?: Metr
         const col = columnById.get(t.columnId);
         const type = col ? classifyColumn(col.title) : classifyColumn(t.columnTitle);
         return type !== 'done';
-    }).map(t => ({ id: t.id, title: t.title, created: toDate((t as any).createdAt) }));
+    }).map(t => ({ id: t.id, title: t.title, created: toDate(t.createdAt) }));
 
     const workItemAges = activeTasks.map(t => ({ id: t.id, title: t.title, ageDays: t.created ? daysBetween(t.created, now) : 0 }));
 
