@@ -15,6 +15,14 @@ export const TASK_CATEGORIES = [
     { value: 'HOTFIX', label: 'Hotfix', color: 'bg-rose-100 text-rose-700 border-rose-200' },
 ] as const;
 
+// ─── Priority meta ─────────────────────────────────────────────────────────────
+export const PRIORITY_OPTIONS = [
+    { value: 'URGENT', label: 'Urgent', icon: 'M5 11l7-7 7 7M5 19l7-7 7 7', color: 'bg-red-50 text-red-700 border-red-300', active: 'bg-red-600 text-white border-red-600' },
+    { value: 'HIGH', label: 'High', icon: 'M5 15l7-7 7 7', color: 'bg-orange-50 text-orange-700 border-orange-300', active: 'bg-orange-500 text-white border-orange-500' },
+    { value: 'MEDIUM', label: 'Medium', icon: 'M20 12H4', color: 'bg-sky-50 text-sky-700 border-sky-300', active: 'bg-sky-500 text-white border-sky-500' },
+    { value: 'LOW', label: 'Low', icon: 'M19 9l-7 7-7-7', color: 'bg-green-50 text-green-700 border-green-300', active: 'bg-green-500 text-white border-green-500' },
+] as const;
+
 // ─── Filter types ───────────────────────────────────────────────────────────────
 export type SortOption = 'default' | 'newest' | 'oldest' | 'az' | 'za' | 'longest' | 'shortest';
 export type AgeOption = 'all' | 'fresh' | 'aging' | 'stale';
@@ -22,9 +30,11 @@ export type CommentOption = 'all' | 'with' | 'without';
 
 export interface FilterState {
     assignees: string[];       // user IDs; 'unassigned' is the magic value for no assignee
-    categories: string[];       // TaskCategory values
-    dateFrom: string;         // '' or 'YYYY-MM-DD'
-    dateTo: string;         // '' or 'YYYY-MM-DD'
+    categories: string[];      // TaskCategory values
+    priorities: string[];      // Priority enum values: URGENT / HIGH / MEDIUM / LOW
+    tagSearch: string;         // substring match against task tags
+    dateFrom: string;          // '' or 'YYYY-MM-DD'
+    dateTo: string;            // '' or 'YYYY-MM-DD'
     ageFilter: AgeOption;
     commentFilter: CommentOption;
     sortBy: SortOption;
@@ -33,6 +43,8 @@ export interface FilterState {
 export const DEFAULT_FILTERS: FilterState = {
     assignees: [],
     categories: [],
+    priorities: [],
+    tagSearch: '',
     dateFrom: '',
     dateTo: '',
     ageFilter: 'all',
@@ -44,6 +56,8 @@ export function countActiveFilters(f: FilterState): number {
     let n = 0;
     if (f.assignees.length) n++;
     if (f.categories.length) n++;
+    if (f.priorities.length) n++;
+    if (f.tagSearch.trim()) n++;
     if (f.dateFrom || f.dateTo) n++;
     if (f.ageFilter !== 'all') n++;
     if (f.commentFilter !== 'all') n++;
@@ -292,6 +306,57 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             {cat.label}
                         </button>
                     ))}
+                </div>
+
+                <Divider />
+
+                {/* ── Priority ── */}
+                <SectionLabel>Priority</SectionLabel>
+                <div className="flex flex-wrap gap-1.5">
+                    {PRIORITY_OPTIONS.map(p => {
+                        const isActive = filters.priorities.includes(p.value);
+                        return (
+                            <button
+                                key={p.value}
+                                onClick={() => set({ priorities: toggle(filters.priorities, p.value) })}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${isActive ? p.active : `${p.color} opacity-70 hover:opacity-100`
+                                    }`}
+                            >
+                                <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={p.icon} />
+                                </svg>
+                                {p.label}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <Divider />
+
+                {/* ── Tags ── */}
+                <SectionLabel>Tag</SectionLabel>
+                <div className="relative">
+                    <svg className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                    </svg>
+                    <input
+                        type="text"
+                        value={filters.tagSearch}
+                        onChange={e => set({ tagSearch: e.target.value })}
+                        placeholder="Filter by tag…"
+                        className="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    />
+                    {filters.tagSearch && (
+                        <button
+                            onClick={() => set({ tagSearch: '' })}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            aria-label="Clear tag filter"
+                        >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                    )}
                 </div>
 
                 <Divider />

@@ -14,46 +14,72 @@ import { BoardRole } from '../../../generated/prisma/enums';
 type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number];
 type MemberType = BoardWithColumnsAndTasks['members'][number];
 
-// Priority icon — clean SVG, no emoji
-function PriorityIcon({ priority }: { priority: string }) {
+// Priority icon — clearly distinct colors per level
+// URGENT=red  HIGH=orange  MEDIUM=sky-blue  LOW=green  NONE=nothing
+function PriorityIcon({ priority, className = '' }: { priority: string; className?: string }) {
+    const base = `w-3.5 h-3.5 shrink-0 ${className}`;
     if (priority === 'URGENT') return (
-        <svg className="w-3.5 h-3.5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Urgent">
+        <svg className={`${base} text-red-600`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Urgent priority">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 11l7-7 7 7M5 19l7-7 7 7" />
         </svg>
     );
     if (priority === 'HIGH') return (
-        <svg className="w-3.5 h-3.5 text-orange-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="High">
+        <svg className={`${base} text-orange-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="High priority">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
         </svg>
     );
     if (priority === 'MEDIUM') return (
-        <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Medium">
+        <svg className={`${base} text-sky-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Medium priority">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
         </svg>
     );
     if (priority === 'LOW') return (
-        <svg className="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Low">
+        <svg className={`${base} text-green-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Low priority">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
         </svg>
     );
     return null; // NONE — show nothing
 }
 
+// Left accent border color by priority
+const getPriorityAccent = (priority: string) => {
+    switch (priority) {
+        case 'URGENT': return 'border-l-red-600';
+        case 'HIGH': return 'border-l-orange-500';
+        case 'MEDIUM': return 'border-l-sky-500';
+        case 'LOW': return 'border-l-green-500';
+        default: return 'border-l-gray-200';
+    }
+};
+
 // Helper function to color-code categories
 const getCategoryColor = (category: TaskCategory) => {
     switch (category) {
-        case 'NEW_FEATURE': return 'bg-blue-100 text-blue-700 border-blue-200';
-        case 'EPIC': return 'bg-purple-100 text-purple-700 border-purple-200';
-        case 'STORY': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
-        case 'TASK': return 'bg-gray-100 text-gray-700 border-gray-200';
-        case 'SUB_TASK': return 'bg-slate-100 text-slate-600 border-slate-200';
-        case 'BUG': return 'bg-red-100 text-red-700 border-red-200';
-        case 'ENHANCEMENT': return 'bg-amber-100 text-amber-700 border-amber-200';
-        case 'PATCH': return 'bg-orange-100 text-orange-700 border-orange-200';
-        case 'HOTFIX': return 'bg-rose-100 text-rose-700 border-rose-200';
-        default: return 'bg-gray-100 text-gray-700 border-gray-200';
+        case 'NEW_FEATURE': return 'bg-blue-50 text-blue-700 border-blue-200';
+        case 'EPIC': return 'bg-purple-50 text-purple-700 border-purple-200';
+        case 'STORY': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        case 'TASK': return 'bg-gray-100 text-gray-600 border-gray-200';
+        case 'SUB_TASK': return 'bg-slate-50 text-slate-600 border-slate-200';
+        case 'BUG': return 'bg-red-50 text-red-700 border-red-200';
+        case 'ENHANCEMENT': return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'PATCH': return 'bg-orange-50 text-orange-700 border-orange-200';
+        case 'HOTFIX': return 'bg-rose-50 text-rose-700 border-rose-200';
+        default: return 'bg-gray-100 text-gray-600 border-gray-200';
     }
 };
+
+// Assignee avatar with tooltip
+function AssigneeAvatar({ name }: { name?: string | null }) {
+    const initial = name?.[0]?.toUpperCase() ?? '?';
+    return (
+        <div
+            className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white shrink-0"
+            title={name ?? 'Assigned'}
+        >
+            {initial}
+        </div>
+    );
+}
 
 export default memo(function SortableTask({ task, boardId, members, currentUserEmail
 }: { task: TaskType; boardId: string; members?: MemberType[]; currentUserEmail?: string | null }) {
@@ -73,17 +99,20 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-        opacity: isDragging ? 0.4 : 1,
+        opacity: isDragging ? 0.45 : 1,
         zIndex: isDragging ? 999 : 'auto',
     };
 
-    // New function to actually execute the delete
     const confirmDelete = () => {
         startTransition(async () => {
             await deleteTask(task.id, boardId);
-            setIsDeleteModalOpen(false); // Close modal when done
+            setIsDeleteModalOpen(false);
         });
     };
+
+    const hasPriority = task.priority && task.priority !== 'NONE';
+    const hasTags = task.tags && task.tags.length > 0;
+
     return (
         <>
             <div
@@ -91,70 +120,89 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                 style={style}
                 {...attributes}
                 {...listeners}
-                className={`relative group bg-white p-4 rounded-lg shadow-sm border transition-shadow cursor-grab active:cursor-grabbing
-                ${isDragging ? 'border-blue-500 shadow-lg' : 'border-gray-200 hover:shadow-md'}
-            `}
+                className={`group bg-white rounded-xl border border-l-[3px] transition-all duration-150 cursor-grab active:cursor-grabbing select-none
+                    ${getPriorityAccent(task.priority)}
+                    ${isDragging
+                        ? 'border-blue-400 shadow-xl ring-2 ring-blue-100 scale-[1.02]'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md shadow-sm'
+                    }
+                `}
                 onClick={() => setIsDetailsOpen(true)}
             >
-                <div className="flex justify-between items-start mb-2">
-                    {/* Category badge + priority icon */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase border ${getCategoryColor(task.category)}`}>
-                            {task.category}
-                        </span>
-                        <PriorityIcon priority={task.priority} />
-                    </div>
-                    {/* Action Buttons (Visible on hover) */}
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onPointerDown={(e) => e.stopPropagation()} // CRITICAL: Stops drag-and-drop
-                            onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(true); }}
-                            className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 p-1 rounded disabled:opacity-50"
-                            title="Edit"
-                            aria-label="Edit task"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                            </svg>
-                        </button>
-                        {isLeader && (
+                <div className="p-3.5">
+
+                    {/* ── Row 1: Category badge · priority icon · assignee · action buttons ── */}
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                        {/* Left cluster: badge + priority + avatar */}
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wide border shrink-0 ${getCategoryColor(task.category)}`}>
+                                {task.category.replace(/_/g, ' ')}
+                            </span>
+                            {hasPriority && <PriorityIcon priority={task.priority} />}
+                            {task.assignee
+                                ? <AssigneeAvatar name={task.assignee.name} />
+                                : (
+                                    <div className="w-5 h-5 rounded-full border border-dashed border-gray-300 flex items-center justify-center shrink-0" title="Unassigned">
+                                        <svg className="w-2.5 h-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                )
+                            }
+                        </div>
+
+                        {/* Right cluster: action buttons — appear on hover */}
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 shrink-0">
                             <button
-                                onPointerDown={(e) => e.stopPropagation()} // CRITICAL: Stops drag-and-drop
-                                onClick={(e) => { e.stopPropagation(); setIsDeleteModalOpen(true); }}
-                                disabled={isPendingDelete}
-                                className="text-gray-500 hover:text-red-600 hover:bg-red-50 p-1 rounded disabled:opacity-50"
-                                title="Delete"
-                                aria-label="Delete task"
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(true); }}
+                                className="p-1 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                aria-label="Edit task"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="3 6 5 6 21 6" />
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2" />
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                                 </svg>
                             </button>
-                        )}
+                            {isLeader && (
+                                <button
+                                    onPointerDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => { e.stopPropagation(); setIsDeleteModalOpen(true); }}
+                                    disabled={isPendingDelete}
+                                    className="p-1 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
+                                    aria-label="Delete task"
+                                >
+                                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                     </div>
+
+                    {/* ── Row 2: Title ── */}
+                    <h3 className="text-sm font-semibold text-gray-800 leading-snug wrap-anywhere line-clamp-3 mb-2.5">
+                        {task.title}
+                    </h3>
+
+                    {/* ── Row 3: Tags only ── */}
+                    {hasTags && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {task.tags.slice(0, 3).map((tag, i) => (
+                                <span key={i} className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-medium rounded-md border border-slate-200 truncate max-w-20">
+                                    #{tag}
+                                </span>
+                            ))}
+                            {task.tags.length > 3 && (
+                                <span className="px-1.5 py-0.5 bg-slate-100 text-slate-400 text-[10px] rounded-md border border-slate-200">
+                                    +{task.tags.length - 3}
+                                </span>
+                            )}
+                        </div>
+                    )}
+
                 </div>
-                <h3 className="text-sm font-medium text-gray-900">{task.title}</h3>
-
-                {/* Tags */}
-                {task.tags && task.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                        {task.tags.map((tag, i) => (
-                            <span key={i} className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded border border-gray-200">
-                                #{tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
-
-                {/* Small assignee avatar (initial) */}
-                {task.assignee && (
-                    <div className="absolute bottom-2 right-2 w-5 h-5 bg-blue-600 rounded-full text-[8px] text-white flex items-center justify-center border border-white">
-                        {task.assignee.name?.[0] ?? 'U'}
-                    </div>
-                )}
-
             </div>
             <TaskDetailsModal
                 isOpen={isDetailsOpen}

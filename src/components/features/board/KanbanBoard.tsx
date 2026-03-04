@@ -150,6 +150,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         const hasSearch = searchQuery.trim().length > 0;
         const hasAssignee = filters.assignees.length > 0;
         const hasCat = filters.categories.length > 0;
+        const hasPriority = filters.priorities.length > 0;
+        const hasTagSearch = filters.tagSearch.trim().length > 0;
         const hasDateFrom = filters.dateFrom !== '';
         const hasDateTo = filters.dateTo !== '';
         const hasAge = filters.ageFilter !== 'all';
@@ -178,7 +180,16 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             if (hasCat) {
                 tasks = tasks.filter(t => filters.categories.includes(t.category));
             }
+            // ── Priority ───────────────────────────────────────────────
+            if (hasPriority) {
+                tasks = tasks.filter(t => filters.priorities.includes(t.priority));
+            }
 
+            // ── Tag search ──────────────────────────────────────────────
+            if (hasTagSearch) {
+                const tq = filters.tagSearch.trim().toLowerCase();
+                tasks = tasks.filter(t => t.tags?.some(tag => tag.toLowerCase().includes(tq)));
+            }
             // ── Created date range ─────────────────────────────────
             if (hasDateFrom) {
                 const from = new Date(filters.dateFrom).getTime();
@@ -428,6 +439,14 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         const meta = TASK_CATEGORIES.find(c => c.value === cat);
                         return <Chip key={cat} label={`Category: ${meta?.label ?? cat}`} onRemove={() => setFilters(f => ({ ...f, categories: f.categories.filter(c => c !== cat) }))} />;
                     })}
+
+                    {filters.priorities.map(p => (
+                        <Chip key={p} label={`Priority: ${p[0] + p.slice(1).toLowerCase()}`} onRemove={() => setFilters(f => ({ ...f, priorities: f.priorities.filter(x => x !== p) }))} />
+                    ))}
+
+                    {filters.tagSearch.trim() && (
+                        <Chip label={`Tag: ${filters.tagSearch.trim()}`} onRemove={() => setFilters(f => ({ ...f, tagSearch: '' }))} />
+                    )}
 
                     {(filters.dateFrom || filters.dateTo) && (
                         <Chip label={`Date: ${filters.dateFrom || '…'} → ${filters.dateTo || '…'}`}
