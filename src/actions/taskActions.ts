@@ -34,29 +34,46 @@ export async function moveTask(
         const targetColumn = await prisma.column.findUnique({ where: { id: newColumnId } });
         if (!targetColumn) throw new Error("Column not found");
 
-        // GUARD: If a normal MEMBER tries to drag into "Done", reject it!
-        if (targetColumn.title === 'Done' && role === BoardRole.MEMBER) {
-            return { success: false, error: 'Unauthorized: Only Reviewers and Leaders can approve tasks to Done.' };
-        }
-
-        // Load current task to decide timestamp changes
+        // Load current task so we can check the source column and set timestamps
         const existingTask = await prisma.task.findUnique({ where: { id: taskId } });
         if (!existingTask) throw new Error('Task not found');
 
+        // Fetch source column to know if the task is currently in Done
+        const sourceColumn = await prisma.column.findUnique({ where: { id: existingTask.columnId } });
+        const sourceIsDone = /done|complete/i.test(sourceColumn?.title ?? '');
+
+        // GUARD: MEMBERs can't move tasks INTO Done, and can't move tasks OUT of Done
+        if (role === BoardRole.MEMBER) {
+            if (/done|complete/i.test(targetColumn.title) && !sourceIsDone) {
+                return { success: false, error: 'Unauthorized: Only Reviewers and Leaders can approve tasks to Done.' };
+            }
+            if (sourceIsDone && !/done|complete/i.test(targetColumn.title)) {
+                return { success: false, error: 'Unauthorized: Only Reviewers and Leaders can move tasks out of Done.' };
+            }
+        }
+
         // Prepare update payload and set workflow timestamps
-        const updateData: any = {
+        const updateData: {
+            columnId: string;
+            order: number;
+            status: string;
+            startedAt?: Date | null;
+            completedAt?: Date | null;
+        } = {
             columnId: newColumnId,
             order: newOrder,
             status: targetColumn.title,
         };
 
         const targetType = targetColumn.title.toLowerCase();
-        const wasDone = (existingTask.completedAt !== null);
+        // Use source column classification — not completedAt — so tasks moved to Done
+        // before the timestamp migration was run are also handled correctly.
+        const wasDone = sourceIsDone;
 
         // If moving into a 'In Progress' column and we don't have startedAt, set it
         if (targetType.includes('in progress') || targetType.includes('in_progress') || targetType.includes('progress') || targetType.includes('doing')) {
             if (!existingTask.startedAt) updateData.startedAt = new Date();
-            // moving out of Done -> clear completedAt
+            // moving out of Done -> always clear completedAt
             if (wasDone) updateData.completedAt = null;
         }
 
@@ -66,9 +83,15 @@ export async function moveTask(
             updateData.completedAt = new Date();
         }
 
-        // If moving back to backlog/todo, clear started/completed as appropriate
+        // If moving back to backlog/todo, clear ALL timestamps
         if (targetType.includes('todo') || targetType.includes('backlog')) {
             updateData.startedAt = null;
+            updateData.completedAt = null;
+        }
+
+        // Catch-all: if the task was in Done and is moving to ANY non-Done column,
+        // always clear completedAt (handles Review, QA, or any custom column name)
+        if (wasDone && !targetType.includes('done') && !targetType.includes('complete')) {
             updateData.completedAt = null;
         }
 

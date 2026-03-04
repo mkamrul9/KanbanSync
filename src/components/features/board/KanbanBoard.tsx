@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { getPusherClient } from '../../../lib/pusher';
 
 import BoardColumn from './BoardColumn';
-import MetricsPanel from './MetricsPanel';
+import MetricsModal from './MetricsModal';
 // import { TaskStatus } from '../../../types/board';
 
 interface KanbanBoardProps {
@@ -24,6 +24,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     // Add a new "movedTask" property to the state, which we can use to render the dragging task in the overlay
     const [activeTask, setActiveTask] = useState<TaskType | null>(null);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [isMetricsOpen, setIsMetricsOpen] = useState(false);
 
     // Auto-dismiss toast after 4 seconds
     useEffect(() => {
@@ -199,45 +200,56 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     </button>
                 </div>
             )}
-            {/* Industry Standard Search Bar UI */}
-            <div className="mb-6 relative w-80">
-                {/* Search Icon */}
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+            {/* Toolbar: search + metrics button */}
+            <div className="mb-6 flex items-center gap-3">
+                <div className="relative w-80">
+                    {/* Search Icon */}
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={handleSearchChange}
+                        placeholder="Search tasks..."
+                        className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                    />
+
+                    {/* Clear Button (Only shows if there is text) */}
+                    {inputValue && (
+                        <button
+                            onClick={clearSearch}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                    )}
+
+                    {/* Loading Indicator */}
+                    {isPending && (
+                        <div className="absolute -right-24 top-2 text-sm text-gray-500 animate-pulse">
+                            Searching...
+                        </div>
+                    )}
                 </div>
 
-                <input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleSearchChange}
-                    placeholder="Search tasks..."
-                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                />
-
-                {/* Clear Button (Only shows if there is text) */}
-                {inputValue && (
-                    <button
-                        onClick={clearSearch}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                )}
-
-                {/* Loading Indicator */}
-                {isPending && (
-                    <div className="absolute -right-24 top-2 text-sm text-gray-500 animate-pulse">
-                        Searching...
-                    </div>
-                )}
+                {/* Board Metrics Button */}
+                <button
+                    onClick={() => setIsMetricsOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 shadow-sm hover:bg-gray-50 hover:border-gray-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                >
+                    <span className="text-base">📊</span>
+                    Board Metrics
+                </button>
             </div>
 
-            {/* Metrics Panel */}
-            <MetricsPanel board={initialBoard} />
+            {/* Metrics Modal */}
+            <MetricsModal board={initialBoard} isOpen={isMetricsOpen} onClose={() => setIsMetricsOpen(false)} />
 
             {/* Disable Dragging when filtering */}
             <DndContext
