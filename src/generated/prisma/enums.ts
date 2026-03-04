@@ -18,6 +18,17 @@ export const TaskStatus = {
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
 
 
+export const Priority = {
+  URGENT: 'URGENT',
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW',
+  NONE: 'NONE'
+} as const
+
+export type Priority = (typeof Priority)[keyof typeof Priority]
+
+
 export const TaskCategory = {
   NEW_FEATURE: 'NEW_FEATURE',
   EPIC: 'EPIC',

@@ -132,8 +132,11 @@ model Task {
   comments Comment[]
 
   // Timestamps for tracking workflow
-  startedAt DateTime?
+  startedAt   DateTime?
   completedAt DateTime?
+
+  priority    Priority  @default(NONE)
+  tags        String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -159,6 +162,14 @@ enum TaskStatus {
   TODO
   IN_PROGRESS
   DONE
+}
+
+enum Priority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+  NONE
 }
 
 enum TaskCategory {

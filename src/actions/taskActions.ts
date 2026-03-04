@@ -2,7 +2,7 @@
 
 import { prisma } from '../lib/db';
 import { revalidatePath } from 'next/cache';
-import { TaskStatus, TaskCategory } from '../generated/prisma/client';
+import { TaskStatus, TaskCategory, Priority } from '../generated/prisma/client';
 // import { auth } from '../../auth';
 import { pusherServer } from '../lib/pusher-server';
 import { getUserRole } from '../lib/permission';
@@ -130,7 +130,9 @@ export async function createTask(
     status: string,
     category: string,
     description?: string,
-    assigneeId?: string
+    assigneeId?: string,
+    priority?: string,
+    tags?: string[]
 ) {
     const role = await getUserRole(boardId);
     if (role !== BoardRole.LEADER) {
@@ -164,6 +166,8 @@ export async function createTask(
                 title,
                 status: status as TaskStatus,
                 category: category as TaskCategory,
+                priority: (priority as Priority) ?? Priority.NONE,
+                tags: tags ?? [],
                 order: newOrder,
                 columnId,
                 ...(description ? { description } : {}),
@@ -215,12 +219,19 @@ export async function updateTask(
     taskId: string,
     boardId: string,
     title: string,
-    category: string
+    category: string,
+    priority?: string,
+    tags?: string[]
 ) {
     try {
         await prisma.task.update({
             where: { id: taskId },
-            data: { title, category: category as TaskCategory },
+            data: {
+                title,
+                category: category as TaskCategory,
+                ...(priority !== undefined ? { priority: priority as Priority } : {}),
+                ...(tags !== undefined ? { tags } : {}),
+            },
         });
 
         revalidatePath(`/board/${boardId}`);

@@ -14,6 +14,31 @@ import { BoardRole } from '../../../generated/prisma/enums';
 type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number];
 type MemberType = BoardWithColumnsAndTasks['members'][number];
 
+// Priority icon — clean SVG, no emoji
+function PriorityIcon({ priority }: { priority: string }) {
+    if (priority === 'URGENT') return (
+        <svg className="w-3.5 h-3.5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Urgent">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 11l7-7 7 7M5 19l7-7 7 7" />
+        </svg>
+    );
+    if (priority === 'HIGH') return (
+        <svg className="w-3.5 h-3.5 text-orange-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="High">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+        </svg>
+    );
+    if (priority === 'MEDIUM') return (
+        <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Medium">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
+        </svg>
+    );
+    if (priority === 'LOW') return (
+        <svg className="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Low">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+    );
+    return null; // NONE — show nothing
+}
+
 // Helper function to color-code categories
 const getCategoryColor = (category: TaskCategory) => {
     switch (category) {
@@ -72,10 +97,13 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                 onClick={() => setIsDetailsOpen(true)}
             >
                 <div className="flex justify-between items-start mb-2">
-                    {/* The Task Category Badge */}
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase border ${getCategoryColor(task.category)}`}>
-                        {task.category}
-                    </span>
+                    {/* Category badge + priority icon */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase border ${getCategoryColor(task.category)}`}>
+                            {task.category}
+                        </span>
+                        <PriorityIcon priority={task.priority} />
+                    </div>
                     {/* Action Buttons (Visible on hover) */}
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -108,6 +136,18 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                     </div>
                 </div>
                 <h3 className="text-sm font-medium text-gray-900">{task.title}</h3>
+
+                {/* Tags */}
+                {task.tags && task.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                        {task.tags.map((tag, i) => (
+                            <span key={i} className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded border border-gray-200">
+                                #{tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
                 {/* Small assignee avatar (initial) */}
                 {task.assignee && (
                     <div className="absolute bottom-2 right-2 w-5 h-5 bg-blue-600 rounded-full text-[8px] text-white flex items-center justify-center border border-white">
@@ -128,8 +168,10 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
             <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} className="max-w-sm">
                 <div className="p-6">
                     {/* Icon */}
-                    <div className="w-11 h-11 rounded-2xl bg-red-100 flex items-center justify-center text-2xl mb-4">
-                        🗑️
+                    <div className="w-11 h-11 rounded-2xl bg-red-100 flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                     </div>
 
                     <h2 className="text-lg font-bold text-gray-900 mb-1">Delete Task</h2>

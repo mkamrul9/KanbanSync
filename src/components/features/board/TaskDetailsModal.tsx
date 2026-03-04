@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import Modal from '../../../components/ui/Modal';
 import { addComment, updateTaskDescription, assignTask } from '../../../actions/detailActions';
+import { updateTask } from '../../../actions/taskActions';
 import { formatDistanceToNow } from 'date-fns';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
 import { BoardRole } from '../../../generated/prisma/enums';
@@ -34,12 +35,31 @@ const categoryConfig: Record<string, { label: string; color: string }> = {
     HOTFIX: { label: 'Hotfix', color: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' },
 };
 
+// Priority badge shown when the user is not a Leader
+function PriorityBadge({ priority }: { priority: string }) {
+    const cfg: Record<string, { label: string; cls: string }> = {
+        URGENT: { label: 'Urgent', cls: 'bg-red-100 text-red-700 border-red-200' },
+        HIGH: { label: 'High', cls: 'bg-orange-100 text-orange-700 border-orange-200' },
+        MEDIUM: { label: 'Medium', cls: 'bg-amber-100 text-amber-700 border-amber-200' },
+        LOW: { label: 'Low', cls: 'bg-blue-100 text-blue-700 border-blue-200' },
+        NONE: { label: 'None', cls: 'bg-gray-100 text-gray-500 border-gray-200' },
+    };
+    const { label, cls } = cfg[priority] ?? cfg.NONE;
+    return (
+        <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${cls}`}>
+            {label}
+        </span>
+    );
+}
+
 export default function TaskDetailsModal({ isOpen, onClose, task, boardId, members, currentUserEmail }: TaskDetailsModalProps) {
     const [description, setDescription] = useState(task.description || '');
     const [saved, setSaved] = useState(false);
     const [commentText, setCommentText] = useState('');
     const [isPending, startTransition] = useTransition();
     const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+    const [priority, setPriority] = useState<string>(task.priority ?? 'NONE');
+    const [tagsInput, setTagsInput] = useState<string>((task.tags ?? []).join(', '));
 
     // Detect @word at the end of the current comment text
     const handleCommentChange = (val: string) => {
@@ -100,6 +120,20 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         startTransition(async () => { await assignTask(task.id, boardId, userId); });
     };
 
+    const handlePriorityChange = (newPriority: string) => {
+        setPriority(newPriority);
+        startTransition(async () => {
+            await updateTask(task.id, boardId, task.title, task.category, newPriority, undefined);
+        });
+    };
+
+    const handleTagsSave = () => {
+        const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t !== '');
+        startTransition(async () => {
+            await updateTask(task.id, boardId, task.title, task.category, undefined, tags);
+        });
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-5xl">
             <div className="flex flex-col md:flex-row h-[82vh]">
@@ -152,7 +186,9 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         <div className="flex-1 overflow-y-auto space-y-3 mb-4 bg-gray-50 rounded-xl p-3">
                             {(!task.comments || task.comments.length === 0) && (
                                 <div className="flex flex-col items-center justify-center h-full py-6 gap-1">
-                                    <span className="text-2xl">💬</span>
+                                    <svg className="w-7 h-7 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
                                     <p className="text-gray-400 text-sm">No activity yet. Start the conversation.</p>
                                 </div>
                             )}
@@ -261,12 +297,60 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         )}
                     </div>
 
+                    {/* Priority */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Priority</p>
+                        {isLeader ? (
+                            <select
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                value={priority}
+                                onChange={(e) => handlePriorityChange(e.target.value)}
+                            >
+                                <option value="URGENT">Urgent</option>
+                                <option value="HIGH">High</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="LOW">Low</option>
+                                <option value="NONE">None</option>
+                            </select>
+                        ) : (
+                            <PriorityBadge priority={priority} />
+                        )}
+                    </div>
+
                     {/* Category (read-only badge) */}
                     <div className="mb-4">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Category</p>
                         <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${cat.color}`}>
                             {cat.label}
                         </span>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tags</p>
+                        {isLeader ? (
+                            <>
+                                <input
+                                    type="text"
+                                    className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                    placeholder="Frontend, UI…"
+                                    value={tagsInput}
+                                    onChange={(e) => setTagsInput(e.target.value)}
+                                    onBlur={handleTagsSave}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleTagsSave()}
+                                />
+                                <p className="text-[10px] text-gray-400 mt-1">Comma separated · blur to save</p>
+                            </>
+                        ) : (
+                            <div className="flex flex-wrap gap-1">
+                                {(task.tags ?? []).length === 0
+                                    ? <span className="text-xs text-gray-400 italic">No tags</span>
+                                    : (task.tags ?? []).map((tag, i) => (
+                                        <span key={i} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded border border-gray-200">#{tag}</span>
+                                    ))
+                                }
+                            </div>
+                        )}
                     </div>
 
                     {/* Divider */}

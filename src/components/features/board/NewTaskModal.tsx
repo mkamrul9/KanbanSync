@@ -18,15 +18,15 @@ interface NewTaskModalProps {
 }
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-    NEW_FEATURE:  { label: 'Feature',     color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
-    EPIC:         { label: 'Epic',        color: 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' },
-    STORY:        { label: 'Story',       color: 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200' },
-    TASK:         { label: 'Task',        color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
-    SUB_TASK:     { label: 'Sub-task',    color: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200' },
-    BUG:          { label: 'Bug',         color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
-    ENHANCEMENT:  { label: 'Enhancement', color: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' },
-    PATCH:        { label: 'Patch',       color: 'bg-orange-100 text-orange-700 ring-1 ring-orange-200' },
-    HOTFIX:       { label: 'Hotfix',      color: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' },
+    NEW_FEATURE: { label: 'Feature', color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
+    EPIC: { label: 'Epic', color: 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' },
+    STORY: { label: 'Story', color: 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200' },
+    TASK: { label: 'Task', color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
+    SUB_TASK: { label: 'Sub-task', color: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200' },
+    BUG: { label: 'Bug', color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
+    ENHANCEMENT: { label: 'Enhancement', color: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' },
+    PATCH: { label: 'Patch', color: 'bg-orange-100 text-orange-700 ring-1 ring-orange-200' },
+    HOTFIX: { label: 'Hotfix', color: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' },
 };
 
 export default function NewTaskModal({ isOpen, onClose, boardId, columnId, columnTitle, members = [] }: NewTaskModalProps) {
@@ -34,6 +34,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
     const [category, setCategory] = useState<TaskCategory>(TaskCategory.NEW_FEATURE);
     const [description, setDescription] = useState('');
     const [assigneeId, setAssigneeId] = useState('');
+    const [priority, setPriority] = useState('NONE');
+    const [tagsInput, setTagsInput] = useState('');
     const [isPending, startTransition] = useTransition();
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -43,6 +45,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
     const reset = () => {
         setTitle(''); setCategory(TaskCategory.NEW_FEATURE);
         setDescription(''); setAssigneeId(''); setErrorMsg(null);
+        setPriority('NONE'); setTagsInput('');
     };
 
     const handleClose = () => { reset(); onClose(); };
@@ -56,7 +59,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
         if (columnTitle === 'Done') status = TaskStatus.DONE;
 
         startTransition(async () => {
-            const result = await createTask(boardId, columnId, title, status, category, description, assigneeId || undefined);
+            const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t !== '');
+            const result = await createTask(boardId, columnId, title, status, category, description, assigneeId || undefined, priority, tags);
             if (result.success) { reset(); onClose(); }
             else setErrorMsg(result.error ?? 'Something went wrong');
         });
@@ -91,7 +95,10 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
 
                     {errorMsg && (
                         <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
-                            <span>⚠️</span> {errorMsg}
+                            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            </svg>
+                            {errorMsg}
                         </div>
                     )}
 
@@ -108,7 +115,9 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
 
                     {/* Comments placeholder */}
                     <div className="flex-1 bg-gray-50 rounded-xl flex flex-col items-center justify-center gap-1.5 border border-dashed border-gray-200">
-                        <span className="text-2xl">💬</span>
+                        <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
                         <p className="text-sm text-gray-400">Comments unlock after the task is created.</p>
                     </div>
 
@@ -161,6 +170,22 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                         </select>
                     </div>
 
+                    {/* Priority */}
+                    <div className="mb-5">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Priority</p>
+                        <select
+                            value={priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                        >
+                            <option value="URGENT">Urgent</option>
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="LOW">Low</option>
+                            <option value="NONE">None</option>
+                        </select>
+                    </div>
+
                     {/* Assignee */}
                     <div className="mb-4">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Assignee</p>
@@ -189,6 +214,19 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                                 </option>
                             ))}
                         </select>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tags</p>
+                        <input
+                            type="text"
+                            placeholder="Frontend, UI, Backend…"
+                            value={tagsInput}
+                            onChange={(e) => setTagsInput(e.target.value)}
+                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">Comma separated</p>
                     </div>
 
                     <div className="border-t border-gray-200 mt-auto pt-4">
