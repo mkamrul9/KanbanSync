@@ -146,6 +146,10 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
     const subtaskTotal = task.subtasks?.length ?? 0;
     const subtaskDone = task.subtasks?.filter((s) => s.done).length ?? 0;
     const subtaskProgress = subtaskTotal > 0 ? Math.round((subtaskDone / subtaskTotal) * 100) : 0;
+    const hasGitLink = (task.attachments ?? []).some((a) =>
+        /github|gitlab|bitbucket|\/pull\/|\/merge_requests\/|\/commit\//i.test(a.url) ||
+        a.name.startsWith('Git:')
+    );
 
     return (
         <>
@@ -241,9 +245,28 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                     )}
 
                     {dueAt && (
-                        <div className="mt-2 flex items-center gap-1.5">
+                        <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                             <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-100 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
                                 {isOverdue ? 'Overdue' : 'Due'} {dueAt.toLocaleDateString()}
+                            </span>
+                            {hasGitLink && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-700 border-slate-200">
+                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                        <path d="M8 17l-5 5V2h20v20l-5-5" />
+                                    </svg>
+                                    Git linked
+                                </span>
+                            )}
+                        </div>
+                    )}
+
+                    {!dueAt && hasGitLink && (
+                        <div className="mt-2">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-700 border-slate-200">
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                    <path d="M8 17l-5 5V2h20v20l-5-5" />
+                                </svg>
+                                Git linked
                             </span>
                         </div>
                     )}

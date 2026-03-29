@@ -124,6 +124,8 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [timeEntries, setTimeEntries] = useState<TimeEntryType[]>(task.timeEntries ?? []);
     const [timeMinutes, setTimeMinutes] = useState('');
     const [timeNote, setTimeNote] = useState('');
+    const [gitLinkType, setGitLinkType] = useState<'PR' | 'Commit' | 'Branch'>('PR');
+    const [gitLinkUrl, setGitLinkUrl] = useState('');
 
     const priorityOptions = [
         { value: 'URGENT', label: 'Urgent' },
@@ -266,6 +268,22 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
         startTransition(async () => {
             await deleteTaskAttachment(attachmentId, boardId);
+        });
+    };
+
+    const gitLinks = attachments.filter((a) =>
+        /github|gitlab|bitbucket|\/pull\/|\/merge_requests\/|\/commit\//i.test(a.url) ||
+        a.name.startsWith('Git:')
+    );
+
+    const handleAddGitLink = () => {
+        if (!gitLinkUrl.trim()) return;
+        startTransition(async () => {
+            const result = await addTaskAttachment(task.id, boardId, `Git: ${gitLinkType}`, gitLinkUrl.trim());
+            if (result.success && result.attachment) {
+                setAttachments((prev) => [result.attachment, ...prev]);
+                setGitLinkUrl('');
+            }
         });
     };
 
@@ -914,6 +932,78 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Git integration */}
+                    <div className="mb-3 app-surface rounded-xl border border-slate-200/70 p-3">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Git Links</p>
+                        <p className="text-[11px] text-slate-500 mb-2">Attach PRs, commits, or branch links to this task.</p>
+
+                        <div className="space-y-2 max-h-28 overflow-y-auto pr-1">
+                            {gitLinks.length === 0 ? (
+                                <p className="text-xs text-gray-400">No Git links yet.</p>
+                            ) : (
+                                gitLinks.map((link) => (
+                                    <div key={link.id} className="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1.5">
+                                        <a
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-xs text-blue-700 hover:underline truncate"
+                                        >
+                                            {link.name}
+                                        </a>
+                                        {isLeader && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteAttachment(link.id)}
+                                                className="text-[11px] text-slate-400 hover:text-red-600"
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {isLeader && (
+                            <div className="mt-2 space-y-2">
+                                <div className="grid grid-cols-3 gap-1.5">
+                                    {(['PR', 'Commit', 'Branch'] as const).map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setGitLinkType(type)}
+                                            className={`px-2 py-1.5 text-[11px] rounded-lg border font-semibold transition-colors ${gitLinkType === type
+                                                ? 'bg-slate-800 text-white border-slate-800'
+                                                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                                }`}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="url"
+                                        value={gitLinkUrl}
+                                        onChange={(e) => setGitLinkUrl(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddGitLink()}
+                                        placeholder="https://github.com/..."
+                                        className="flex-1 px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleAddGitLink}
+                                        disabled={!gitLinkUrl.trim()}
+                                        className="px-3 py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 disabled:opacity-40"
+                                    >
+                                        Link
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Divider */}

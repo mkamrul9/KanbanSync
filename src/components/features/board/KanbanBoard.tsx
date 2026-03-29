@@ -11,6 +11,7 @@ import { getPusherClient } from '../../../lib/pusher';
 import BoardColumn from './BoardColumn';
 import MetricsModal from './MetricsModal';
 import BoardAuditLogModal from './BoardAuditLogModal';
+import CyclePlannerModal from './CyclePlannerModal';
 import FilterPanel, { DEFAULT_FILTERS, countActiveFilters, FilterState, TASK_CATEGORIES } from './FilterPanel';
 // import { TaskStatus } from '../../../types/board';
 
@@ -34,6 +35,13 @@ interface KanbanBoardProps {
     currentUserEmail: string;
 }
 type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number];
+type Cycle = {
+    id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+};
 
 export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }: KanbanBoardProps) {
     const router = useRouter();
@@ -42,6 +50,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [isMetricsOpen, setIsMetricsOpen] = useState(false);
     const [isAuditOpen, setIsAuditOpen] = useState(false);
+    const [isCycleOpen, setIsCycleOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isViewsOpen, setIsViewsOpen] = useState(false);
     const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
@@ -56,6 +65,18 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             return [];
         }
     });
+    const [cycles, setCycles] = useState<Cycle[]>(() => {
+        if (typeof window === 'undefined') return [];
+        try {
+            const raw = localStorage.getItem(`ks-cycles-${initialBoard.id}`);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw) as Cycle[];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    });
+    const [showCurrentCycleOnly, setShowCurrentCycleOnly] = useState(false);
     // Stable "now" timestamp for age-filter comparisons (refreshed each time the filter panel opens)
     const [filterNow, setFilterNow] = useState(() => Date.now());
 
@@ -135,6 +156,10 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     }, [initialBoard.id, savedViews]);
 
     useEffect(() => {
+        localStorage.setItem(`ks-cycles-${initialBoard.id}`, JSON.stringify(cycles));
+    }, [initialBoard.id, cycles]);
+
+    useEffect(() => {
         const pusher = getPusherClient();
         const channelName = `board-${initialBoard.id}`;
 
@@ -181,6 +206,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     // Memoize the filter + sort so it doesn't recalculate during 60fps dragging
     const filteredColumns = useMemo(() => {
         const now = filterNow;
+        const activeCycle = cycles.find((c) => c.isActive) ?? null;
         const hasSearch = searchQuery.trim().length > 0;
         const hasAssignee = filters.assignees.length > 0;
         const hasCat = filters.categories.length > 0;
@@ -191,6 +217,10 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         const hasAge = filters.ageFilter !== 'all';
         const hasComment = filters.commentFilter !== 'all';
         const hasSort = filters.sortBy !== 'default';
+        const hasCycleFilter = showCurrentCycleOnly && !!activeCycle;
+
+        const cycleStart = activeCycle ? new Date(activeCycle.startDate).getTime() : 0;
+        const cycleEnd = activeCycle ? new Date(activeCycle.endDate).getTime() + 86_400_000 : 0;
 
         return optimisticColumns.map(column => {
             let tasks = [...column.tasks];
@@ -251,6 +281,15 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 if (filters.commentFilter === 'without') tasks = tasks.filter(t => t.comments.length === 0);
             }
 
+            if (hasCycleFilter) {
+                tasks = tasks.filter((t) => {
+                    const dueTs = t.dueAt ? new Date(t.dueAt).getTime() : null;
+                    const createdTs = new Date(t.createdAt).getTime();
+                    const anchor = dueTs ?? createdTs;
+                    return anchor >= cycleStart && anchor <= cycleEnd;
+                });
+            }
+
             // ── Sort ───────────────────────────────────────────────
             if (hasSort) {
                 tasks = [...tasks].sort((a, b) => {
@@ -268,7 +307,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
             return { ...column, tasks };
         });
-    }, [optimisticColumns, searchQuery, filters, filterNow]);
+    }, [optimisticColumns, searchQuery, filters, filterNow, cycles, showCurrentCycleOnly]);
 
     useEffect(() => {
         const openFirstTaskDetails = () => {
@@ -539,6 +578,25 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     Audit Log
                 </button>
 
+                <button
+                    onClick={() => setIsCycleOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                >
+                    Cycles
+                </button>
+
+                {cycles.some((c) => c.isActive) && (
+                    <button
+                        onClick={() => setShowCurrentCycleOnly((v) => !v)}
+                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all text-xs font-semibold border ${showCurrentCycleOnly
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                            }`}
+                    >
+                        Current Cycle
+                    </button>
+                )}
+
                 {currentUserId && (
                     <button
                         onClick={applyMyTasksPreset}
@@ -612,6 +670,21 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             {/* Metrics Modal */}
             <MetricsModal board={initialBoard} isOpen={isMetricsOpen} onClose={() => setIsMetricsOpen(false)} />
             <BoardAuditLogModal board={initialBoard} isOpen={isAuditOpen} onClose={() => setIsAuditOpen(false)} />
+            <CyclePlannerModal
+                isOpen={isCycleOpen}
+                onClose={() => setIsCycleOpen(false)}
+                cycles={cycles}
+                onCreateCycle={(cycle) => {
+                    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+                    setCycles((prev) => [{ id, ...cycle, isActive: prev.length === 0 }, ...prev]);
+                }}
+                onDeleteCycle={(cycleId) => {
+                    setCycles((prev) => prev.filter((c) => c.id !== cycleId));
+                }}
+                onSetActiveCycle={(cycleId) => {
+                    setCycles((prev) => prev.map((c) => ({ ...c, isActive: c.id === cycleId })));
+                }}
+            />
 
             <DndContext
                 id="kanban-board"
