@@ -30,7 +30,7 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
                     </div>
                 </div>
 
-                <div className="h-2 bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-500" />
+                <div className="h-2 bg-linear-to-r from-cyan-400 via-sky-400 to-indigo-500" />
             </div>
         </main>
     );

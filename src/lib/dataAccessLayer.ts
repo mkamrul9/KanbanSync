@@ -51,6 +51,20 @@ export const getBoardData = cache(async (boardId: string): Promise<BoardWithColu
                                     orderBy: { createdAt: 'desc' },
                                     include: { actor: true },
                                 },
+                                blocking: {
+                                    include: {
+                                        dependsOn: true,
+                                    },
+                                },
+                                blockedBy: {
+                                    include: {
+                                        task: true,
+                                    },
+                                },
+                                timeEntries: {
+                                    orderBy: { createdAt: 'desc' },
+                                    include: { user: true },
+                                },
                                 subtasks: { orderBy: { order: 'asc' } },
                                 attachments: { orderBy: { createdAt: 'desc' } },
                             }
@@ -66,8 +80,13 @@ export const getBoardData = cache(async (boardId: string): Promise<BoardWithColu
             message.includes('Unknown argument `attachments`') ||
             message.includes('Unknown argument `activities`') ||
             message.includes('Unknown argument `taskTemplates`') ||
+            message.includes('Unknown argument `blocking`') ||
+            message.includes('Unknown argument `blockedBy`') ||
+            message.includes('Unknown argument `timeEntries`') ||
             message.includes('task_templates') ||
-            message.includes('task_activities');
+            message.includes('task_activities') ||
+            message.includes('task_dependencies') ||
+            message.includes('time_entries');
 
         if (!isStaleClient) throw error;
 
@@ -102,6 +121,9 @@ export const getBoardData = cache(async (boardId: string): Promise<BoardWithColu
                     tasks: c.tasks.map((t) => ({
                         ...t,
                         activities: [],
+                            blocking: [],
+                            blockedBy: [],
+                            timeEntries: [],
                         subtasks: [],
                         attachments: [],
                     })),

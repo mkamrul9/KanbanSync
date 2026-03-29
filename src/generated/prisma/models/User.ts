@@ -209,6 +209,8 @@ export type UserWhereInput = {
   notifications?: Prisma.NotificationListRelationFilter
   taskActivities?: Prisma.TaskActivityListRelationFilter
   taskTemplates?: Prisma.TaskTemplateListRelationFilter
+  timeEntries?: Prisma.TimeEntryListRelationFilter
+  createdDependencies?: Prisma.TaskDependencyListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -230,6 +232,8 @@ export type UserOrderByWithRelationInput = {
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   taskActivities?: Prisma.TaskActivityOrderByRelationAggregateInput
   taskTemplates?: Prisma.TaskTemplateOrderByRelationAggregateInput
+  timeEntries?: Prisma.TimeEntryOrderByRelationAggregateInput
+  createdDependencies?: Prisma.TaskDependencyOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -254,6 +258,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   notifications?: Prisma.NotificationListRelationFilter
   taskActivities?: Prisma.TaskActivityListRelationFilter
   taskTemplates?: Prisma.TaskTemplateListRelationFilter
+  timeEntries?: Prisma.TimeEntryListRelationFilter
+  createdDependencies?: Prisma.TaskDependencyListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -301,6 +307,8 @@ export type UserCreateInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -322,6 +330,8 @@ export type UserUncheckedCreateInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUpdateInput = {
@@ -343,6 +353,8 @@ export type UserUpdateInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -364,6 +376,8 @@ export type UserUncheckedUpdateInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -524,6 +538,38 @@ export type UserUpdateOneWithoutAssignedTasksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedTasksInput, Prisma.UserUpdateWithoutAssignedTasksInput>, Prisma.UserUncheckedUpdateWithoutAssignedTasksInput>
 }
 
+export type UserCreateNestedOneWithoutCreatedDependenciesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedDependenciesInput, Prisma.UserUncheckedCreateWithoutCreatedDependenciesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedDependenciesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedDependenciesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedDependenciesInput, Prisma.UserUncheckedCreateWithoutCreatedDependenciesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedDependenciesInput
+  upsert?: Prisma.UserUpsertWithoutCreatedDependenciesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedDependenciesInput, Prisma.UserUpdateWithoutCreatedDependenciesInput>, Prisma.UserUncheckedUpdateWithoutCreatedDependenciesInput>
+}
+
+export type UserCreateNestedOneWithoutTimeEntriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTimeEntriesInput, Prisma.UserUncheckedCreateWithoutTimeEntriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTimeEntriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutTimeEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTimeEntriesInput, Prisma.UserUncheckedCreateWithoutTimeEntriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTimeEntriesInput
+  upsert?: Prisma.UserUpsertWithoutTimeEntriesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTimeEntriesInput, Prisma.UserUpdateWithoutTimeEntriesInput>, Prisma.UserUncheckedUpdateWithoutTimeEntriesInput>
+}
+
 export type UserCreateNestedOneWithoutTaskActivitiesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutTaskActivitiesInput, Prisma.UserUncheckedCreateWithoutTaskActivitiesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaskActivitiesInput
@@ -632,6 +678,8 @@ export type UserCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -652,6 +700,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -688,6 +738,8 @@ export type UserUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -708,6 +760,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -728,6 +782,8 @@ export type UserCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -748,6 +804,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -784,6 +842,8 @@ export type UserUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -804,6 +864,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutBoardsInput = {
@@ -824,6 +886,8 @@ export type UserCreateWithoutBoardsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutBoardsInput = {
@@ -844,6 +908,8 @@ export type UserUncheckedCreateWithoutBoardsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutBoardsInput = {
@@ -880,6 +946,8 @@ export type UserUpdateWithoutBoardsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBoardsInput = {
@@ -900,6 +968,8 @@ export type UserUncheckedUpdateWithoutBoardsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutBoardMembershipsInput = {
@@ -920,6 +990,8 @@ export type UserCreateWithoutBoardMembershipsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutBoardMembershipsInput = {
@@ -940,6 +1012,8 @@ export type UserUncheckedCreateWithoutBoardMembershipsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutBoardMembershipsInput = {
@@ -976,6 +1050,8 @@ export type UserUpdateWithoutBoardMembershipsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBoardMembershipsInput = {
@@ -996,6 +1072,8 @@ export type UserUncheckedUpdateWithoutBoardMembershipsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutAssignedTasksInput = {
@@ -1016,6 +1094,8 @@ export type UserCreateWithoutAssignedTasksInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAssignedTasksInput = {
@@ -1036,6 +1116,8 @@ export type UserUncheckedCreateWithoutAssignedTasksInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAssignedTasksInput = {
@@ -1072,6 +1154,8 @@ export type UserUpdateWithoutAssignedTasksInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedTasksInput = {
@@ -1092,6 +1176,216 @@ export type UserUncheckedUpdateWithoutAssignedTasksInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutCreatedDependenciesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  boards?: Prisma.BoardCreateNestedManyWithoutUserInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssigneeInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.BoardInviteCreateNestedManyWithoutInviterInput
+  receivedInvites?: Prisma.BoardInviteCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedDependenciesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssigneeInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedDependenciesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedDependenciesInput, Prisma.UserUncheckedCreateWithoutCreatedDependenciesInput>
+}
+
+export type UserUpsertWithoutCreatedDependenciesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedDependenciesInput, Prisma.UserUncheckedUpdateWithoutCreatedDependenciesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedDependenciesInput, Prisma.UserUncheckedCreateWithoutCreatedDependenciesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedDependenciesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedDependenciesInput, Prisma.UserUncheckedUpdateWithoutCreatedDependenciesInput>
+}
+
+export type UserUpdateWithoutCreatedDependenciesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  boards?: Prisma.BoardUpdateManyWithoutUserNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssigneeNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.BoardInviteUpdateManyWithoutInviterNestedInput
+  receivedInvites?: Prisma.BoardInviteUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedDependenciesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssigneeNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutTimeEntriesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  boards?: Prisma.BoardCreateNestedManyWithoutUserInput
+  boardMemberships?: Prisma.BoardMemberCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskCreateNestedManyWithoutAssigneeInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.BoardInviteCreateNestedManyWithoutInviterInput
+  receivedInvites?: Prisma.BoardInviteCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutTimeEntriesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  boards?: Prisma.BoardUncheckedCreateNestedManyWithoutUserInput
+  boardMemberships?: Prisma.BoardMemberUncheckedCreateNestedManyWithoutUserInput
+  assignedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutAssigneeInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  sentInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutTimeEntriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTimeEntriesInput, Prisma.UserUncheckedCreateWithoutTimeEntriesInput>
+}
+
+export type UserUpsertWithoutTimeEntriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTimeEntriesInput, Prisma.UserUncheckedUpdateWithoutTimeEntriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTimeEntriesInput, Prisma.UserUncheckedCreateWithoutTimeEntriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTimeEntriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTimeEntriesInput, Prisma.UserUncheckedUpdateWithoutTimeEntriesInput>
+}
+
+export type UserUpdateWithoutTimeEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  boards?: Prisma.BoardUpdateManyWithoutUserNestedInput
+  boardMemberships?: Prisma.BoardMemberUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUpdateManyWithoutAssigneeNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.BoardInviteUpdateManyWithoutInviterNestedInput
+  receivedInvites?: Prisma.BoardInviteUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTimeEntriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  boards?: Prisma.BoardUncheckedUpdateManyWithoutUserNestedInput
+  boardMemberships?: Prisma.BoardMemberUncheckedUpdateManyWithoutUserNestedInput
+  assignedTasks?: Prisma.TaskUncheckedUpdateManyWithoutAssigneeNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  sentInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutTaskActivitiesInput = {
@@ -1112,6 +1406,8 @@ export type UserCreateWithoutTaskActivitiesInput = {
   receivedInvites?: Prisma.BoardInviteCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutTaskActivitiesInput = {
@@ -1132,6 +1428,8 @@ export type UserUncheckedCreateWithoutTaskActivitiesInput = {
   receivedInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutTaskActivitiesInput = {
@@ -1168,6 +1466,8 @@ export type UserUpdateWithoutTaskActivitiesInput = {
   receivedInvites?: Prisma.BoardInviteUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTaskActivitiesInput = {
@@ -1188,6 +1488,8 @@ export type UserUncheckedUpdateWithoutTaskActivitiesInput = {
   receivedInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutTaskTemplatesInput = {
@@ -1208,6 +1510,8 @@ export type UserCreateWithoutTaskTemplatesInput = {
   receivedInvites?: Prisma.BoardInviteCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutTaskTemplatesInput = {
@@ -1228,6 +1532,8 @@ export type UserUncheckedCreateWithoutTaskTemplatesInput = {
   receivedInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutTaskTemplatesInput = {
@@ -1264,6 +1570,8 @@ export type UserUpdateWithoutTaskTemplatesInput = {
   receivedInvites?: Prisma.BoardInviteUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTaskTemplatesInput = {
@@ -1284,6 +1592,8 @@ export type UserUncheckedUpdateWithoutTaskTemplatesInput = {
   receivedInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutCommentsInput = {
@@ -1304,6 +1614,8 @@ export type UserCreateWithoutCommentsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutCommentsInput = {
@@ -1324,6 +1636,8 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutCommentsInput = {
@@ -1360,6 +1674,8 @@ export type UserUpdateWithoutCommentsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -1380,6 +1696,8 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSentInvitesInput = {
@@ -1400,6 +1718,8 @@ export type UserCreateWithoutSentInvitesInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitesInput = {
@@ -1420,6 +1740,8 @@ export type UserUncheckedCreateWithoutSentInvitesInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitesInput = {
@@ -1445,6 +1767,8 @@ export type UserCreateWithoutReceivedInvitesInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutReceivedInvitesInput = {
@@ -1465,6 +1789,8 @@ export type UserUncheckedCreateWithoutReceivedInvitesInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutReceivedInvitesInput = {
@@ -1501,6 +1827,8 @@ export type UserUpdateWithoutSentInvitesInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitesInput = {
@@ -1521,6 +1849,8 @@ export type UserUncheckedUpdateWithoutSentInvitesInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUpsertWithoutReceivedInvitesInput = {
@@ -1552,6 +1882,8 @@ export type UserUpdateWithoutReceivedInvitesInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedInvitesInput = {
@@ -1572,6 +1904,8 @@ export type UserUncheckedUpdateWithoutReceivedInvitesInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1592,6 +1926,8 @@ export type UserCreateWithoutNotificationsInput = {
   receivedInvites?: Prisma.BoardInviteCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1612,6 +1948,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   receivedInvites?: Prisma.BoardInviteUncheckedCreateNestedManyWithoutUserInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   taskTemplates?: Prisma.TaskTemplateUncheckedCreateNestedManyWithoutCreatedByInput
+  timeEntries?: Prisma.TimeEntryUncheckedCreateNestedManyWithoutUserInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1648,6 +1986,8 @@ export type UserUpdateWithoutNotificationsInput = {
   receivedInvites?: Prisma.BoardInviteUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1668,6 +2008,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   receivedInvites?: Prisma.BoardInviteUncheckedUpdateManyWithoutUserNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   taskTemplates?: Prisma.TaskTemplateUncheckedUpdateManyWithoutCreatedByNestedInput
+  timeEntries?: Prisma.TimeEntryUncheckedUpdateManyWithoutUserNestedInput
+  createdDependencies?: Prisma.TaskDependencyUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 
@@ -1687,6 +2029,8 @@ export type UserCountOutputType = {
   notifications: number
   taskActivities: number
   taskTemplates: number
+  timeEntries: number
+  createdDependencies: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1701,6 +2045,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   taskActivities?: boolean | UserCountOutputTypeCountTaskActivitiesArgs
   taskTemplates?: boolean | UserCountOutputTypeCountTaskTemplatesArgs
+  timeEntries?: boolean | UserCountOutputTypeCountTimeEntriesArgs
+  createdDependencies?: boolean | UserCountOutputTypeCountCreatedDependenciesArgs
 }
 
 /**
@@ -1790,6 +2136,20 @@ export type UserCountOutputTypeCountTaskTemplatesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.TaskTemplateWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTimeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TimeEntryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedDependenciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskDependencyWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1810,6 +2170,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
   taskTemplates?: boolean | Prisma.User$taskTemplatesArgs<ExtArgs>
+  timeEntries?: boolean | Prisma.User$timeEntriesArgs<ExtArgs>
+  createdDependencies?: boolean | Prisma.User$createdDependenciesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1856,6 +2218,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
   taskTemplates?: boolean | Prisma.User$taskTemplatesArgs<ExtArgs>
+  timeEntries?: boolean | Prisma.User$timeEntriesArgs<ExtArgs>
+  createdDependencies?: boolean | Prisma.User$createdDependenciesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1875,6 +2239,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     taskActivities: Prisma.$TaskActivityPayload<ExtArgs>[]
     taskTemplates: Prisma.$TaskTemplatePayload<ExtArgs>[]
+    timeEntries: Prisma.$TimeEntryPayload<ExtArgs>[]
+    createdDependencies: Prisma.$TaskDependencyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2289,6 +2655,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   taskActivities<T extends Prisma.User$taskActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taskActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   taskTemplates<T extends Prisma.User$taskTemplatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taskTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  timeEntries<T extends Prisma.User$timeEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$timeEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TimeEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdDependencies<T extends Prisma.User$createdDependenciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdDependenciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskDependencyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2974,6 +3342,54 @@ export type User$taskTemplatesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.TaskTemplateScalarFieldEnum | Prisma.TaskTemplateScalarFieldEnum[]
+}
+
+/**
+ * User.timeEntries
+ */
+export type User$timeEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TimeEntry
+   */
+  select?: Prisma.TimeEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TimeEntry
+   */
+  omit?: Prisma.TimeEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TimeEntryInclude<ExtArgs> | null
+  where?: Prisma.TimeEntryWhereInput
+  orderBy?: Prisma.TimeEntryOrderByWithRelationInput | Prisma.TimeEntryOrderByWithRelationInput[]
+  cursor?: Prisma.TimeEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TimeEntryScalarFieldEnum | Prisma.TimeEntryScalarFieldEnum[]
+}
+
+/**
+ * User.createdDependencies
+ */
+export type User$createdDependenciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TaskDependency
+   */
+  select?: Prisma.TaskDependencySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TaskDependency
+   */
+  omit?: Prisma.TaskDependencyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskDependencyInclude<ExtArgs> | null
+  where?: Prisma.TaskDependencyWhereInput
+  orderBy?: Prisma.TaskDependencyOrderByWithRelationInput | Prisma.TaskDependencyOrderByWithRelationInput[]
+  cursor?: Prisma.TaskDependencyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskDependencyScalarFieldEnum | Prisma.TaskDependencyScalarFieldEnum[]
 }
 
 /**

@@ -59,6 +59,8 @@ export const ModelName = {
   BoardMember: 'BoardMember',
   Column: 'Column',
   Task: 'Task',
+  TaskDependency: 'TaskDependency',
+  TimeEntry: 'TimeEntry',
   TaskActivity: 'TaskActivity',
   TaskTemplate: 'TaskTemplate',
   Subtask: 'Subtask',
@@ -191,6 +193,29 @@ export const TaskScalarFieldEnum = {
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const TaskDependencyScalarFieldEnum = {
+  id: 'id',
+  taskId: 'taskId',
+  dependsOnTaskId: 'dependsOnTaskId',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type TaskDependencyScalarFieldEnum = (typeof TaskDependencyScalarFieldEnum)[keyof typeof TaskDependencyScalarFieldEnum]
+
+
+export const TimeEntryScalarFieldEnum = {
+  id: 'id',
+  taskId: 'taskId',
+  userId: 'userId',
+  minutes: 'minutes',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type TimeEntryScalarFieldEnum = (typeof TimeEntryScalarFieldEnum)[keyof typeof TimeEntryScalarFieldEnum]
 
 
 export const TaskActivityScalarFieldEnum = {

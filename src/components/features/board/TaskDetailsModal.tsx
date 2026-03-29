@@ -12,6 +12,10 @@ import {
     addTaskAttachment,
     deleteTaskAttachment,
     saveTaskAsTemplate,
+    addTaskDependency,
+    removeTaskDependency,
+    addTaskTimeEntry,
+    deleteTaskTimeEntry,
 } from '../../../actions/detailActions';
 import { updateTask } from '../../../actions/taskActions';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,6 +30,9 @@ type CommentType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number][
 type SubtaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['subtasks'][number];
 type AttachmentType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['attachments'][number];
 type ActivityType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['activities'][number];
+type DependencyType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['blocking'][number];
+type BlockedByType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['blockedBy'][number];
+type TimeEntryType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['timeEntries'][number];
 
 interface TaskDetailsModalProps {
     isOpen: boolean;
@@ -33,6 +40,7 @@ interface TaskDetailsModalProps {
     task: TaskType;
     boardId: string;
     members: MemberType[];
+    allTasks: TaskType[];
     currentUserEmail?: string | null;
 }
 
@@ -67,7 +75,7 @@ function PriorityBadge({ priority }: { priority: string }) {
     );
 }
 
-export default function TaskDetailsModal({ isOpen, onClose, task, boardId, members, currentUserEmail }: TaskDetailsModalProps) {
+export default function TaskDetailsModal({ isOpen, onClose, task, boardId, members, allTasks, currentUserEmail }: TaskDetailsModalProps) {
     const [description, setDescription] = useState(task.description || '');
     const [saved, setSaved] = useState(false);
     const [commentText, setCommentText] = useState('');
@@ -85,6 +93,12 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [attachments, setAttachments] = useState<AttachmentType[]>(task.attachments ?? []);
     const [templateName, setTemplateName] = useState(`${task.title} Template`);
     const [templateSaved, setTemplateSaved] = useState<string | null>(null);
+    const [blocking, setBlocking] = useState<DependencyType[]>(task.blocking ?? []);
+    const [blockedBy] = useState<BlockedByType[]>(task.blockedBy ?? []);
+    const [dependsOnTaskId, setDependsOnTaskId] = useState('');
+    const [timeEntries, setTimeEntries] = useState<TimeEntryType[]>(task.timeEntries ?? []);
+    const [timeMinutes, setTimeMinutes] = useState('');
+    const [timeNote, setTimeNote] = useState('');
 
     // Detect @word at the end of the current comment text
     const handleCommentChange = (val: string) => {
@@ -236,6 +250,52 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
             const result = await saveTaskAsTemplate(task.id, boardId, templateName);
             setTemplateSaved(result.success ? 'Template saved' : result.error ?? 'Failed to save');
             setTimeout(() => setTemplateSaved(null), 2200);
+        });
+    };
+
+    const availableDependencyTargets = allTasks.filter(
+        (candidate) =>
+            candidate.id !== task.id &&
+            !blocking.some((dep) => dep.dependsOnTaskId === candidate.id)
+    );
+
+    const totalTrackedMinutes = timeEntries.reduce((sum, entry) => sum + entry.minutes, 0);
+
+    const handleAddDependency = () => {
+        if (!dependsOnTaskId) return;
+        startTransition(async () => {
+            const result = await addTaskDependency(task.id, dependsOnTaskId, boardId);
+            if (result.success && result.dependency) {
+                setBlocking((prev) => [...prev, result.dependency]);
+                setDependsOnTaskId('');
+            }
+        });
+    };
+
+    const handleRemoveDependency = (dependencyId: string) => {
+        setBlocking((prev) => prev.filter((dep) => dep.id !== dependencyId));
+        startTransition(async () => {
+            await removeTaskDependency(dependencyId, boardId);
+        });
+    };
+
+    const handleAddTimeEntry = () => {
+        const minutes = Number(timeMinutes);
+        if (!Number.isFinite(minutes) || minutes <= 0) return;
+        startTransition(async () => {
+            const result = await addTaskTimeEntry(task.id, boardId, minutes, timeNote);
+            if (result.success && result.timeEntry) {
+                setTimeEntries((prev) => [result.timeEntry, ...prev]);
+                setTimeMinutes('');
+                setTimeNote('');
+            }
+        });
+    };
+
+    const handleDeleteTimeEntry = (timeEntryId: string) => {
+        setTimeEntries((prev) => prev.filter((entry) => entry.id !== timeEntryId));
+        startTransition(async () => {
+            await deleteTaskTimeEntry(timeEntryId, boardId);
         });
     };
 
@@ -429,11 +489,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Activity */}
-                    <div className="flex flex-col app-surface rounded-2xl border border-slate-200/70 p-4 min-h-[24rem] overflow-hidden pb-4">
+                    <div className="flex flex-col app-surface rounded-2xl border border-slate-200/70 p-4 min-h-96 overflow-hidden pb-4">
                         <h3 className="text-xs font-bold text-slate-700 uppercase tracking-[0.16em] mb-3 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Activity</h3>
 
                         {/* Comment list */}
-                        <div className="overflow-y-auto space-y-3 mb-4 bg-slate-50 rounded-2xl p-5 border border-slate-200/80 min-h-[19rem] max-h-[23rem]">
+                        <div className="overflow-y-auto space-y-3 mb-4 bg-slate-50 rounded-2xl p-5 border border-slate-200/80 min-h-76 max-h-92">
                             {timeline.length === 0 && (
                                 <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
                                     <svg className="w-14 h-14 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -682,6 +742,122 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         ) : (
                             <span className="text-xs text-gray-600">{task.recurrence ?? 'NONE'}</span>
                         )}
+                    </div>
+
+                    {/* Dependencies */}
+                    <div className="mb-3 app-surface rounded-xl border border-slate-200/70 p-3">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dependencies</p>
+
+                        <div className="space-y-2 max-h-28 overflow-y-auto pr-1">
+                            {blocking.length === 0 ? (
+                                <p className="text-xs text-gray-400">No blockers.</p>
+                            ) : (
+                                blocking.map((dep) => (
+                                    <div key={dep.id} className="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1.5">
+                                        <span className="text-xs text-slate-700 truncate">Blocked by: {dep.dependsOn.title}</span>
+                                        {isLeader && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveDependency(dep.id)}
+                                                className="text-[11px] text-slate-400 hover:text-red-600"
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {blockedBy.length > 0 && (
+                            <p className="text-[11px] text-slate-500 mt-2">This task blocks {blockedBy.length} other task{blockedBy.length > 1 ? 's' : ''}.</p>
+                        )}
+
+                        {isLeader && (
+                            <div className="mt-2 flex items-center gap-2">
+                                <select
+                                    value={dependsOnTaskId}
+                                    onChange={(e) => setDependsOnTaskId(e.target.value)}
+                                    className="flex-1 px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                >
+                                    <option value="">Select blocker task</option>
+                                    {availableDependencyTargets.map((candidate) => (
+                                        <option key={candidate.id} value={candidate.id}>{candidate.title}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={handleAddDependency}
+                                    disabled={!dependsOnTaskId}
+                                    className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-40"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Time tracking */}
+                    <div className="mb-3 app-surface rounded-xl border border-slate-200/70 p-3">
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Time Tracking</p>
+                            <span className="text-[11px] text-slate-600 font-semibold">{totalTrackedMinutes} min total</span>
+                        </div>
+
+                        <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
+                            {timeEntries.length === 0 ? (
+                                <p className="text-xs text-gray-400">No time logged yet.</p>
+                            ) : (
+                                timeEntries.map((entry) => (
+                                    <div key={entry.id} className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <span className="text-xs font-semibold text-slate-700">{entry.minutes} min</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[11px] text-slate-400">{formatDistanceToNow(new Date(entry.createdAt))} ago</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteTimeEntry(entry.id)}
+                                                    className="text-[11px] text-slate-400 hover:text-red-600"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] text-slate-500 mt-0.5 truncate">{entry.user?.name ?? entry.user?.email ?? 'Member'}</p>
+                                        {entry.note && <p className="text-xs text-slate-600 mt-1">{entry.note}</p>}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        <div className="mt-2 grid grid-cols-1 gap-2">
+                            <input
+                                type="number"
+                                min={1}
+                                value={timeMinutes}
+                                onChange={(e) => setTimeMinutes(e.target.value)}
+                                placeholder="Minutes"
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            />
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={timeNote}
+                                    onChange={(e) => setTimeNote(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddTimeEntry()}
+                                    placeholder="Optional note"
+                                    className="flex-1 px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAddTimeEntry}
+                                    disabled={!timeMinutes || Number(timeMinutes) <= 0}
+                                    className="px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-40"
+                                >
+                                    Log
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Divider */}

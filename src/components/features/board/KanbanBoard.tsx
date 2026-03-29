@@ -41,6 +41,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [isMetricsOpen, setIsMetricsOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isViewsOpen, setIsViewsOpen] = useState(false);
     const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
     const [savedViews, setSavedViews] = useState<Array<{ id: string; name: string; filters: FilterState }>>(() => {
         if (typeof window === 'undefined') return [];
@@ -120,6 +121,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
     // The concurrent hook
     const [isPending, startTransition] = useTransition();
+    const allBoardTasks = useMemo(() => optimisticColumns.flatMap((c) => c.tasks), [optimisticColumns]);
 
     // The Real-Time Subscription
     useEffect(() => {
@@ -407,6 +409,50 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     )}
                 </div>
 
+                {/* Saved Views Button */}
+                <div className="relative">
+                    <button
+                        onClick={() => setIsViewsOpen((o) => !o)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                    >
+                        Saved Views
+                        {savedViews.length > 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{savedViews.length}</span>
+                        )}
+                    </button>
+
+                    {isViewsOpen && (
+                        <div className="absolute top-full mt-2 left-0 z-40 w-64 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
+                            {savedViews.length === 0 ? (
+                                <p className="text-xs text-slate-500 px-2 py-2">No saved views yet.</p>
+                            ) : (
+                                savedViews.map((view) => (
+                                    <div key={view.id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-white/80">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFilters({ ...view.filters });
+                                                setFilterNow(Date.now());
+                                                setIsViewsOpen(false);
+                                            }}
+                                            className="text-xs font-medium text-slate-700 truncate text-left"
+                                        >
+                                            {view.name}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSavedViews((prev) => prev.filter((v) => v.id !== view.id))}
+                                            className="text-[11px] text-slate-400 hover:text-red-600"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 {/* Filter Button */}
                 <div className="relative">
                     <button
@@ -535,7 +581,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     className="grid gap-5 pb-6 items-start"
                 >
                     {filteredColumns.map((column) => (
-                        <BoardColumn key={column.id} column={column} boardId={initialBoard.id} userRole={userRole} members={initialBoard.members} templates={initialBoard.taskTemplates} currentUserEmail={currentUserEmail} />
+                        <BoardColumn key={column.id} column={column} boardId={initialBoard.id} userRole={userRole} members={initialBoard.members} templates={initialBoard.taskTemplates} allTasks={allBoardTasks} currentUserEmail={currentUserEmail} />
                     ))}
                 </div>
 

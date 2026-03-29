@@ -27,6 +27,8 @@ model User {
   notifications    Notification[]
   taskActivities   TaskActivity[]
   taskTemplates    TaskTemplate[]
+  timeEntries      TimeEntry[]
+  createdDependencies TaskDependency[] @relation("DependencyCreator")
 
   @@map("users")
 }
@@ -136,6 +138,9 @@ model Task {
   subtasks Subtask[]
   attachments Attachment[]
   activities TaskActivity[]
+  blocking   TaskDependency[] @relation("TaskBlocksSource")
+  blockedBy  TaskDependency[] @relation("TaskBlocksTarget")
+  timeEntries TimeEntry[]
 
   // Timestamps for tracking workflow
   startedAt   DateTime?
@@ -151,6 +156,35 @@ model Task {
   updatedAt DateTime @updatedAt
 
   @@map("tasks")
+}
+
+model TaskDependency {
+  id              String   @id @default(cuid())
+  taskId          String
+  dependsOnTaskId String
+  createdById     String?
+  createdAt       DateTime @default(now())
+
+  task            Task     @relation("TaskBlocksSource", fields: [taskId], references: [id], onDelete: Cascade)
+  dependsOn       Task     @relation("TaskBlocksTarget", fields: [dependsOnTaskId], references: [id], onDelete: Cascade)
+  createdBy       User?    @relation("DependencyCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([taskId, dependsOnTaskId])
+  @@map("task_dependencies")
+}
+
+model TimeEntry {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String?
+  minutes   Int
+  note      String?  @db.Text
+  createdAt DateTime @default(now())
+
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("time_entries")
 }
 
 model TaskActivity {
@@ -308,6 +342,9 @@ enum TaskActivityType {
   ATTACHMENT_ADDED
   ATTACHMENT_DELETED
   TEMPLATE_SAVED
+  DEPENDENCY_ADDED
+  DEPENDENCY_REMOVED
+  TIME_LOGGED
 }
 
 // TODO:

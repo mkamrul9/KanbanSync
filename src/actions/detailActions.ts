@@ -353,3 +353,143 @@ export async function saveTaskAsTemplate(taskId: string, boardId: string, name: 
         return { success: false, error: 'Failed to save template' };
     }
 }
+
+export async function addTaskDependency(taskId: string, dependsOnTaskId: string, boardId: string) {
+    const role = await getUserRole(boardId);
+    if (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER) {
+        return { success: false, error: 'Unauthorized: insufficient role' };
+    }
+
+    const session = await auth();
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+    if (!taskId || !dependsOnTaskId || taskId === dependsOnTaskId) {
+        return { success: false, error: 'Invalid dependency selection' };
+    }
+
+    try {
+        const dependency = await prisma.taskDependency.create({
+            data: {
+                taskId,
+                dependsOnTaskId,
+                createdById: session.user.id,
+            },
+            include: {
+                dependsOn: true,
+            },
+        });
+
+        await logTaskActivity({
+            taskId,
+            action: TaskActivityType.DEPENDENCY_ADDED,
+            actorId: session.user.id,
+            message: `Added dependency: blocked by ${dependency.dependsOn.title}`,
+            meta: { dependsOnTaskId },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Dependency added' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true, dependency };
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to add dependency';
+        if (message.toLowerCase().includes('unique')) {
+            return { success: false, error: 'Dependency already exists' };
+        }
+        console.error('Failed to add dependency:', error);
+        return { success: false, error: 'Failed to add dependency' };
+    }
+}
+
+export async function removeTaskDependency(dependencyId: string, boardId: string) {
+    const role = await getUserRole(boardId);
+    if (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER) {
+        return { success: false, error: 'Unauthorized: insufficient role' };
+    }
+
+    const session = await auth();
+
+    try {
+        const dependency = await prisma.taskDependency.findUnique({
+            where: { id: dependencyId },
+            include: { dependsOn: true },
+        });
+
+        if (!dependency) return { success: false, error: 'Dependency not found' };
+
+        await prisma.taskDependency.delete({ where: { id: dependencyId } });
+
+        await logTaskActivity({
+            taskId: dependency.taskId,
+            action: TaskActivityType.DEPENDENCY_REMOVED,
+            actorId: session?.user?.id,
+            message: `Removed dependency on ${dependency.dependsOn.title}`,
+            meta: { dependencyId },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Dependency removed' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to remove dependency:', error);
+        return { success: false, error: 'Failed to remove dependency' };
+    }
+}
+
+export async function addTaskTimeEntry(taskId: string, boardId: string, minutes: number, note?: string) {
+    const session = await auth();
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+        return { success: false, error: 'Minutes must be greater than zero' };
+    }
+
+    try {
+        const timeEntry = await prisma.timeEntry.create({
+            data: {
+                taskId,
+                userId: session.user.id,
+                minutes: Math.round(minutes),
+                ...(note?.trim() ? { note: note.trim() } : {}),
+            },
+            include: { user: true },
+        });
+
+        await logTaskActivity({
+            taskId,
+            action: TaskActivityType.TIME_LOGGED,
+            actorId: session.user.id,
+            message: `Logged ${timeEntry.minutes} minutes`,
+            meta: { timeEntryId: timeEntry.id },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Time logged' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true, timeEntry };
+    } catch (error) {
+        console.error('Failed to add time entry:', error);
+        return { success: false, error: 'Failed to add time entry' };
+    }
+}
+
+export async function deleteTaskTimeEntry(timeEntryId: string, boardId: string) {
+    const session = await auth();
+    if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+    try {
+        const entry = await prisma.timeEntry.findUnique({ where: { id: timeEntryId } });
+        if (!entry) return { success: false, error: 'Time entry not found' };
+
+        const role = await getUserRole(boardId);
+        const canDelete = entry.userId === session.user.id || role === BoardRole.LEADER || role === BoardRole.REVIEWER;
+        if (!canDelete) {
+            return { success: false, error: 'Unauthorized: cannot delete this time entry' };
+        }
+
+        await prisma.timeEntry.delete({ where: { id: timeEntryId } });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Time entry deleted' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to delete time entry:', error);
+        return { success: false, error: 'Failed to delete time entry' };
+    }
+}

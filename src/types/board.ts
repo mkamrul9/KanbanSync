@@ -21,6 +21,9 @@ export type BoardWithColumnsAndTasks = Prisma.BoardGetPayload<{
                         assignee: true;
                         comments: { include: { user: true } };
                         activities: { include: { actor: true } };
+                        blocking: { include: { dependsOn: true } };
+                        blockedBy: { include: { task: true } };
+                        timeEntries: { include: { user: true } };
                         subtasks: true;
                         attachments: true;
                     };

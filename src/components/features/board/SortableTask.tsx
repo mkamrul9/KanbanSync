@@ -82,7 +82,8 @@ function AssigneeAvatar({ name }: { name?: string | null }) {
 }
 
 export default memo(function SortableTask({ task, boardId, members, currentUserEmail
-}: { task: TaskType; boardId: string; members?: MemberType[]; currentUserEmail?: string | null }) {
+    , allTasks
+}: { task: TaskType; boardId: string; members?: MemberType[]; allTasks?: TaskType[]; currentUserEmail?: string | null }) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [nowTs, setNowTs] = useState<number>(0);
 
@@ -267,6 +268,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                 task={task}
                 boardId={boardId}
                 members={members ?? []}
+                allTasks={allTasks ?? []}
                 currentUserEmail={currentUserEmail}
             />
             {/* 3. The Custom Delete Confirmation Modal */}

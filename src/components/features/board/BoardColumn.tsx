@@ -11,6 +11,7 @@ import { BoardWithColumnsAndTasks } from '../../../types/board';
 type ColumnWithTasks = BoardWithColumnsAndTasks['columns'][number];
 type MemberType = BoardWithColumnsAndTasks['members'][number];
 type TemplateType = BoardWithColumnsAndTasks['taskTemplates'][number];
+type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number];
 
 // Derive a subtle accent color for each column based on its title
 function getColumnAccent(title: string): { dot: string; header: string } {
@@ -24,7 +25,7 @@ function getColumnAccent(title: string): { dot: string; header: string } {
     return { dot: 'bg-gray-400', header: 'text-gray-600' };
 }
 
-export default memo(function BoardColumn({ column, boardId, userRole, members, templates, currentUserEmail }: { column: ColumnWithTasks; boardId?: string; userRole?: string | null; members?: MemberType[]; templates?: TemplateType[]; currentUserEmail?: string | null }) {
+export default memo(function BoardColumn({ column, boardId, userRole, members, templates, allTasks, currentUserEmail }: { column: ColumnWithTasks; boardId?: string; userRole?: string | null; members?: MemberType[]; templates?: TemplateType[]; allTasks?: TaskType[]; currentUserEmail?: string | null }) {
     const effectiveBoardId = boardId ?? column.boardId;
 
     const { setNodeRef } = useDroppable({
@@ -96,6 +97,7 @@ export default memo(function BoardColumn({ column, boardId, userRole, members, t
                                 task={task}
                                 boardId={effectiveBoardId}
                                 members={members}
+                                allTasks={allTasks}
                                 currentUserEmail={currentUserEmail}
                             />
                         ))}
