@@ -11,6 +11,12 @@ import { auth } from '../../auth';
 import { notifyAssignedUser } from './notificationActions';
 import { logTaskActivity } from '../lib/activity';
 
+const ARCHIVE_RETENTION_DAYS = 30;
+
+function archiveRetentionCutoff() {
+    return new Date(Date.now() - ARCHIVE_RETENTION_DAYS * 86_400_000);
+}
+
 function addRecurringOffset(base: Date, recurrence: string) {
     const next = new Date(base);
     if (recurrence === 'DAILY') next.setDate(next.getDate() + 1);
@@ -400,6 +406,7 @@ export async function restoreTask(taskId: string, boardId: string) {
             select: {
                 title: true,
                 status: true,
+                updatedAt: true,
                 column: { select: { title: true } },
             },
         });
@@ -410,6 +417,13 @@ export async function restoreTask(taskId: string, boardId: string) {
 
         if (task.status !== 'ARCHIVED') {
             return { success: false, error: 'Only archived tasks can be restored.' };
+        }
+
+        if (task.updatedAt < archiveRetentionCutoff()) {
+            return {
+                success: false,
+                error: `Restore window expired. Archived tasks can only be restored within ${ARCHIVE_RETENTION_DAYS} days.`,
+            };
         }
 
         const restoredStatus = task.column?.title ?? 'To Do';
@@ -508,6 +522,7 @@ export async function restoreArchivedTasks(boardId: string, taskIds?: string[]) 
             select: {
                 id: true,
                 title: true,
+                updatedAt: true,
                 column: { select: { title: true } },
             },
         });
@@ -516,11 +531,23 @@ export async function restoreArchivedTasks(boardId: string, taskIds?: string[]) 
             return { success: true, restoredCount: 0 };
         }
 
-        const ids = archivedTasks.map((t) => t.id);
+        const cutoff = archiveRetentionCutoff();
+        const restorableTasks = archivedTasks.filter((task) => task.updatedAt >= cutoff);
+
+        if (restorableTasks.length === 0) {
+            return {
+                success: false,
+                error: `No archived tasks are within the ${ARCHIVE_RETENTION_DAYS}-day restore window.`,
+                restoredCount: 0,
+                expiredCount: archivedTasks.length,
+            };
+        }
+
+        const ids = restorableTasks.map((t) => t.id);
         const session = await auth();
 
         await prisma.$transaction([
-            ...archivedTasks.map((task) =>
+            ...restorableTasks.map((task) =>
                 prisma.task.update({
                     where: { id: task.id },
                     data: {
@@ -528,7 +555,7 @@ export async function restoreArchivedTasks(boardId: string, taskIds?: string[]) 
                     },
                 })
             ),
-            ...archivedTasks.map((task) =>
+            ...restorableTasks.map((task) =>
                 prisma.taskActivity.create({
                     data: {
                         taskId: task.id,
@@ -546,9 +573,53 @@ export async function restoreArchivedTasks(boardId: string, taskIds?: string[]) 
 
         await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Archived tasks restored' });
         revalidatePath(`/board/${boardId}`);
-        return { success: true, restoredCount: ids.length };
+        return {
+            success: true,
+            restoredCount: ids.length,
+            expiredCount: archivedTasks.length - restorableTasks.length,
+            retentionDays: ARCHIVE_RETENTION_DAYS,
+        };
     } catch (error) {
         console.error('Failed to restore archived tasks:', error);
         return { success: false, error: 'Failed to restore archived tasks' };
+    }
+}
+
+export async function purgeExpiredArchivedTasks(boardId: string) {
+    try {
+        const role = await getUserRole(boardId);
+        if (role !== BoardRole.LEADER) {
+            return { success: false, error: 'Unauthorized: Only Leaders can purge archived tasks.' };
+        }
+
+        const cutoff = archiveRetentionCutoff();
+        const expiredTasks = await prisma.task.findMany({
+            where: {
+                status: 'ARCHIVED',
+                column: { boardId },
+                updatedAt: { lt: cutoff },
+            },
+            select: { id: true },
+        });
+
+        if (expiredTasks.length === 0) {
+            return { success: true, deletedCount: 0, retentionDays: ARCHIVE_RETENTION_DAYS };
+        }
+
+        await prisma.task.deleteMany({
+            where: { id: { in: expiredTasks.map((t) => t.id) } },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Expired archived tasks purged' });
+        revalidatePath(`/board/${boardId}`);
+
+        return {
+            success: true,
+            deletedCount: expiredTasks.length,
+            retentionDays: ARCHIVE_RETENTION_DAYS,
+        };
+    } catch (error) {
+        console.error('Failed to purge expired archived tasks:', error);
+        return { success: false, error: 'Failed to purge expired archived tasks' };
     }
 }

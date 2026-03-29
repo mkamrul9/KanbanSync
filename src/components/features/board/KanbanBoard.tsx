@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useOptimistic } from 'react';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
-import { moveTask, restoreTask, restoreArchivedTasks } from '../../../actions/taskActions';
+import { moveTask, purgeExpiredArchivedTasks, restoreTask, restoreArchivedTasks } from '../../../actions/taskActions';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners } from '@dnd-kit/core';
 import { useRouter } from 'next/navigation';
 import { getPusherClient } from '../../../lib/pusher';
@@ -12,8 +12,11 @@ import BoardColumn from './BoardColumn';
 import MetricsModal from './MetricsModal';
 import BoardAuditLogModal from './BoardAuditLogModal';
 import CyclePlannerModal from './CyclePlannerModal';
+import DailyTimesheetModal from './DailyTimesheetModal';
 import FilterPanel, { DEFAULT_FILTERS, countActiveFilters, FilterState, TASK_CATEGORIES } from './FilterPanel';
 // import { TaskStatus } from '../../../types/board';
+
+const ARCHIVE_RETENTION_DAYS = 30;
 
 // Small chip for active filter display
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
@@ -52,6 +55,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [isMetricsOpen, setIsMetricsOpen] = useState(false);
     const [isAuditOpen, setIsAuditOpen] = useState(false);
     const [isCycleOpen, setIsCycleOpen] = useState(false);
+    const [isTimesheetOpen, setIsTimesheetOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isViewsOpen, setIsViewsOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
@@ -81,6 +85,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     });
     const [showCurrentCycleOnly, setShowCurrentCycleOnly] = useState(false);
     const [isRestoringTask, startRestoreTaskTransition] = useTransition();
+    const [isPurgingExpiredArchived, startPurgeArchiveTransition] = useTransition();
     // Stable "now" timestamp for age-filter comparisons (refreshed each time the filter panel opens)
     const [filterNow, setFilterNow] = useState(() => Date.now());
 
@@ -183,6 +188,10 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             return task.title.toLowerCase().includes(q) || task.category.toLowerCase().includes(q);
         });
     }, [archivedTasks, archiveSearch]);
+    const expiredArchivedTasks = useMemo(() => {
+        const cutoff = filterNow - ARCHIVE_RETENTION_DAYS * 86_400_000;
+        return archivedTasks.filter((task) => new Date(task.updatedAt).getTime() < cutoff);
+    }, [archivedTasks, filterNow]);
 
     // The Real-Time Subscription
     useEffect(() => {
@@ -254,8 +263,20 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 setToastMessage(result?.error ?? 'Failed to restore archived tasks.');
             }
             if (result?.success && (result.restoredCount ?? 0) > 0) {
-                setToastMessage(`Restored ${result.restoredCount} archived task${result.restoredCount === 1 ? '' : 's'}.`);
+                const expiredCount = result.expiredCount ?? 0;
+                setToastMessage(`Restored ${result.restoredCount} archived task${result.restoredCount === 1 ? '' : 's'}${expiredCount > 0 ? ` (${expiredCount} expired)` : ''}.`);
             }
+        });
+    };
+
+    const handlePurgeExpiredArchivedTasks = () => {
+        startPurgeArchiveTransition(async () => {
+            const result = await purgeExpiredArchivedTasks(initialBoard.id);
+            if (!result?.success) {
+                setToastMessage(result?.error ?? 'Failed to purge expired archived tasks.');
+                return;
+            }
+            setToastMessage(`Purged ${result.deletedCount ?? 0} expired archived task${(result.deletedCount ?? 0) === 1 ? '' : 's'}.`);
         });
     };
 
@@ -682,10 +703,18 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     Cycles
                 </button>
 
+                <button
+                    onClick={() => setIsTimesheetOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                >
+                    Timesheet
+                </button>
+
                 {canManageArchive && (
                     <div className="relative">
                         <button
                             onClick={() => {
+                                setFilterNow(Date.now());
                                 setArchiveSearch('');
                                 setIsArchiveOpen((o) => !o);
                             }}
@@ -699,6 +728,9 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                             <div className="absolute top-full mt-2 left-0 z-40 w-80 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
                                 {archivedTasks.length > 0 && (
                                     <div className="px-2 pb-2 border-b border-slate-200 mb-2 space-y-2">
+                                        <p className="text-[11px] text-slate-500">
+                                            Restore window: {ARCHIVE_RETENTION_DAYS} days. Older archived tasks are expired.
+                                        </p>
                                         <input
                                             type="text"
                                             value={archiveSearch}
@@ -713,6 +745,14 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                             className="w-full text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1.5 rounded-md hover:bg-emerald-100 disabled:opacity-50"
                                         >
                                             Restore all visible ({filteredArchivedTasks.length})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handlePurgeExpiredArchivedTasks}
+                                            disabled={isPurgingExpiredArchived || expiredArchivedTasks.length === 0}
+                                            className="w-full text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
+                                        >
+                                            {isPurgingExpiredArchived ? 'Purging...' : `Purge expired (${expiredArchivedTasks.length})`}
                                         </button>
                                     </div>
                                 )}
@@ -834,6 +874,11 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             {/* Metrics Modal */}
             <MetricsModal board={initialBoard} isOpen={isMetricsOpen} onClose={() => setIsMetricsOpen(false)} />
             <BoardAuditLogModal board={initialBoard} isOpen={isAuditOpen} onClose={() => setIsAuditOpen(false)} />
+            <DailyTimesheetModal
+                isOpen={isTimesheetOpen}
+                onClose={() => setIsTimesheetOpen(false)}
+                tasks={allBoardTasks}
+            />
             <CyclePlannerModal
                 isOpen={isCycleOpen}
                 onClose={() => setIsCycleOpen(false)}
