@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Modal from '../../../components/ui/Modal';
 import {
     addComment,
@@ -133,6 +133,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [timeEntries, setTimeEntries] = useState<TimeEntryType[]>(task.timeEntries ?? []);
     const [timeMinutes, setTimeMinutes] = useState('');
     const [timeNote, setTimeNote] = useState('');
+    const [timerSeconds, setTimerSeconds] = useState(0);
+    const [timerRunning, setTimerRunning] = useState(false);
+    const [lastActivityAt, setLastActivityAt] = useState<number>(0);
+    const [timerAdjustmentMinutes, setTimerAdjustmentMinutes] = useState('0');
+    const [timerStatusMsg, setTimerStatusMsg] = useState<string | null>(null);
     const [gitLinkType, setGitLinkType] = useState<'PR' | 'Commit' | 'Branch'>('PR');
     const [gitLinkUrl, setGitLinkUrl] = useState('');
     const [archiveError, setArchiveError] = useState<string | null>(null);
@@ -359,6 +364,70 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         setTimeEntries((prev) => prev.filter((entry) => entry.id !== timeEntryId));
         startTransition(async () => {
             await deleteTaskTimeEntry(timeEntryId, boardId);
+        });
+    };
+
+    useEffect(() => {
+        if (!timerRunning) return;
+
+        const onActivity = () => setLastActivityAt(Date.now());
+        const activityEvents: Array<keyof WindowEventMap> = ['mousemove', 'keydown', 'mousedown', 'scroll'];
+        activityEvents.forEach((event) => window.addEventListener(event, onActivity, { passive: true }));
+
+        const tick = window.setInterval(() => {
+            setTimerSeconds((prev) => prev + 1);
+
+            const idleForMs = Date.now() - lastActivityAt;
+            if (idleForMs >= 5 * 60 * 1000) {
+                setTimerRunning(false);
+                setTimerStatusMsg('Timer auto-paused after 5 minutes of inactivity.');
+            }
+        }, 1000);
+
+        return () => {
+            window.clearInterval(tick);
+            activityEvents.forEach((event) => window.removeEventListener(event, onActivity));
+        };
+    }, [timerRunning, lastActivityAt]);
+
+    const formatTimer = (seconds: number) => {
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return [hrs, mins, secs].map((n) => n.toString().padStart(2, '0')).join(':');
+    };
+
+    const handleStartTimer = () => {
+        setTimerStatusMsg(null);
+        setLastActivityAt(Date.now());
+        setTimerRunning(true);
+    };
+
+    const handlePauseTimer = () => {
+        setTimerRunning(false);
+        setTimerStatusMsg('Timer paused.');
+    };
+
+    const handleStopAndLogTimer = () => {
+        setTimerRunning(false);
+
+        const baseMinutes = Math.max(1, Math.round(timerSeconds / 60));
+        const adjustment = Number(timerAdjustmentMinutes || '0');
+        const safeAdjustment = Number.isFinite(adjustment) ? adjustment : 0;
+        const totalMinutes = Math.max(1, baseMinutes + safeAdjustment);
+
+        startTransition(async () => {
+            const timerNote = (timeNote?.trim() ? `Timer session: ${timeNote.trim()}` : 'Timer session');
+            const result = await addTaskTimeEntry(task.id, boardId, totalMinutes, timerNote);
+            if (result.success && result.timeEntry) {
+                setTimeEntries((prev) => [result.timeEntry, ...prev]);
+                setTimerSeconds(0);
+                setTimerAdjustmentMinutes('0');
+                setTimeNote('');
+                setTimerStatusMsg(`Logged ${totalMinutes} min from timer.`);
+            } else {
+                setTimerStatusMsg('Failed to log timer session.');
+            }
         });
     };
 
@@ -915,6 +984,56 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         <div className="flex items-center justify-between gap-2 mb-2">
                             <SideSectionTitle label="Time Tracking" dotColor="bg-teal-500" />
                             <span className="text-[11px] text-slate-600 font-semibold">{totalTrackedMinutes} min total</span>
+                        </div>
+
+                        <div className="mb-2 bg-white border border-teal-200 rounded-lg p-2.5">
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                                <p className="text-xs font-semibold text-teal-700">Live Timer</p>
+                                <span className="text-sm font-mono font-bold text-slate-700">{formatTimer(timerSeconds)}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-1.5 mb-2">
+                                <button
+                                    type="button"
+                                    onClick={handleStartTimer}
+                                    disabled={timerRunning}
+                                    className="px-2 py-1.5 text-[11px] rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-700 disabled:opacity-40"
+                                >
+                                    Start
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handlePauseTimer}
+                                    disabled={!timerRunning}
+                                    className="px-2 py-1.5 text-[11px] rounded-md bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-40"
+                                >
+                                    Pause
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleStopAndLogTimer}
+                                    disabled={timerSeconds <= 0}
+                                    className="px-2 py-1.5 text-[11px] rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-40"
+                                >
+                                    Stop & Log
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5">
+                                <input
+                                    type="number"
+                                    value={timerAdjustmentMinutes}
+                                    onChange={(e) => setTimerAdjustmentMinutes(e.target.value)}
+                                    className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-teal-100 focus:border-teal-400 outline-none"
+                                    placeholder="Adjustment min"
+                                />
+                                <input
+                                    type="text"
+                                    value={timeNote}
+                                    onChange={(e) => setTimeNote(e.target.value)}
+                                    className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-teal-100 focus:border-teal-400 outline-none"
+                                    placeholder="Timer note"
+                                />
+                            </div>
+                            {timerStatusMsg && <p className="text-[11px] text-teal-700 mt-2">{timerStatusMsg}</p>}
                         </div>
 
                         <div className="space-y-2 max-h-36 overflow-y-auto pr-1">

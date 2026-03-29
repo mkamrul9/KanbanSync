@@ -43,13 +43,17 @@ export default function NotificationsBell({ userId }: { userId: string }) {
     const router = useRouter();
     const [items, setItems] = useState<NotificationItem[]>([]);
     const [open, setOpen] = useState(false);
+    const [filterMode, setFilterMode] = useState<'all' | 'unread' | 'invites' | 'tasks'>('all');
     // Track which inviteId is currently mid-request
     const [processing, setProcessing] = useState<Set<string>>(new Set());
     // Track the outcome to show a brief confirmation before removing
     const [results, setResults] = useState<Map<string, InviteResult>>(new Map());
     const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
+    const [snoozedUntil, setSnoozedUntil] = useState<Record<string, number>>({});
     const containerRef = useRef<HTMLDivElement>(null);
     const unreadCount = items.filter((item) => !item.read).length;
+
+    const notifKey = (item: NotificationItem, idx: number) => item.id ?? `${item.type}-${item.inviteId ?? idx}-${item.createdAt ?? ''}`;
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -60,6 +64,23 @@ export default function NotificationsBell({ userId }: { userId: string }) {
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
     }, []);
+
+    useEffect(() => {
+        if (!userId) return;
+        try {
+            const raw = localStorage.getItem(`ks-notification-snooze-${userId}`);
+            if (!raw) return;
+            const parsed = JSON.parse(raw) as Record<string, number>;
+            setSnoozedUntil(parsed ?? {});
+        } catch {
+            setSnoozedUntil({});
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        if (!userId) return;
+        localStorage.setItem(`ks-notification-snooze-${userId}`, JSON.stringify(snoozedUntil));
+    }, [userId, snoozedUntil]);
 
     useEffect(() => {
         if (!userId) return;
@@ -138,7 +159,10 @@ export default function NotificationsBell({ userId }: { userId: string }) {
     const handleMarkRead = async (item: NotificationItem, idx: number) => {
         if (item.read) return;
 
-        setItems((s) => s.map((n, i) => i === idx ? { ...n, read: true } : n));
+        setItems((s) => s.map((n, i) => {
+            if (item.id) return n.id === item.id ? { ...n, read: true } : n;
+            return i === idx ? { ...n, read: true } : n;
+        }));
 
         if (!item.id) return;
         try {
@@ -160,6 +184,27 @@ export default function NotificationsBell({ userId }: { userId: string }) {
         } finally {
             setIsMarkingAllRead(false);
         }
+    };
+
+    const handleSnooze = (item: NotificationItem, idx: number, minutes = 120) => {
+        const key = notifKey(item, idx);
+        setSnoozedUntil((prev) => ({ ...prev, [key]: Date.now() + minutes * 60 * 1000 }));
+    };
+
+    const visibleItems = items.filter((item, idx) => {
+        const key = notifKey(item, idx);
+        const snoozed = snoozedUntil[key];
+        if (snoozed && snoozed > Date.now()) return false;
+
+        if (filterMode === 'unread') return !item.read;
+        if (filterMode === 'invites') return item.type === 'board-invite';
+        if (filterMode === 'tasks') return item.type === 'task-assigned' || item.type === 'task-reminder' || item.type === 'task-overdue';
+        return true;
+    });
+
+    const handleClearVisible = () => {
+        const visibleKeys = new Set(visibleItems.map((item, idx) => notifKey(item, idx)));
+        setItems((prev) => prev.filter((item, idx) => !visibleKeys.has(notifKey(item, idx))));
     };
 
     const getNotificationHref = (item: NotificationItem) => {
@@ -204,9 +249,30 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                         )}
                     </div>
 
+                    <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-1.5 overflow-x-auto">
+                        {([
+                            { key: 'all', label: 'All' },
+                            { key: 'unread', label: 'Unread' },
+                            { key: 'invites', label: 'Invites' },
+                            { key: 'tasks', label: 'Tasks' },
+                        ] as const).map((f) => (
+                            <button
+                                key={f.key}
+                                type="button"
+                                onClick={() => setFilterMode(f.key)}
+                                className={`px-2.5 py-1 text-[11px] font-semibold rounded-full border whitespace-nowrap ${filterMode === f.key
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+                                    }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
+
                     {/* List */}
                     <div className="max-h-90 overflow-y-auto divide-y divide-gray-50">
-                        {items.length === 0 && (
+                        {visibleItems.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-10 px-4 text-center gap-2">
                                 <svg className="w-8 h-8 text-gray-200" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M15 17H9a3 3 0 006 0z" opacity="0.9" />
@@ -216,7 +282,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                             </div>
                         )}
 
-                        {items.map((it, idx) => {
+                        {visibleItems.map((it, idx) => {
                             const inviteId = it.inviteId;
                             const isProcessing = inviteId ? processing.has(inviteId) : false;
                             const result = inviteId ? results.get(inviteId) : undefined;
@@ -383,6 +449,14 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                     Mark read
                                                 </button>
                                             )}
+                                            {!isInvite && (
+                                                <button
+                                                    onClick={() => handleSnooze(it, idx)}
+                                                    className="flex items-center gap-1 px-3 py-1.5 border border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-medium rounded-lg transition-colors"
+                                                >
+                                                    Snooze 2h
+                                                </button>
+                                            )}
                                             {!isInvite && href && (
                                                 <button
                                                     onClick={() => handleOpenNotification(it, idx)}
@@ -400,13 +474,20 @@ export default function NotificationsBell({ userId }: { userId: string }) {
 
                     {/* Footer — mark all read */}
                     {items.length > 0 && (
-                        <div className="border-t border-gray-100 px-4 py-2.5">
+                        <div className="border-t border-gray-100 px-4 py-2.5 flex items-center justify-between gap-2">
                             <button
                                 onClick={handleMarkAllRead}
                                 disabled={unreadCount === 0 || isMarkingAllRead}
                                 className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 {isMarkingAllRead ? 'Marking all read...' : 'Mark all as read'}
+                            </button>
+                            <button
+                                onClick={handleClearVisible}
+                                disabled={visibleItems.length === 0}
+                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                Clear visible
                             </button>
                         </div>
                     )}
