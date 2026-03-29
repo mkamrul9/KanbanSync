@@ -79,18 +79,52 @@ export default function BoardAuditLogModal({ isOpen, onClose, board }: BoardAudi
         });
     }, [events, query, actorFilter]);
 
+    const handleExportCsv = () => {
+        const escapeCell = (value: string) => `"${value.replaceAll('"', '""')}"`;
+        const header = ['type', 'actor', 'task', 'message', 'createdAt'];
+        const rows = filteredEvents.map((event) => [
+            event.kind,
+            event.actorName,
+            event.taskTitle,
+            event.message,
+            event.createdAt.toISOString(),
+        ]);
+        const csv = [header, ...rows]
+            .map((r) => r.map((cell) => escapeCell(String(cell))).join(','))
+            .join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `board-audit-${board.id.slice(-6)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-4xl">
             <div className="flex flex-col max-h-[85vh] app-bg">
-                <div className="px-6 py-4 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
+                <div className="px-6 pr-16 py-4 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
                     <div className="flex items-center justify-between gap-3">
                         <div>
                             <h2 className="text-lg font-bold text-slate-900">Board Audit Log</h2>
                             <p className="text-xs text-slate-500 mt-0.5">Track comments and task activity across this board.</p>
                         </div>
-                        <span className="text-xs px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-medium">
-                            {filteredEvents.length} event{filteredEvents.length === 1 ? '' : 's'}
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs px-2 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-medium">
+                                {filteredEvents.length} event{filteredEvents.length === 1 ? '' : 's'}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={handleExportCsv}
+                                className="text-xs px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-slate-300"
+                            >
+                                Export CSV
+                            </button>
+                        </div>
                     </div>
 
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
@@ -123,7 +157,11 @@ export default function BoardAuditLogModal({ isOpen, onClose, board }: BoardAudi
                         filteredEvents.map((event) => (
                             <div key={event.id} className="app-surface border border-slate-200 rounded-2xl px-4 py-3">
                                 <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 flex items-start gap-2.5">
+                                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-cyan-500 to-blue-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                            {(event.actorName[0] ?? 'A').toUpperCase()}
+                                        </div>
+                                        <div className="min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${event.kind === 'activity'
                                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -135,6 +173,7 @@ export default function BoardAuditLogModal({ isOpen, onClose, board }: BoardAudi
                                         </div>
                                         <p className="text-sm text-slate-800 mt-1 leading-relaxed wrap-break-word">{event.message}</p>
                                         <p className="text-[11px] text-slate-500 mt-1 truncate">Task: {event.taskTitle}</p>
+                                        </div>
                                     </div>
                                     <span className="text-[11px] text-slate-400 shrink-0">{formatDistanceToNow(event.createdAt)} ago</span>
                                 </div>

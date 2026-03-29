@@ -561,11 +561,12 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Activity */}
-                    <div className="flex flex-col app-surface rounded-2xl border border-slate-200/70 p-4 min-h-96 overflow-visible pb-4">
+                    <div className="flex flex-col app-surface rounded-2xl border border-slate-200/70 p-4 min-h-96 overflow-hidden pb-4">
                         <h3 className="text-xs font-bold text-slate-700 uppercase tracking-[0.16em] mb-3 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Activity</h3>
 
+                        <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-3 flex flex-col min-h-76 max-h-96">
                         {/* Comment list */}
-                        <div className="overflow-y-auto space-y-3 mb-4 bg-slate-50 rounded-2xl p-5 border border-slate-200/80 min-h-76 max-h-96">
+                        <div className="overflow-y-auto space-y-3 mb-3 px-2 py-2">
                             {timeline.length === 0 && (
                                 <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
                                     <svg className="w-14 h-14 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -613,7 +614,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         </div>
 
                         {/* Comment input */}
-                        <div className="relative flex items-center gap-2.5 pb-3 pt-2 bg-white/90 rounded-xl px-2 border border-slate-200/80">
+                        <div className="relative flex items-center gap-2.5 bg-white rounded-xl px-2 py-2 border border-slate-200/90 shadow-sm">
                             {/* @mention dropdown */}
                             {mentionQuery !== null && mentionSuggestions.length > 0 && (
                                 <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
@@ -661,6 +662,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     Post
                                 </button>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -868,16 +870,16 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         )}
 
                         {isLeader && (
-                            <div className="mt-2 flex items-center gap-2">
+                            <div className="mt-2 flex flex-col gap-2 min-w-0">
                                 <select
                                     value={dependsOnTaskId}
                                     onChange={(e) => setDependsOnTaskId(e.target.value)}
-                                    className="flex-1 px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                    className="w-full min-w-0 max-w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
                                 >
                                     <option value="">Select blocker task</option>
                                     {availableDependencyTargets.map((candidate) => (
                                         <option key={candidate.id} value={candidate.id}>
-                                            {`${candidate.title} · ${(candidate.column?.title ?? 'Task')} · ${candidate.priority}`}
+                                            {`${candidate.title.length > 34 ? `${candidate.title.slice(0, 34)}...` : candidate.title} · ${(candidate.column?.title ?? 'Task')} · ${candidate.priority}`}
                                         </option>
                                     ))}
                                 </select>
@@ -885,7 +887,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     type="button"
                                     onClick={handleAddDependency}
                                     disabled={!dependsOnTaskId}
-                                    className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-40"
+                                    className="w-full px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-40"
                                 >
                                     Add
                                 </button>

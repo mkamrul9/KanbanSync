@@ -18,6 +18,10 @@ interface CyclePlannerModalProps {
     onCreateCycle: (cycle: Omit<Cycle, 'id' | 'isActive'>) => void;
     onDeleteCycle: (cycleId: string) => void;
     onSetActiveCycle: (cycleId: string) => void;
+    activeCycleStats?: {
+        total: number;
+        done: number;
+    };
 }
 
 export default function CyclePlannerModal({
@@ -27,6 +31,7 @@ export default function CyclePlannerModal({
     onCreateCycle,
     onDeleteCycle,
     onSetActiveCycle,
+    activeCycleStats,
 }: CyclePlannerModalProps) {
     const [name, setName] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -53,7 +58,20 @@ export default function CyclePlannerModal({
                 <div className="px-6 py-4 border-b border-slate-200/80 bg-white/85">
                     <h2 className="text-lg font-bold text-slate-900">Sprint / Cycle Planner</h2>
                     <p className="text-xs text-slate-500 mt-1">Create cycles and mark one as active for board focus.</p>
+                    <div className="mt-2 p-3 rounded-xl border border-sky-200/70 bg-sky-50/50">
+                        <p className="text-[11px] font-semibold text-sky-800">How cycles work</p>
+                        <p className="text-[11px] text-sky-700 mt-1">1) Create a cycle with start/end dates. 2) Set one as Active. 3) Enable Current Cycle on board toolbar to focus tasks in that date window.</p>
+                    </div>
                 </div>
+
+                {activeCycleStats && (
+                    <div className="px-6 pt-4">
+                        <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/50 px-4 py-3 flex items-center justify-between gap-3">
+                            <p className="text-xs font-semibold text-emerald-800">Active cycle progress</p>
+                            <p className="text-xs text-emerald-700 font-semibold">{activeCycleStats.done}/{activeCycleStats.total} done</p>
+                        </div>
+                    </div>
+                )}
 
                 <div className="p-6 border-b border-slate-200/70 bg-slate-50/70">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-2">

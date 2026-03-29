@@ -149,6 +149,22 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         () => initialBoard.members.find((m) => m.user.email === currentUserEmail)?.user.id,
         [initialBoard.members, currentUserEmail]
     );
+    const activeCycleStats = useMemo(() => {
+        const active = cycles.find((c) => c.isActive);
+        if (!active) return null;
+
+        const start = new Date(active.startDate).getTime();
+        const end = new Date(active.endDate).getTime() + 86_400_000;
+        const inCycle = allBoardTasks.filter((t) => {
+            const anchor = t.dueAt ? new Date(t.dueAt).getTime() : new Date(t.createdAt).getTime();
+            return anchor >= start && anchor <= end;
+        });
+
+        return {
+            total: inCycle.length,
+            done: inCycle.filter((t) => t.status === 'DONE').length,
+        };
+    }, [cycles, allBoardTasks]);
 
     // The Real-Time Subscription
     useEffect(() => {
@@ -680,6 +696,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 isOpen={isCycleOpen}
                 onClose={() => setIsCycleOpen(false)}
                 cycles={cycles}
+                activeCycleStats={activeCycleStats ?? undefined}
                 onCreateCycle={(cycle) => {
                     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
                     setCycles((prev) => [{ id, ...cycle, isActive: prev.length === 0 }, ...prev]);

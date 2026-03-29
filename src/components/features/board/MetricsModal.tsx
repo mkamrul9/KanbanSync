@@ -200,20 +200,20 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
             />
 
             {/* Panel */}
-            <div className="relative z-10 w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-3xl app-bg border border-slate-200/80 shadow-2xl flex flex-col">
+            <div className="relative z-10 w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-2xl app-bg border border-slate-200/80 shadow-2xl flex flex-col">
 
                 {/* ── Header ── */}
-                <div className="sticky top-0 z-10 rounded-t-3xl bg-linear-to-r from-slate-900 via-slate-800 to-cyan-900 px-8 py-6 flex items-center justify-between">
+                <div className="sticky top-0 z-10 rounded-t-2xl bg-white/90 backdrop-blur-sm border-b border-slate-200 px-8 py-5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl">📊</div>
+                        <div className="w-10 h-10 rounded-xl bg-cyan-100 border border-cyan-200 flex items-center justify-center text-2xl">📊</div>
                         <div>
-                            <h2 className="text-lg font-bold text-white tracking-tight">Board Metrics</h2>
-                            <p className="text-xs text-slate-400">{board.title} · Flow &amp; efficiency overview</p>
+                            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Board Metrics</h2>
+                            <p className="text-xs text-slate-500">{board.title} · Flow &amp; efficiency overview</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center text-white text-lg leading-none"
+                        className="w-9 h-9 rounded-full bg-rose-50 hover:bg-rose-600 border border-rose-200 transition-colors flex items-center justify-center text-rose-600 hover:text-white text-lg leading-none"
                         aria-label="Close metrics"
                     >
                         ✕
@@ -221,7 +221,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                 </div>
 
                 {/* ── Body ── */}
-                <div className="p-8 flex flex-col gap-8">
+                <div className="p-8 flex flex-col gap-8 bg-linear-to-b from-white to-slate-50/60">
 
                     {/* KPI Row */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -263,7 +263,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         {/* WIP per column */}
-                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6">
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="text-base font-bold text-gray-800">WIP by Column</span>
                                 <span className="ml-auto text-xs text-gray-400">total {metrics.wip.total}</span>
@@ -277,7 +277,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                         </div>
 
                         {/* Work Item Age */}
-                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6">
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="text-base font-bold text-gray-800">Work Item Age</span>
                                 <span className="ml-auto text-xs text-gray-400">active tasks</span>
@@ -303,7 +303,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     </div>
 
                     {/* CFD Chart */}
-                    <div className="rounded-2xl app-surface border border-slate-200/70 p-6">
+                    <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <span className="text-base font-bold text-gray-800">Cumulative Flow Diagram</span>
