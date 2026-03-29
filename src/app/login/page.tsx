@@ -4,21 +4,29 @@ import { loginWithGithub, loginWithGoogle } from '../../actions/authActions';
 export default function LoginPage() {
     return (
         <div className="min-h-screen app-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 app-surface p-10 rounded-2xl">
-                <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            <div className="max-w-md w-full app-surface border border-slate-200/70 p-10 rounded-3xl shadow-xl anim-panel-in">
+                <div className="text-center mb-8">
+                    <div className="w-14 h-14 mx-auto rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-cyan-700 mb-4">
+                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
+                            <rect x="14" y="3" width="7" height="5" rx="1.5" fill="currentColor" />
+                            <rect x="14" y="12" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
+                            <rect x="3" y="16" width="7" height="5" rx="1.5" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
                         Welcome to KanbanSync
                     </h2>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Sign in to manage your private boards.
+                    <p className="mt-2 text-sm text-slate-600">
+                        Sign in to access boards, tasks, timelines, and team collaboration.
                     </p>
                 </div>
 
-                <div className="mt-8 space-y-4">
+                <div className="space-y-3.5">
                     <form action={loginWithGithub}>
                         <button
                             type="submit"
-                            className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
+                            className="w-full flex justify-center py-3 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
                         >
                             {/* Simple GitHub SVG */}
                             <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -31,7 +39,7 @@ export default function LoginPage() {
                     <form action={loginWithGoogle}>
                         <button
                             type="submit"
-                            className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            className="w-full flex justify-center py-3 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                         >
                             {/* Simple Google SVG */}
                             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -44,6 +52,8 @@ export default function LoginPage() {
                         </button>
                     </form>
                 </div>
+
+                <p className="text-center text-xs text-slate-400 mt-6">Secure OAuth login · no password stored by KanbanSync</p>
             </div>
         </div>
     );

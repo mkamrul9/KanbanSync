@@ -71,7 +71,6 @@ model VerificationToken {
 }
 
 // ... keep your existing Board, Column, and Task models below ...
-
 model Board {
   id        String        @id @default(cuid())
   title     String
@@ -228,6 +227,36 @@ model Comment {
   @@map("comments")
 }
 
+model BoardInvite {
+  id            String    @id @default(cuid())
+  boardId       String
+  inviterId     String
+  invitedEmail  String
+  userId        String?
+  role          BoardRole @default(MEMBER)
+  createdAt     DateTime  @default(now())
+
+  board       Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  inviter     User  @relation("InviterToInvite", fields: [inviterId], references: [id], onDelete: Cascade)
+  user User? @relation("InvitedToInvite", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, invitedEmail])
+  @@map("board_invites")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  data      Json
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
 enum TaskStatus {
   TODO
   IN_PROGRESS
@@ -279,36 +308,6 @@ enum TaskActivityType {
   ATTACHMENT_ADDED
   ATTACHMENT_DELETED
   TEMPLATE_SAVED
-}
-
-model BoardInvite {
-  id            String    @id @default(cuid())
-  boardId       String
-  inviterId     String
-  invitedEmail  String
-  userId        String?
-  role          BoardRole @default(MEMBER)
-  createdAt     DateTime  @default(now())
-
-  board       Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  inviter     User  @relation("InviterToInvite", fields: [inviterId], references: [id], onDelete: Cascade)
-  user User? @relation("InvitedToInvite", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([boardId, invitedEmail])
-  @@map("board_invites")
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  data      Json
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notifications")
 }
 
 // TODO:

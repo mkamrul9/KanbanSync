@@ -85,8 +85,10 @@ export default async function BoardPage({
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
-                <KanbanBoard initialBoard={board} userRole={userRole} currentUserEmail={session?.user?.email ?? ''} />
+            <div className="flex-1 overflow-y-auto px-6 py-5">
+                <div className="app-surface rounded-2xl border border-slate-200/70 p-4 sm:p-5">
+                    <KanbanBoard initialBoard={board} userRole={userRole} currentUserEmail={session?.user?.email ?? ''} />
+                </div>
             </div>
 
             <BoardOnboardingTour userId={session?.user?.id ?? ''} forceStart={forceTour} />

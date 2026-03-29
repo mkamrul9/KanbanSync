@@ -48,19 +48,21 @@ const categoryConfig: Record<string, { label: string; color: string }> = {
     HOTFIX: { label: 'Hotfix', color: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' },
 };
 
+const priorityConfig: Record<string, { label: string; sign: string; cls: string }> = {
+    URGENT: { label: 'Urgent', sign: '!!', cls: 'bg-red-100 text-red-700 border-red-200' },
+    HIGH: { label: 'High', sign: '!', cls: 'bg-orange-100 text-orange-700 border-orange-200' },
+    MEDIUM: { label: 'Medium', sign: '~', cls: 'bg-amber-100 text-amber-700 border-amber-200' },
+    LOW: { label: 'Low', sign: 'v', cls: 'bg-blue-100 text-blue-700 border-blue-200' },
+    NONE: { label: 'None', sign: '-', cls: 'bg-gray-100 text-gray-500 border-gray-200' },
+};
+
 // Priority badge shown when the user is not a Leader
 function PriorityBadge({ priority }: { priority: string }) {
-    const cfg: Record<string, { label: string; cls: string }> = {
-        URGENT: { label: 'Urgent', cls: 'bg-red-100 text-red-700 border-red-200' },
-        HIGH: { label: 'High', cls: 'bg-orange-100 text-orange-700 border-orange-200' },
-        MEDIUM: { label: 'Medium', cls: 'bg-amber-100 text-amber-700 border-amber-200' },
-        LOW: { label: 'Low', cls: 'bg-blue-100 text-blue-700 border-blue-200' },
-        NONE: { label: 'None', cls: 'bg-gray-100 text-gray-500 border-gray-200' },
-    };
-    const { label, cls } = cfg[priority] ?? cfg.NONE;
+    const { label, cls, sign } = priorityConfig[priority] ?? priorityConfig.NONE;
     return (
-        <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${cls}`}>
-            {label}
+        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border ${cls}`}>
+            <span className="font-bold">{sign}</span>
+            <span>{label}</span>
         </span>
     );
 }
@@ -242,7 +244,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
             <div className="flex flex-col md:flex-row h-[86vh] max-h-[86vh] overflow-hidden app-bg">
 
                 {/* ── LEFT: Main content ───────────────────────────────── */}
-                <div className="flex-1 flex flex-col min-h-0 px-7 pb-7 pt-4 overflow-y-auto">
+                <div className="flex-1 flex flex-col min-h-0 px-7 pb-10 pt-4 overflow-y-auto">
 
                     {/* Breadcrumb + title */}
                     <div className="sticky top-0 z-20 -mx-7 px-7 pt-3 pb-4 mb-5 bg-white/90 backdrop-blur-md border-b border-slate-200/70">
@@ -427,18 +429,18 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Activity */}
-                    <div className="flex-1 flex flex-col min-h-0 app-surface rounded-2xl border border-slate-200/70 p-4">
+                    <div className="flex flex-col app-surface rounded-2xl border border-slate-200/70 p-4 min-h-[24rem]">
                         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Activity</h3>
 
                         {/* Comment list */}
-                        <div className="flex-1 overflow-y-auto space-y-3 mb-4 bg-slate-50 rounded-2xl p-4 border border-slate-200/80 min-h-40">
+                        <div className="overflow-y-auto space-y-3 mb-4 bg-slate-50 rounded-2xl p-5 border border-slate-200/80 min-h-[18rem] max-h-[22rem]">
                             {timeline.length === 0 && (
-                                <div className="flex flex-col items-center justify-center h-full py-10 gap-2 text-center">
-                                    <svg className="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
+                                    <svg className="w-14 h-14 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                     </svg>
-                                    <p className="text-slate-500 text-base font-medium">No activity yet</p>
-                                    <p className="text-slate-400 text-sm">Start the conversation by posting the first comment.</p>
+                                    <p className="text-slate-600 text-lg font-semibold">No activity yet</p>
+                                    <p className="text-slate-400 text-sm max-w-md">Start the conversation by posting the first comment. Updates, comments, assignments, and checklist changes will appear here.</p>
                                 </div>
                             )}
                             {timeline.map((item) => {
@@ -479,7 +481,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         </div>
 
                         {/* Comment input */}
-                        <div className="relative flex items-center gap-2.5">
+                        <div className="relative flex items-center gap-2.5 pb-1">
                             {/* @mention dropdown */}
                             {mentionQuery !== null && mentionSuggestions.length > 0 && (
                                 <div className="absolute bottom-full mb-1.5 left-9 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
@@ -581,11 +583,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 value={priority}
                                 onChange={(e) => handlePriorityChange(e.target.value)}
                             >
-                                <option value="URGENT">Urgent</option>
-                                <option value="HIGH">High</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="LOW">Low</option>
-                                <option value="NONE">None</option>
+                                <option value="URGENT">!! Urgent</option>
+                                <option value="HIGH">! High</option>
+                                <option value="MEDIUM">~ Medium</option>
+                                <option value="LOW">v Low</option>
+                                <option value="NONE">- None</option>
                             </select>
                         ) : (
                             <PriorityBadge priority={priority} />
@@ -664,7 +666,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Recurrence */}
-                    <div className="mb-4">
+                    <div className="mb-3 app-surface rounded-xl border border-slate-200/70 p-3">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Recurrence</p>
                         {isLeader ? (
                             <select

@@ -354,7 +354,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 </div>
             )}
             {/* Toolbar: search + filter + metrics */}
-            <div className="mb-3 flex items-center gap-3">
+            <div className="mb-4 flex items-center gap-3 flex-wrap">
                 <div className="relative w-80">
                     {/* Search Icon */}
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -369,7 +369,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         value={inputValue}
                         onChange={handleSearchChange}
                         placeholder="Search tasks..."
-                        className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                        className="w-full pl-10 pr-10 py-2.5 border border-slate-300 rounded-xl bg-white/90 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                     />
 
                     {/* Clear Button (Only shows if there is text) */}
@@ -400,9 +400,9 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                             setIsFilterOpen(o => !o);
                         }}
                         data-tour="board-filter-button"
-                        className={`relative flex items-center gap-2 px-4 py-2 rounded-lg border shadow-sm transition-all text-sm font-medium whitespace-nowrap ${countActiveFilters(filters) > 0
+                        className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border shadow-sm transition-all text-sm font-medium whitespace-nowrap ${countActiveFilters(filters) > 0
                             ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                            : 'bg-white/90 text-gray-700 border-slate-300 hover:bg-white hover:border-slate-400'
                             }`}
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -429,7 +429,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 <button
                     onClick={() => setIsMetricsOpen(true)}
                     data-tour="board-metrics-button"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 shadow-sm hover:bg-gray-50 hover:border-gray-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />

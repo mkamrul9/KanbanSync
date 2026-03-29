@@ -101,11 +101,11 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} className="max-w-4xl">
-            <div className="flex flex-col md:flex-row h-[75vh]" data-tour="new-task-modal">
+        <Modal isOpen={isOpen} onClose={handleClose} className="max-w-5xl">
+            <div className="flex flex-col md:flex-row h-[82vh] max-h-[82vh] overflow-hidden app-bg" data-tour="new-task-modal">
 
                 {/* ── LEFT: Main content ───────────────────────────────── */}
-                <div className="flex-1 flex flex-col min-h-0 p-7 pr-6">
+                <div className="flex-1 flex flex-col min-h-0 p-7 pr-6 overflow-y-auto">
 
                     {/* Breadcrumb + title input */}
                     <div className="mb-5">
@@ -137,11 +137,11 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     )}
 
                     {/* Description */}
-                    <div className="mb-5">
+                    <div className="mb-5 app-surface rounded-2xl border border-slate-200/70 p-4">
                         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Description</h3>
                         <textarea
                             data-tour="new-task-description"
-                            className="w-full h-32 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent text-sm text-gray-700 placeholder-gray-400 resize-none transition-all"
+                            className="w-full h-36 px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent text-sm text-gray-700 placeholder-gray-400 resize-none transition-all"
                             placeholder="Add a more detailed description…"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -149,11 +149,11 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Comments placeholder */}
-                    <div className="flex-1 bg-gray-50 rounded-xl flex flex-col items-center justify-center gap-1.5 border border-dashed border-gray-200">
-                        <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex-1 bg-slate-50 rounded-2xl flex flex-col items-center justify-center gap-2 border border-dashed border-slate-200 min-h-44">
+                        <svg className="w-9 h-9 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        <p className="text-sm text-gray-400">Comments unlock after the task is created.</p>
+                        <p className="text-sm text-slate-500 font-medium">Comments unlock after the task is created.</p>
                     </div>
 
                     {/* Actions */}
@@ -183,7 +183,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                 </div>
 
                 {/* ── RIGHT: Sidebar ───────────────────────────────────── */}
-                <div className="w-full md:w-56 shrink-0 flex flex-col gap-1 bg-gray-50 border-l border-gray-100 p-5 rounded-r-2xl">
+                <div className="w-full md:w-72 shrink-0 flex flex-col gap-1 bg-slate-50 border-l border-slate-200 p-5 rounded-r-2xl overflow-y-auto">
 
                     {/* Template */}
                     <div className="mb-5">
@@ -208,6 +208,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                         >
                             Apply Template
                         </button>
+                        <p className="text-[10px] text-gray-400 mt-1">Pick one and click Apply to prefill this form.</p>
                     </div>
 
                     {/* Category */}
@@ -240,11 +241,11 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             onChange={(e) => setPriority(e.target.value)}
                             className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
                         >
-                            <option value="URGENT">Urgent</option>
-                            <option value="HIGH">High</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="LOW">Low</option>
-                            <option value="NONE">None</option>
+                            <option value="URGENT">!! Urgent</option>
+                            <option value="HIGH">! High</option>
+                            <option value="MEDIUM">~ Medium</option>
+                            <option value="LOW">v Low</option>
+                            <option value="NONE">- None</option>
                         </select>
                     </div>
 

@@ -41,13 +41,23 @@ export default async function Dashboard() {
 
       <main className="flex-1 px-6 py-10 max-w-7xl mx-auto w-full">
         {/* Page heading */}
-        <div className="mb-8" data-tour="dashboard-title">
-          <h1 className="text-2xl font-bold text-gray-900">Your Boards</h1>
-          <p className="text-gray-500 mt-1">Welcome back, {session.user.name}</p>
+        <div className="mb-8 app-surface rounded-3xl p-6 md:p-7 border border-slate-200/70 anim-fade-up" data-tour="dashboard-title">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Your Boards</h1>
+              <p className="text-slate-600 mt-1">Welcome back, {session.user.name}</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                {boards.length} active board{boards.length === 1 ? '' : 's'}
+              </span>
+            </div>
+          </div>
         </div>
 
         {boards.length === 0 ? (
-          <div className="app-surface rounded-3xl flex flex-col items-center justify-center py-24 text-center" data-tour="dashboard-empty-state">
+          <div className="app-surface rounded-3xl flex flex-col items-center justify-center py-24 text-center border border-slate-200/70 anim-soft-pop" data-tour="dashboard-empty-state">
             <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
               <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-blue-500" xmlns="http://www.w3.org/2000/svg">
                 <rect x="3" y="3" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
@@ -60,7 +70,7 @@ export default async function Dashboard() {
             <p className="text-gray-400 mt-1 text-sm">Click &ldquo;Create Board&rdquo; in the navbar to get started.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 anim-fade-up">
             <BoardsGrid boards={boards} />
           </div>
         )}

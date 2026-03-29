@@ -190,12 +190,12 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
     return (
         <div
             ref={panelRef}
-            className="absolute top-full right-0 mt-2 z-40 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden"
+            className="absolute top-full right-0 mt-2 z-40 w-84 app-bg rounded-2xl shadow-2xl border border-slate-200/80 flex flex-col overflow-hidden"
             style={{ maxHeight: '80vh' }}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
-                <span className="font-semibold text-gray-800 text-sm">Filters & Sort</span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/80 bg-white/85 backdrop-blur-sm">
+                <span className="font-semibold text-slate-800 text-sm">Filters & Sort</span>
                 <div className="flex items-center gap-2">
                     {countActiveFilters(filters) > 0 && (
                         <button
@@ -227,9 +227,9 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={opt.value}
                             onClick={() => set({ sortBy: opt.value })}
-                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all text-left ${filters.sortBy === opt.value
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all text-left ${filters.sortBy === opt.value
                                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                : 'bg-white/90 text-gray-600 border-slate-200 hover:border-slate-300 hover:bg-white'
                                 }`}
                         >
                             {opt.icon}
@@ -246,9 +246,9 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                     {/* Unassigned */}
                     <button
                         onClick={() => set({ assignees: toggle(filters.assignees, 'unassigned') })}
-                        className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${filters.assignees.includes('unassigned')
+                        className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all ${filters.assignees.includes('unassigned')
                             ? 'bg-blue-50 border-blue-300 text-blue-700'
-                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                            : 'bg-white/90 border-slate-200 text-gray-600 hover:bg-white'
                             }`}
                     >
                         <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs shrink-0">?</span>
@@ -265,9 +265,9 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={m.user.id}
                             onClick={() => set({ assignees: toggle(filters.assignees, m.user.id) })}
-                            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${filters.assignees.includes(m.user.id)
+                            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all ${filters.assignees.includes(m.user.id)
                                 ? 'bg-blue-50 border-blue-300 text-blue-700'
-                                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                : 'bg-white/90 border-slate-200 text-gray-600 hover:bg-white'
                                 }`}
                         >
                             {m.user.image
@@ -344,7 +344,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         value={filters.tagSearch}
                         onChange={e => set({ tagSearch: e.target.value })}
                         placeholder="Filter by tag…"
-                        className="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full pl-8 pr-8 py-1.5 text-xs border border-slate-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                     {filters.tagSearch && (
                         <button
@@ -371,7 +371,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             value={filters.dateFrom}
                             max={filters.dateTo || undefined}
                             onChange={e => set({ dateFrom: e.target.value })}
-                            className="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                            className="flex-1 text-xs border border-slate-200 rounded-xl px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         />
                         {filters.dateFrom && (
                             <button onClick={() => set({ dateFrom: '' })} className="text-gray-400 hover:text-gray-600" aria-label="Clear">
@@ -386,7 +386,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             value={filters.dateTo}
                             min={filters.dateFrom || undefined}
                             onChange={e => set({ dateTo: e.target.value })}
-                            className="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                            className="flex-1 text-xs border border-slate-200 rounded-xl px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         />
                         {filters.dateTo && (
                             <button onClick={() => set({ dateTo: '' })} className="text-gray-400 hover:text-gray-600" aria-label="Clear">

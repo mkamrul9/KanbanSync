@@ -195,15 +195,15 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
         >
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                className="absolute inset-0 bg-slate-950/50 backdrop-blur-md"
                 onClick={onClose}
             />
 
             {/* Panel */}
-            <div className="relative z-10 w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl bg-white shadow-2xl flex flex-col">
+            <div className="relative z-10 w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-3xl app-bg border border-slate-200/80 shadow-2xl flex flex-col">
 
                 {/* ── Header ── */}
-                <div className="sticky top-0 z-10 rounded-t-3xl bg-linear-to-r from-slate-900 to-slate-800 px-8 py-6 flex items-center justify-between">
+                <div className="sticky top-0 z-10 rounded-t-3xl bg-linear-to-r from-slate-900 via-slate-800 to-cyan-900 px-8 py-6 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl">📊</div>
                         <div>
@@ -263,7 +263,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         {/* WIP per column */}
-                        <div className="rounded-2xl border border-gray-100 p-6">
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="text-base font-bold text-gray-800">WIP by Column</span>
                                 <span className="ml-auto text-xs text-gray-400">total {metrics.wip.total}</span>
@@ -277,7 +277,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                         </div>
 
                         {/* Work Item Age */}
-                        <div className="rounded-2xl border border-gray-100 p-6">
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6">
                             <div className="flex items-center gap-2 mb-5">
                                 <span className="text-base font-bold text-gray-800">Work Item Age</span>
                                 <span className="ml-auto text-xs text-gray-400">active tasks</span>
@@ -303,7 +303,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     </div>
 
                     {/* CFD Chart */}
-                    <div className="rounded-2xl border border-gray-100 p-6">
+                    <div className="rounded-2xl app-surface border border-slate-200/70 p-6">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <span className="text-base font-bold text-gray-800">Cumulative Flow Diagram</span>
@@ -320,7 +320,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     </div>
 
                     {/* Footer note */}
-                    <p className="text-center text-xs text-gray-300">
+                    <p className="text-center text-xs text-slate-400">
                         Metrics computed client-side from current board state · timestamps improve after migration
                     </p>
                 </div>

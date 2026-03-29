@@ -44,7 +44,7 @@ export default function BoardNavbar({
 
     return (
         <>
-            <nav data-tour="board-navbar" className="sticky top-0 z-40 w-full bg-white border-b border-gray-200 shadow-sm">
+            <nav data-tour="board-navbar" className="sticky top-0 z-40 w-full bg-white/92 backdrop-blur-md border-b border-slate-200 shadow-sm">
                 <div className="px-4 sm:px-6 h-16 flex items-center gap-3">
 
                     {/* ── Brand / back link ──────────────────────────── */}
@@ -109,7 +109,7 @@ export default function BoardNavbar({
                         <button
                             type="button"
                             onClick={() => window.dispatchEvent(new Event('ks-open-board-tour'))}
-                            className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors text-gray-700"
+                            className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 active:bg-slate-100 transition-colors text-gray-700"
                             aria-label="Start board tutorial"
                         >
                             <svg className="w-4 h-4 text-cyan-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -125,7 +125,7 @@ export default function BoardNavbar({
                             <button
                                 onClick={() => setIsInviteOpen(true)}
                                 data-tour="board-invite-button"
-                                className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors text-gray-700"
+                                className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 active:bg-slate-100 transition-colors text-gray-700"
                             >
                                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-blue-500" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -164,7 +164,7 @@ export default function BoardNavbar({
                             </button>
 
                             {userMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-gray-200 shadow-xl py-1 z-50">
+                                <div className="absolute right-0 mt-2 w-56 app-bg rounded-xl border border-slate-200 shadow-xl py-1 z-50">
                                     {/* User info */}
                                     <div className="px-4 py-3 border-b border-gray-100">
                                         <p className="text-sm font-semibold text-gray-800 truncate">{userName}</p>

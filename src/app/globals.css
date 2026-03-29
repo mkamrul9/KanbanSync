@@ -182,3 +182,120 @@
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(6px);
 }
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes soft-pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.anim-fade-up {
+  animation: fade-up 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.anim-panel-in {
+  animation: panel-in 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.anim-soft-pop {
+  animation: soft-pop 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ui-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(29, 78, 216, 0.35);
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+  transition: all 180ms ease;
+}
+
+.ui-btn-primary:hover {
+  filter: brightness(1.04);
+}
+
+.ui-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.ui-btn-secondary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #475569;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 180ms ease;
+}
+
+.ui-btn-secondary:hover {
+  background: #f8fafc;
+}
+
+.ui-field {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.75rem;
+  color: #334155;
+  font-size: 0.875rem;
+  padding: 0.625rem 0.75rem;
+  outline: none;
+  transition: all 180ms ease;
+}
+
+.ui-field:focus {
+  border-color: rgba(59, 130, 246, 0.75);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.ui-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+  background: linear-gradient(135deg, rgba(236, 254, 255, 0.8), rgba(239, 246, 255, 0.75));
+}
+
+.ui-modal-body {
+  padding: 1.5rem;
+}
+
+.ui-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.625rem;
+  padding-top: 1.25rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(226, 232, 240, 0.85);
+}

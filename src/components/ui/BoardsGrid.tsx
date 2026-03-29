@@ -25,17 +25,17 @@ export default function BoardsGrid({ boards }: { boards: Board[] }) {
                     href={`/board/${board.id}`}
                     key={board.id}
                     data-tour={board.id === visible[0]?.id ? 'open-board-card' : undefined}
-                    className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all group h-32 flex flex-col justify-between"
+                    className="app-surface p-6 rounded-2xl shadow-sm border border-slate-200/70 hover:shadow-md hover:border-cyan-300 transition-all group h-36 flex flex-col justify-between"
                 >
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-1">
+                        <h2 className="text-xl font-semibold text-slate-800 group-hover:text-cyan-700 transition-colors line-clamp-1 tracking-tight">
                             {board.title}
                         </h2>
                         {board.description && (
-                            <p className="text-xs text-gray-400 mt-1 line-clamp-1">{board.description}</p>
+                            <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{board.description}</p>
                         )}
                     </div>
-                    <span className="text-sm text-gray-400">Open board →</span>
+                    <span className="text-sm text-slate-500 group-hover:text-cyan-700 transition-colors">Open board &rarr;</span>
                 </Link>
             ))}
 
@@ -44,7 +44,7 @@ export default function BoardsGrid({ boards }: { boards: Board[] }) {
                 <div className="col-span-1 md:col-span-3 flex justify-center">
                     <button
                         onClick={() => setShowAll((v) => !v)}
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-cyan-700 hover:underline font-medium"
                     >
                         {showAll
                             ? 'Show fewer boards ↑'

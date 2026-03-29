@@ -34,7 +34,7 @@ export default function DashboardNavbar({
         : '?';
 
     return (
-        <nav className="sticky top-0 z-40 w-full bg-white border-b border-gray-200 shadow-sm">
+        <nav className="sticky top-0 z-40 w-full bg-white/92 backdrop-blur-md border-b border-slate-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
 
                 {/* ── Brand ────────────────────────────── */}
@@ -48,11 +48,11 @@ export default function DashboardNavbar({
                             <rect x="3" y="16" width="7" height="5" rx="1.5" fill="currentColor" />
                         </svg>
                     </div>
-                    <span className="text-xl font-bold text-gray-900 tracking-tight hidden sm:block">KanbanSync</span>
+                    <span className="text-xl font-bold text-slate-900 tracking-tight hidden sm:block">KanbanSync</span>
                 </div>
 
                 {/* ── Middle stats ─────────────────────── */}
-                <div className="hidden md:flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-500">
+                <div className="hidden md:flex items-center gap-1 bg-white border border-slate-200 rounded-full px-4 py-1.5 text-sm text-slate-500 shadow-xs">
                     <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 mr-1 text-blue-500" xmlns="http://www.w3.org/2000/svg">
                         <rect x="3" y="3" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
                         <rect x="14" y="3" width="7" height="5" rx="1.5" fill="currentColor" />
@@ -69,7 +69,7 @@ export default function DashboardNavbar({
                     <button
                         type="button"
                         onClick={() => window.dispatchEvent(new Event('ks-open-dashboard-tour'))}
-                        className="flex items-center gap-1.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium px-3 py-2 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 border border-slate-200 hover:bg-slate-50 text-gray-700 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
                         aria-label="Start dashboard tutorial"
                     >
                         <svg className="w-4 h-4 text-cyan-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,7 +116,7 @@ export default function DashboardNavbar({
                         </button>
 
                         {userMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-gray-200 shadow-xl py-1 z-50">
+                            <div className="absolute right-0 mt-2 w-56 app-bg rounded-xl border border-slate-200 shadow-xl py-1 z-50">
                                 {/* User info */}
                                 <div className="px-4 py-3 border-b border-gray-100">
                                     <p className="text-sm font-semibold text-gray-800 truncate">{userName}</p>
