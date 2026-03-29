@@ -31,6 +31,40 @@ const categoryConfig: Record<string, { label: string; color: string }> = {
     HOTFIX: { label: 'Hotfix', color: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' },
 };
 
+function PriorityIcon({ priority, className = '' }: { priority: string; className?: string }) {
+    const base = `w-3.5 h-3.5 shrink-0 ${className}`;
+    if (priority === 'URGENT') return (
+        <svg className={`${base} text-red-600`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Urgent priority">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 11l7-7 7 7M5 19l7-7 7 7" />
+        </svg>
+    );
+    if (priority === 'HIGH') return (
+        <svg className={`${base} text-orange-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="High priority">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+        </svg>
+    );
+    if (priority === 'MEDIUM') return (
+        <svg className={`${base} text-sky-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Medium priority">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
+        </svg>
+    );
+    if (priority === 'LOW') return (
+        <svg className={`${base} text-green-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Low priority">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+    );
+    return null;
+}
+
+function SideSectionTitle({ label, dotColor }: { label: string; dotColor: string }) {
+    return (
+        <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.16em] mb-2 flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+            {label}
+        </p>
+    );
+}
+
 export default function NewTaskModal({ isOpen, onClose, boardId, columnId, columnTitle, members = [], templates = [] }: NewTaskModalProps) {
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState<TaskCategory>(TaskCategory.NEW_FEATURE);
@@ -44,6 +78,13 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
     const [selectedTemplateId, setSelectedTemplateId] = useState('');
     const [isPending, startTransition] = useTransition();
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const priorityOptions = [
+        { value: 'URGENT', label: 'Urgent' },
+        { value: 'HIGH', label: 'High' },
+        { value: 'MEDIUM', label: 'Medium' },
+        { value: 'LOW', label: 'Low' },
+        { value: 'NONE', label: 'None' },
+    ];
 
     const cat = categoryConfig[category] ?? { label: category, color: 'bg-gray-100 text-gray-600' };
     const selectedMember = members.find(m => m.user.id === assigneeId);
@@ -183,11 +224,13 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                 </div>
 
                 {/* ── RIGHT: Sidebar ───────────────────────────────────── */}
-                <div className="w-full md:w-72 shrink-0 flex flex-col gap-1 bg-slate-50 border-l border-slate-200 p-5 rounded-r-2xl overflow-y-auto">
+                <div className="w-full md:w-80 shrink-0 flex flex-col gap-2 bg-slate-50/95 border-l border-slate-200/70 p-5 rounded-r-2xl overflow-y-auto">
+
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.18em] mb-1">Task Settings</p>
 
                     {/* Template */}
-                    <div className="mb-5">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Template</p>
+                    <div className="mb-3 rounded-xl border border-slate-200/70 bg-slate-50/35 p-3">
+                        <SideSectionTitle label="Template" dotColor="bg-slate-500" />
                         <select
                             value={selectedTemplateId}
                             onChange={(e) => setSelectedTemplateId(e.target.value)}
@@ -212,8 +255,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Category */}
-                    <div className="mb-5">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Category</p>
+                    <div className="mb-3 rounded-xl border border-indigo-200/70 bg-indigo-50/35 p-3">
+                        <SideSectionTitle label="Category" dotColor="bg-indigo-500" />
                         <select
                             data-tour="new-task-category"
                             value={category}
@@ -233,25 +276,33 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Priority */}
-                    <div className="mb-5">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Priority</p>
-                        <select
-                            data-tour="new-task-priority"
-                            value={priority}
-                            onChange={(e) => setPriority(e.target.value)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
-                        >
-                            <option value="URGENT">!! Urgent</option>
-                            <option value="HIGH">! High</option>
-                            <option value="MEDIUM">~ Medium</option>
-                            <option value="LOW">v Low</option>
-                            <option value="NONE">- None</option>
-                        </select>
+                    <div className="mb-3 rounded-xl border border-rose-200/70 bg-rose-50/35 p-3">
+                        <SideSectionTitle label="Priority" dotColor="bg-rose-500" />
+                        <div data-tour="new-task-priority" className="grid grid-cols-2 gap-1.5">
+                            {priorityOptions.map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => setPriority(opt.value)}
+                                    className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs font-semibold transition-colors ${priority === opt.value
+                                        ? 'bg-blue-600 text-white border-blue-600'
+                                        : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
+                                        }`}
+                                >
+                                    {opt.value !== 'NONE' ? (
+                                        <PriorityIcon priority={opt.value} className={priority === opt.value ? 'text-white' : ''} />
+                                    ) : (
+                                        <span className="w-3.5 h-3.5 inline-flex items-center justify-center text-[11px]">-</span>
+                                    )}
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Assignee */}
-                    <div className="mb-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Assignee</p>
+                    <div className="mb-3 rounded-xl border border-emerald-200/70 bg-emerald-50/35 p-3">
+                        <SideSectionTitle label="Assignee" dotColor="bg-emerald-500" />
                         {selectedMember ? (
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-6 h-6 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[10px] font-bold text-white">
@@ -281,8 +332,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Tags */}
-                    <div className="mb-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tags</p>
+                    <div className="mb-3 rounded-xl border border-fuchsia-200/70 bg-fuchsia-50/30 p-3">
+                        <SideSectionTitle label="Tags" dotColor="bg-fuchsia-500" />
                         <input
                             type="text"
                             data-tour="new-task-tags"
@@ -295,8 +346,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Due date */}
-                    <div className="mb-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Due Date</p>
+                    <div className="mb-3 rounded-xl border border-amber-200/70 bg-amber-50/35 p-3">
+                        <SideSectionTitle label="Due Date" dotColor="bg-amber-500" />
                         <input
                             type="datetime-local"
                             value={dueAt}
@@ -306,8 +357,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Reminder */}
-                    <div className="mb-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Reminder</p>
+                    <div className="mb-3 rounded-xl border border-cyan-200/70 bg-cyan-50/35 p-3">
+                        <SideSectionTitle label="Reminder" dotColor="bg-cyan-500" />
                         <input
                             type="datetime-local"
                             value={reminderAt}
@@ -317,8 +368,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Recurrence */}
-                    <div className="mb-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Recurrence</p>
+                    <div className="mb-3 rounded-xl border border-violet-200/70 bg-violet-50/35 p-3">
+                        <SideSectionTitle label="Recurrence" dotColor="bg-violet-500" />
                         <select
                             value={recurrence}
                             onChange={(e) => setRecurrence(e.target.value as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY')}
