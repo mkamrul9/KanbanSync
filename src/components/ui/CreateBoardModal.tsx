@@ -39,8 +39,18 @@ export default function CreateBoardModal() {
                                 <textarea name="description" placeholder="What is this board for? (optional)" disabled={loading} className="ui-field mt-1 h-24 resize-none" />
                             </div>
                             <div>
+                                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Template</label>
+                                <select name="template" disabled={loading} className="ui-field mt-1">
+                                    <option value="DEFAULT">Default Workflow</option>
+                                    <option value="PRODUCT">Product Discovery</option>
+                                    <option value="ENGINEERING">Engineering Delivery</option>
+                                    <option value="SUPPORT">Support Operations</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Columns <span className="text-gray-400 font-normal normal-case">(comma-separated)</span></label>
                                 <input name="columns" type="text" placeholder="Backlog, To Do, In Progress, Review, Done" disabled={loading} className="ui-field mt-1" />
+                                <p className="mt-1 text-[11px] text-gray-500">Leave blank to use the selected template columns. Any custom columns here override the template.</p>
                             </div>
                         </div>
 

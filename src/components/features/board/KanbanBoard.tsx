@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useOptimistic } from 'react';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
-import { moveTask } from '../../../actions/taskActions';
+import { moveTask, restoreTask } from '../../../actions/taskActions';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners } from '@dnd-kit/core';
 import { useRouter } from 'next/navigation';
 import { getPusherClient } from '../../../lib/pusher';
@@ -45,6 +45,7 @@ type Cycle = {
 
 export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }: KanbanBoardProps) {
     const router = useRouter();
+    const canManageArchive = userRole === 'LEADER' || userRole === 'REVIEWER';
     // Add a new "movedTask" property to the state, which we can use to render the dragging task in the overlay
     const [activeTask, setActiveTask] = useState<TaskType | null>(null);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -53,6 +54,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [isCycleOpen, setIsCycleOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isViewsOpen, setIsViewsOpen] = useState(false);
+    const [isArchiveOpen, setIsArchiveOpen] = useState(false);
     const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
     const [savedViews, setSavedViews] = useState<Array<{ id: string; name: string; filters: FilterState }>>(() => {
         if (typeof window === 'undefined') return [];
@@ -77,6 +79,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         }
     });
     const [showCurrentCycleOnly, setShowCurrentCycleOnly] = useState(false);
+    const [isRestoringTask, startRestoreTaskTransition] = useTransition();
     // Stable "now" timestamp for age-filter comparisons (refreshed each time the filter panel opens)
     const [filterNow, setFilterNow] = useState(() => Date.now());
 
@@ -156,6 +159,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         const start = new Date(active.startDate).getTime();
         const end = new Date(active.endDate).getTime() + 86_400_000;
         const inCycle = allBoardTasks.filter((t) => {
+            if (t.status === 'ARCHIVED') return false;
             const anchor = t.dueAt ? new Date(t.dueAt).getTime() : new Date(t.createdAt).getTime();
             return anchor >= start && anchor <= end;
         });
@@ -165,6 +169,12 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             done: inCycle.filter((t) => t.status === 'DONE').length,
         };
     }, [cycles, allBoardTasks]);
+    const archivedTasks = useMemo(
+        () => allBoardTasks.filter((task) => task.status === 'ARCHIVED').sort((a, b) => {
+            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        }),
+        [allBoardTasks]
+    );
 
     // The Real-Time Subscription
     useEffect(() => {
@@ -219,6 +229,15 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         setFilterNow(Date.now());
     };
 
+    const handleRestoreTask = (taskId: string) => {
+        startRestoreTaskTransition(async () => {
+            const result = await restoreTask(taskId, initialBoard.id);
+            if (!result?.success) {
+                setToastMessage(result?.error ?? 'Failed to restore task.');
+            }
+        });
+    };
+
     // Memoize the filter + sort so it doesn't recalculate during 60fps dragging
     const filteredColumns = useMemo(() => {
         const now = filterNow;
@@ -239,7 +258,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         const cycleEnd = activeCycle ? new Date(activeCycle.endDate).getTime() + 86_400_000 : 0;
 
         return optimisticColumns.map(column => {
-            let tasks = [...column.tasks];
+            let tasks = [...column.tasks].filter((task) => task.status !== 'ARCHIVED');
 
             // ── Search ─────────────────────────────────────────────
             if (hasSearch) {
@@ -606,6 +625,46 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 >
                     Cycles
                 </button>
+
+                {canManageArchive && (
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsArchiveOpen((o) => !o)}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        >
+                            Archived
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{archivedTasks.length}</span>
+                        </button>
+
+                        {isArchiveOpen && (
+                            <div className="absolute top-full mt-2 left-0 z-40 w-80 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
+                                {archivedTasks.length === 0 ? (
+                                    <div className="px-2 py-2 space-y-1">
+                                        <p className="text-xs text-slate-500">No archived tasks.</p>
+                                        <p className="text-[11px] text-slate-400">Archive a task from its card to keep the board clean without losing history.</p>
+                                    </div>
+                                ) : (
+                                    archivedTasks.map((task) => (
+                                        <div key={task.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
+                                            <div className="min-w-0">
+                                                <p className="text-xs font-semibold text-slate-700 truncate">{task.title}</p>
+                                                <p className="text-[11px] text-slate-400">{task.category.replace(/_/g, ' ')}</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRestoreTask(task.id)}
+                                                disabled={isRestoringTask}
+                                                className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                            >
+                                                Restore
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {cycles.some((c) => c.isActive) && (
                     <button

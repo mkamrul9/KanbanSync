@@ -287,28 +287,101 @@ export async function createTask(
 
 
 export async function deleteTask(taskId: string, boardId: string) {
+    return archiveTask(taskId, boardId);
+}
+
+export async function archiveTask(taskId: string, boardId: string) {
     try {
         const role = await getUserRole(boardId);
-        if (role !== BoardRole.LEADER) {
-            return { success: false, error: 'Unauthorized: Only Leaders can delete tasks.' };
+        if (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER) {
+            return { success: false, error: 'Unauthorized: Only Leaders and Reviewers can archive tasks.' };
         }
-        const task = await prisma.task.findUnique({ where: { id: taskId }, select: { title: true } });
+        const session = await auth();
+        const task = await prisma.task.findUnique({
+            where: { id: taskId },
+            select: { title: true, status: true },
+        });
+
+        if (!task) {
+            return { success: false, error: 'Task not found' };
+        }
+
+        if (task.status === 'ARCHIVED') {
+            return { success: true };
+        }
+
+        await prisma.task.update({
+            where: { id: taskId },
+            data: { status: 'ARCHIVED' },
+        });
 
         await logTaskActivity({
             taskId,
             action: TaskActivityType.UPDATED,
-            message: `Task deleted: ${task?.title ?? 'Untitled task'}`,
+            actorId: session?.user?.id,
+            message: `Archived task: ${task.title}`,
+            meta: {
+                previousStatus: task.status,
+            },
         });
 
-        await prisma.task.delete({
-            where: { id: taskId },
-        });
-
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Task archived' });
         revalidatePath(`/board/${boardId}`);
         return { success: true };
     } catch (error) {
-        console.error("Failed to delete task:", error);
-        return { success: false, error: 'Failed to delete task' };
+        console.error("Failed to archive task:", error);
+        return { success: false, error: 'Failed to archive task' };
+    }
+}
+
+export async function restoreTask(taskId: string, boardId: string) {
+    try {
+        const role = await getUserRole(boardId);
+        if (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER) {
+            return { success: false, error: 'Unauthorized: Only Leaders and Reviewers can restore tasks.' };
+        }
+
+        const session = await auth();
+        const task = await prisma.task.findUnique({
+            where: { id: taskId },
+            select: {
+                title: true,
+                status: true,
+                column: { select: { title: true } },
+            },
+        });
+
+        if (!task) {
+            return { success: false, error: 'Task not found' };
+        }
+
+        if (task.status !== 'ARCHIVED') {
+            return { success: false, error: 'Only archived tasks can be restored.' };
+        }
+
+        const restoredStatus = task.column?.title ?? 'To Do';
+
+        await prisma.task.update({
+            where: { id: taskId },
+            data: { status: restoredStatus },
+        });
+
+        await logTaskActivity({
+            taskId,
+            action: TaskActivityType.UPDATED,
+            actorId: session?.user?.id,
+            message: `Restored task: ${task.title}`,
+            meta: {
+                restoredStatus,
+            },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Task restored' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to restore task:", error);
+        return { success: false, error: 'Failed to restore task' };
     }
 }
 

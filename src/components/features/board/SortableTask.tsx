@@ -328,9 +328,9 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                                 </svg>
                             </div>
                             <div className="min-w-0">
-                                <h2 className="text-lg font-semibold text-gray-900">Delete Task</h2>
+                                <h2 className="text-lg font-semibold text-gray-900">Archive Task</h2>
                                 <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                                    You are about to permanently remove
+                                    You are about to archive
                                     <span className="font-semibold text-gray-800"> &ldquo;{task.title}&rdquo;</span>.
                                 </p>
                             </div>
@@ -339,7 +339,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     <div className="px-6 py-5">
                         <div className="app-surface border border-red-100/80 rounded-xl px-4 py-3 mb-5">
-                            <p className="text-xs text-red-700 font-medium">This action cannot be undone.</p>
+                            <p className="text-xs text-red-700 font-medium">You can restore this task anytime from the Archived menu.</p>
                         </div>
 
                         <div className="flex items-center justify-end gap-2.5">
@@ -361,10 +361,10 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                                         </svg>
-                                        Deleting...
+                                        Archiving...
                                     </>
                                 ) : (
-                                    <>Delete Task</>
+                                    <>Archive Task</>
                                 )}
                             </button>
                         </div>
