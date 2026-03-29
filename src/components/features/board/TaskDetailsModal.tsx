@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import Modal from '../../../components/ui/Modal';
 import {
     addComment,
@@ -110,6 +110,52 @@ function SideSectionTitle({ label, dotColor }: { label: string; dotColor: string
 }
 
 export default function TaskDetailsModal({ isOpen, onClose, task, boardId, members, allTasks, currentUserEmail }: TaskDetailsModalProps) {
+    const [timerBoot] = useState(() => {
+        if (typeof window === 'undefined') {
+            return {
+                timerSeconds: 0,
+                timerRunning: false,
+                lastActivityAt: 0,
+                timerAdjustmentMinutes: '0',
+                timerSessionNote: '',
+            };
+        }
+        try {
+            const raw = localStorage.getItem(`ks-task-timer-${task.id}`);
+            if (!raw) {
+                return {
+                    timerSeconds: 0,
+                    timerRunning: false,
+                    lastActivityAt: 0,
+                    timerAdjustmentMinutes: '0',
+                    timerSessionNote: '',
+                };
+            }
+            const parsed = JSON.parse(raw) as {
+                timerSeconds?: number;
+                timerRunning?: boolean;
+                lastActivityAt?: number;
+                timerAdjustmentMinutes?: string;
+                timerSessionNote?: string;
+            };
+            return {
+                timerSeconds: typeof parsed.timerSeconds === 'number' ? parsed.timerSeconds : 0,
+                timerRunning: typeof parsed.timerRunning === 'boolean' ? parsed.timerRunning : false,
+                lastActivityAt: typeof parsed.lastActivityAt === 'number' ? parsed.lastActivityAt : 0,
+                timerAdjustmentMinutes: typeof parsed.timerAdjustmentMinutes === 'string' ? parsed.timerAdjustmentMinutes : '0',
+                timerSessionNote: typeof parsed.timerSessionNote === 'string' ? parsed.timerSessionNote : '',
+            };
+        } catch {
+            return {
+                timerSeconds: 0,
+                timerRunning: false,
+                lastActivityAt: 0,
+                timerAdjustmentMinutes: '0',
+                timerSessionNote: '',
+            };
+        }
+    });
+
     const [description, setDescription] = useState(task.description || '');
     const [saved, setSaved] = useState(false);
     const [commentText, setCommentText] = useState('');
@@ -132,11 +178,13 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [dependsOnTaskId, setDependsOnTaskId] = useState('');
     const [timeEntries, setTimeEntries] = useState<TimeEntryType[]>(task.timeEntries ?? []);
     const [timeMinutes, setTimeMinutes] = useState('');
-    const [timeNote, setTimeNote] = useState('');
-    const [timerSeconds, setTimerSeconds] = useState(0);
-    const [timerRunning, setTimerRunning] = useState(false);
-    const [lastActivityAt, setLastActivityAt] = useState<number>(0);
-    const [timerAdjustmentMinutes, setTimerAdjustmentMinutes] = useState('0');
+    const [manualTimeNote, setManualTimeNote] = useState('');
+    const [timerSessionNote, setTimerSessionNote] = useState(timerBoot.timerSessionNote);
+    const [timerSeconds, setTimerSeconds] = useState(timerBoot.timerSeconds);
+    const [timerRunning, setTimerRunning] = useState(timerBoot.timerRunning);
+    const [lastActivityAt, setLastActivityAt] = useState<number>(timerBoot.lastActivityAt);
+    const lastActivityRef = useRef(timerBoot.lastActivityAt);
+    const [timerAdjustmentMinutes, setTimerAdjustmentMinutes] = useState(timerBoot.timerAdjustmentMinutes);
     const [timerStatusMsg, setTimerStatusMsg] = useState<string | null>(null);
     const [gitLinkType, setGitLinkType] = useState<'PR' | 'Commit' | 'Branch'>('PR');
     const [gitLinkUrl, setGitLinkUrl] = useState('');
@@ -351,11 +399,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         const minutes = Number(timeMinutes);
         if (!Number.isFinite(minutes) || minutes <= 0) return;
         startTransition(async () => {
-            const result = await addTaskTimeEntry(task.id, boardId, minutes, timeNote);
+            const result = await addTaskTimeEntry(task.id, boardId, minutes, manualTimeNote);
             if (result.success && result.timeEntry) {
                 setTimeEntries((prev) => [result.timeEntry, ...prev]);
                 setTimeMinutes('');
-                setTimeNote('');
+                setManualTimeNote('');
             }
         });
     };
@@ -367,17 +415,41 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         });
     };
 
+    const timerStorageKey = `ks-task-timer-${task.id}`;
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(timerStorageKey, JSON.stringify({
+                timerSeconds,
+                timerRunning,
+                lastActivityAt,
+                timerAdjustmentMinutes,
+                timerSessionNote,
+            }));
+        } catch {
+            // Ignore persistence errors.
+        }
+    }, [timerStorageKey, timerSeconds, timerRunning, lastActivityAt, timerAdjustmentMinutes, timerSessionNote]);
+
+    useEffect(() => {
+        lastActivityRef.current = lastActivityAt;
+    }, [lastActivityAt]);
+
     useEffect(() => {
         if (!timerRunning) return;
 
-        const onActivity = () => setLastActivityAt(Date.now());
+        const onActivity = () => {
+            const now = Date.now();
+            setLastActivityAt(now);
+            lastActivityRef.current = now;
+        };
         const activityEvents: Array<keyof WindowEventMap> = ['mousemove', 'keydown', 'mousedown', 'scroll'];
         activityEvents.forEach((event) => window.addEventListener(event, onActivity, { passive: true }));
 
         const tick = window.setInterval(() => {
             setTimerSeconds((prev) => prev + 1);
 
-            const idleForMs = Date.now() - lastActivityAt;
+            const idleForMs = Date.now() - (lastActivityRef.current || Date.now());
             if (idleForMs >= 5 * 60 * 1000) {
                 setTimerRunning(false);
                 setTimerStatusMsg('Timer auto-paused after 5 minutes of inactivity.');
@@ -388,7 +460,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
             window.clearInterval(tick);
             activityEvents.forEach((event) => window.removeEventListener(event, onActivity));
         };
-    }, [timerRunning, lastActivityAt]);
+    }, [timerRunning]);
 
     const formatTimer = (seconds: number) => {
         const hrs = Math.floor(seconds / 3600);
@@ -399,7 +471,9 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
     const handleStartTimer = () => {
         setTimerStatusMsg(null);
-        setLastActivityAt(Date.now());
+        const now = Date.now();
+        setLastActivityAt(now);
+        lastActivityRef.current = now;
         setTimerRunning(true);
     };
 
@@ -417,13 +491,16 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         const totalMinutes = Math.max(1, baseMinutes + safeAdjustment);
 
         startTransition(async () => {
-            const timerNote = (timeNote?.trim() ? `Timer session: ${timeNote.trim()}` : 'Timer session');
+            const timerNote = (timerSessionNote?.trim() ? `Timer session: ${timerSessionNote.trim()}` : 'Timer session');
             const result = await addTaskTimeEntry(task.id, boardId, totalMinutes, timerNote);
             if (result.success && result.timeEntry) {
                 setTimeEntries((prev) => [result.timeEntry, ...prev]);
                 setTimerSeconds(0);
                 setTimerAdjustmentMinutes('0');
-                setTimeNote('');
+                setTimerSessionNote('');
+                setLastActivityAt(0);
+                lastActivityRef.current = 0;
+                localStorage.removeItem(timerStorageKey);
                 setTimerStatusMsg(`Logged ${totalMinutes} min from timer.`);
             } else {
                 setTimerStatusMsg('Failed to log timer session.');
@@ -1027,8 +1104,8 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 />
                                 <input
                                     type="text"
-                                    value={timeNote}
-                                    onChange={(e) => setTimeNote(e.target.value)}
+                                    value={timerSessionNote}
+                                    onChange={(e) => setTimerSessionNote(e.target.value)}
                                     className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-md text-xs text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-teal-100 focus:border-teal-400 outline-none"
                                     placeholder="Timer note"
                                 />
@@ -1073,8 +1150,8 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                             />
                             <div className="space-y-2">
                                 <textarea
-                                    value={timeNote}
-                                    onChange={(e) => setTimeNote(e.target.value)}
+                                    value={manualTimeNote}
+                                    onChange={(e) => setManualTimeNote(e.target.value)}
                                     placeholder="Optional note"
                                     rows={3}
                                     className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none resize-y min-h-20"

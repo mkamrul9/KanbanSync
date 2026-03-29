@@ -64,6 +64,35 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
         return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
     }, [rows]);
 
+    const handleExportCsv = () => {
+        if (rows.length === 0) return;
+
+        const header = ['Date', 'Time', 'Member', 'Task', 'Minutes', 'Note'];
+        const records = rows.map((row) => {
+            const created = new Date(row.createdAt);
+            return [
+                selectedDate,
+                created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                row.memberName,
+                row.taskTitle,
+                String(row.minutes),
+                row.note ?? '',
+            ];
+        });
+
+        const csv = [header, ...records]
+            .map((cols) => cols.map((col) => `"${String(col).replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `timesheet-${selectedDate}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-5xl">
             <div className="app-bg">
@@ -116,7 +145,17 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
                     </div>
 
                     <div className="lg:col-span-2 app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <p className="text-xs font-medium text-gray-600 uppercase tracking-wide mb-3">Entries</p>
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Entries</p>
+                            <button
+                                type="button"
+                                onClick={handleExportCsv}
+                                disabled={rows.length === 0}
+                                className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-blue-300 disabled:opacity-40"
+                            >
+                                Export CSV
+                            </button>
+                        </div>
                         <div className="space-y-2 max-h-[26rem] overflow-y-auto pr-1">
                             {rows.length === 0 && (
                                 <div className="border border-dashed border-slate-200 rounded-xl p-6 text-center text-sm text-slate-500">
