@@ -121,3 +121,88 @@ export async function assignTask(taskId: string, boardId: string, assigneeId: st
         return { success: false, error: 'Failed to assign task' };
     }
 }
+
+export async function addSubtask(taskId: string, boardId: string, title: string) {
+    if (!title.trim()) return { success: false, error: 'Title is required' };
+    try {
+        const last = await prisma.subtask.findFirst({
+            where: { taskId },
+            orderBy: { order: 'desc' },
+        });
+
+        const subtask = await prisma.subtask.create({
+            data: {
+                taskId,
+                title: title.trim(),
+                order: (last?.order ?? -1) + 1,
+            },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Subtask added' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true, subtask };
+    } catch (error) {
+        console.error('Failed to add subtask:', error);
+        return { success: false, error: 'Failed to add subtask' };
+    }
+}
+
+export async function toggleSubtask(subtaskId: string, boardId: string, done: boolean) {
+    try {
+        const subtask = await prisma.subtask.update({
+            where: { id: subtaskId },
+            data: { done },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Subtask updated' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true, subtask };
+    } catch (error) {
+        console.error('Failed to toggle subtask:', error);
+        return { success: false, error: 'Failed to toggle subtask' };
+    }
+}
+
+export async function deleteSubtask(subtaskId: string, boardId: string) {
+    try {
+        await prisma.subtask.delete({ where: { id: subtaskId } });
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Subtask deleted' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to delete subtask:', error);
+        return { success: false, error: 'Failed to delete subtask' };
+    }
+}
+
+export async function addTaskAttachment(taskId: string, boardId: string, name: string, url: string) {
+    if (!name.trim() || !url.trim()) return { success: false, error: 'Name and URL are required' };
+    try {
+        const attachment = await prisma.attachment.create({
+            data: {
+                taskId,
+                name: name.trim(),
+                url: url.trim(),
+            },
+        });
+
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Attachment added' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true, attachment };
+    } catch (error) {
+        console.error('Failed to add attachment:', error);
+        return { success: false, error: 'Failed to add attachment' };
+    }
+}
+
+export async function deleteTaskAttachment(attachmentId: string, boardId: string) {
+    try {
+        await prisma.attachment.delete({ where: { id: attachmentId } });
+        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Attachment deleted' });
+        revalidatePath(`/board/${boardId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to delete attachment:', error);
+        return { success: false, error: 'Failed to delete attachment' };
+    }
+}

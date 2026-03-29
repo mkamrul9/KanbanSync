@@ -80,6 +80,16 @@ export type Column = Prisma.ColumnModel
  */
 export type Task = Prisma.TaskModel
 /**
+ * Model Subtask
+ * 
+ */
+export type Subtask = Prisma.SubtaskModel
+/**
+ * Model Attachment
+ * 
+ */
+export type Attachment = Prisma.AttachmentModel
+/**
  * Model Comment
  * 
  */

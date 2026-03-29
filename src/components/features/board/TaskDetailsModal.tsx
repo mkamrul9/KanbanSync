@@ -2,7 +2,16 @@
 
 import { useState, useTransition } from 'react';
 import Modal from '../../../components/ui/Modal';
-import { addComment, updateTaskDescription, assignTask } from '../../../actions/detailActions';
+import {
+    addComment,
+    updateTaskDescription,
+    assignTask,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
+    addTaskAttachment,
+    deleteTaskAttachment,
+} from '../../../actions/detailActions';
 import { updateTask } from '../../../actions/taskActions';
 import { formatDistanceToNow } from 'date-fns';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
@@ -13,6 +22,8 @@ type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number] & {
 };
 type MemberType = BoardWithColumnsAndTasks['members'][number];
 type CommentType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['comments'][number];
+type SubtaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['subtasks'][number];
+type AttachmentType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number]['attachments'][number];
 
 interface TaskDetailsModalProps {
     isOpen: boolean;
@@ -63,6 +74,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [dueAt, setDueAt] = useState<string>(task.dueAt ? new Date(task.dueAt).toISOString().slice(0, 16) : '');
     const [reminderAt, setReminderAt] = useState<string>(task.reminderAt ? new Date(task.reminderAt).toISOString().slice(0, 16) : '');
     const [recurrence, setRecurrence] = useState<'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY'>((task.recurrence as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY') ?? 'NONE');
+    const [subtaskTitle, setSubtaskTitle] = useState('');
+    const [subtasks, setSubtasks] = useState<SubtaskType[]>(task.subtasks ?? []);
+    const [attachmentName, setAttachmentName] = useState('');
+    const [attachmentUrl, setAttachmentUrl] = useState('');
+    const [attachments, setAttachments] = useState<AttachmentType[]>(task.attachments ?? []);
 
     // Detect @word at the end of the current comment text
     const handleCommentChange = (val: string) => {
@@ -156,6 +172,53 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
         });
     };
 
+    const handleAddSubtask = () => {
+        if (!subtaskTitle.trim()) return;
+        startTransition(async () => {
+            const result = await addSubtask(task.id, boardId, subtaskTitle);
+            if (result.success && result.subtask) {
+                setSubtasks((prev) => [...prev, result.subtask]);
+                setSubtaskTitle('');
+            }
+        });
+    };
+
+    const handleToggleSubtask = (subtaskId: string, done: boolean) => {
+        setSubtasks((prev) => prev.map((s) => s.id === subtaskId ? { ...s, done } : s));
+        startTransition(async () => {
+            await toggleSubtask(subtaskId, boardId, done);
+        });
+    };
+
+    const handleDeleteSubtask = (subtaskId: string) => {
+        setSubtasks((prev) => prev.filter((s) => s.id !== subtaskId));
+        startTransition(async () => {
+            await deleteSubtask(subtaskId, boardId);
+        });
+    };
+
+    const handleAddAttachment = () => {
+        if (!attachmentName.trim() || !attachmentUrl.trim()) return;
+        startTransition(async () => {
+            const result = await addTaskAttachment(task.id, boardId, attachmentName, attachmentUrl);
+            if (result.success && result.attachment) {
+                setAttachments((prev) => [result.attachment, ...prev]);
+                setAttachmentName('');
+                setAttachmentUrl('');
+            }
+        });
+    };
+
+    const handleDeleteAttachment = (attachmentId: string) => {
+        setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+        startTransition(async () => {
+            await deleteTaskAttachment(attachmentId, boardId);
+        });
+    };
+
+    const doneSubtasks = subtasks.filter((s) => s.done).length;
+    const subtaskProgress = subtasks.length > 0 ? Math.round((doneSubtasks / subtasks.length) * 100) : 0;
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-5xl">
             <div className="flex flex-col md:flex-row h-[82vh]">
@@ -199,6 +262,131 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                             onBlur={isLeader ? handleDescriptionSave : undefined}
                             readOnly={!isLeader}
                         />
+                    </div>
+
+                    {/* Subtasks */}
+                    <div className="mb-5">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Checklist</h3>
+                            <span className="text-[11px] text-gray-500">{doneSubtasks}/{subtasks.length} done</span>
+                        </div>
+
+                        {subtasks.length > 0 && (
+                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+                                <div className="h-full bg-blue-500 transition-all" style={{ width: `${subtaskProgress}%` }} />
+                            </div>
+                        )}
+
+                        <div className="space-y-2 mb-3 max-h-32 overflow-y-auto pr-1">
+                            {subtasks.length === 0 && (
+                                <p className="text-xs text-gray-400">No subtasks yet.</p>
+                            )}
+                            {subtasks.map((sub) => (
+                                <div key={sub.id} className="flex items-center gap-2.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={sub.done}
+                                        onChange={(e) => handleToggleSubtask(sub.id, e.target.checked)}
+                                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span className={`text-sm flex-1 ${sub.done ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                                        {sub.title}
+                                    </span>
+                                    {isLeader && (
+                                        <button
+                                            onClick={() => handleDeleteSubtask(sub.id)}
+                                            className="text-gray-400 hover:text-red-600 transition-colors"
+                                            aria-label="Delete subtask"
+                                        >
+                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {isLeader && (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={subtaskTitle}
+                                    onChange={(e) => setSubtaskTitle(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask()}
+                                    placeholder="Add subtask..."
+                                    className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                />
+                                <button
+                                    onClick={handleAddSubtask}
+                                    className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Attachments */}
+                    <div className="mb-5">
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Attachments</h3>
+
+                        <div className="space-y-2 mb-3 max-h-28 overflow-y-auto pr-1">
+                            {attachments.length === 0 && (
+                                <p className="text-xs text-gray-400">No attachments yet.</p>
+                            )}
+                            {attachments.map((a) => (
+                                <div key={a.id} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                    <a
+                                        href={a.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-sm text-blue-600 hover:underline truncate flex-1"
+                                    >
+                                        {a.name}
+                                    </a>
+                                    {isLeader && (
+                                        <button
+                                            onClick={() => handleDeleteAttachment(a.id)}
+                                            className="text-gray-400 hover:text-red-600 transition-colors"
+                                            aria-label="Delete attachment"
+                                        >
+                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {isLeader && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <input
+                                    type="text"
+                                    value={attachmentName}
+                                    onChange={(e) => setAttachmentName(e.target.value)}
+                                    placeholder="Attachment name"
+                                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="url"
+                                        value={attachmentUrl}
+                                        onChange={(e) => setAttachmentUrl(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddAttachment()}
+                                        placeholder="https://..."
+                                        className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                    />
+                                    <button
+                                        onClick={handleAddAttachment}
+                                        className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Activity */}

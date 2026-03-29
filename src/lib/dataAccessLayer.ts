@@ -40,7 +40,9 @@ export const getBoardData = cache(async (boardId: string): Promise<BoardWithColu
                         // Include assignees and comments for the new UI
                         include: {
                             assignee: true,
-                            comments: { include: { user: true } }
+                            comments: { include: { user: true } },
+                            subtasks: { orderBy: { order: 'asc' } },
+                            attachments: { orderBy: { createdAt: 'desc' } },
                         }
                     },
                 },

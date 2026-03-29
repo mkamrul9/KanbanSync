@@ -131,6 +131,8 @@ model Task {
   column   Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
   comments Comment[]
+  subtasks Subtask[]
+  attachments Attachment[]
 
   // Timestamps for tracking workflow
   startedAt   DateTime?
@@ -146,6 +148,30 @@ model Task {
   updatedAt DateTime @updatedAt
 
   @@map("tasks")
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  title     String
+  done      Boolean  @default(false)
+  order     Int
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subtasks")
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("attachments")
 }
 
 model Comment {

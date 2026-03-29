@@ -139,6 +139,9 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
     const hasTags = task.tags && task.tags.length > 0;
     const dueAt = task.dueAt ? new Date(task.dueAt) : null;
     const isOverdue = dueAt ? dueAt.getTime() < nowTs && task.status !== 'DONE' : false;
+    const subtaskTotal = task.subtasks?.length ?? 0;
+    const subtaskDone = task.subtasks?.filter((s) => s.done).length ?? 0;
+    const subtaskProgress = subtaskTotal > 0 ? Math.round((subtaskDone / subtaskTotal) * 100) : 0;
 
     return (
         <>
@@ -238,6 +241,21 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                             <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-100 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
                                 {isOverdue ? 'Overdue' : 'Due'} {dueAt.toLocaleDateString()}
                             </span>
+                        </div>
+                    )}
+
+                    {subtaskTotal > 0 && (
+                        <div className="mt-2.5">
+                            <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                                <span>Checklist</span>
+                                <span>{subtaskDone}/{subtaskTotal}</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-blue-500 transition-all"
+                                    style={{ width: `${subtaskProgress}%` }}
+                                />
+                            </div>
                         </div>
                     )}
 

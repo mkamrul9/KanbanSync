@@ -19,6 +19,8 @@ export type BoardWithColumnsAndTasks = Prisma.BoardGetPayload<{
                     include: {
                         assignee: true;
                         comments: { include: { user: true } };
+                        subtasks: true;
+                        attachments: true;
                     };
                 };
             };
