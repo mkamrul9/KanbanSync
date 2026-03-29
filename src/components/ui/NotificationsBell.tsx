@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { getPusherClient } from '../../lib/pusher';
-import { acceptInvite, declineInvite } from '../../actions/notificationActions';
+import { acceptInvite, declineInvite, getRecentNotifications } from '../../actions/notificationActions';
 
 type NotificationItem = {
     id?: string;
@@ -17,6 +17,7 @@ type NotificationItem = {
     taskTitle?: string;
     inviterName?: string | null;
     role?: string | null;
+    createdAt?: string;
 };
 
 type InviteResult = 'accepted' | 'declined' | 'error';
@@ -51,6 +52,15 @@ export default function NotificationsBell({ userId }: { userId: string }) {
 
     useEffect(() => {
         if (!userId) return;
+        getRecentNotifications(userId)
+            .then((rows) => {
+                if (!Array.isArray(rows)) return;
+                setItems(rows as NotificationItem[]);
+            })
+            .catch(() => {
+                // Non-blocking: realtime notifications still work.
+            });
+
         const pusher = getPusherClient();
         const channel = pusher.subscribe(`user-${userId}`);
         const handleNotification = (data: NotificationItem) => {

@@ -13,16 +13,16 @@ type MemberType = BoardWithColumnsAndTasks['members'][number];
 type TemplateType = BoardWithColumnsAndTasks['taskTemplates'][number];
 type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number];
 
-// Derive a subtle accent color for each column based on its title
-function getColumnAccent(title: string): { dot: string; header: string } {
+// Derive a stronger visual palette for each column based on its title
+function getColumnAccent(title: string): { dot: string; header: string; panel: string; badge: string; border: string } {
     const t = title.toLowerCase();
-    if (t.includes('done') || t.includes('complet')) return { dot: 'bg-emerald-500', header: 'text-emerald-700' };
-    if (t.includes('progress') || t.includes('doing') || t.includes('active')) return { dot: 'bg-blue-500', header: 'text-blue-700' };
-    if (t.includes('review') || t.includes('testing') || t.includes('qa')) return { dot: 'bg-violet-500', header: 'text-violet-700' };
-    if (t.includes('todo') || t.includes('to do') || t.includes('to-do')) return { dot: 'bg-amber-500', header: 'text-amber-700' };
-    if (t.includes('backlog')) return { dot: 'bg-slate-400', header: 'text-slate-600' };
-    if (t.includes('block') || t.includes('hold')) return { dot: 'bg-red-500', header: 'text-red-700' };
-    return { dot: 'bg-gray-400', header: 'text-gray-600' };
+    if (t.includes('done') || t.includes('complet')) return { dot: 'bg-emerald-500', header: 'text-emerald-800', panel: 'bg-emerald-50/70', badge: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200', border: 'ring-emerald-200/70' };
+    if (t.includes('progress') || t.includes('doing') || t.includes('active')) return { dot: 'bg-blue-500', header: 'text-blue-800', panel: 'bg-blue-50/70', badge: 'bg-blue-100 text-blue-800 ring-1 ring-blue-200', border: 'ring-blue-200/70' };
+    if (t.includes('review') || t.includes('testing') || t.includes('qa')) return { dot: 'bg-violet-500', header: 'text-violet-800', panel: 'bg-violet-50/70', badge: 'bg-violet-100 text-violet-800 ring-1 ring-violet-200', border: 'ring-violet-200/70' };
+    if (t.includes('todo') || t.includes('to do') || t.includes('to-do')) return { dot: 'bg-amber-500', header: 'text-amber-800', panel: 'bg-amber-50/70', badge: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200', border: 'ring-amber-200/70' };
+    if (t.includes('backlog')) return { dot: 'bg-slate-500', header: 'text-slate-700', panel: 'bg-slate-100/80', badge: 'bg-slate-200 text-slate-700 ring-1 ring-slate-300', border: 'ring-slate-300/70' };
+    if (t.includes('block') || t.includes('hold')) return { dot: 'bg-red-500', header: 'text-red-800', panel: 'bg-red-50/70', badge: 'bg-red-100 text-red-800 ring-1 ring-red-200', border: 'ring-red-200/70' };
+    return { dot: 'bg-cyan-500', header: 'text-cyan-800', panel: 'bg-cyan-50/70', badge: 'bg-cyan-100 text-cyan-800 ring-1 ring-cyan-200', border: 'ring-cyan-200/70' };
 }
 
 export default memo(function BoardColumn({ column, boardId, userRole, members, templates, allTasks, currentUserEmail }: { column: ColumnWithTasks; boardId?: string; userRole?: string | null; members?: MemberType[]; templates?: TemplateType[]; allTasks?: TaskType[]; currentUserEmail?: string | null }) {
@@ -46,7 +46,7 @@ export default memo(function BoardColumn({ column, boardId, userRole, members, t
             className={`min-w-0 rounded-2xl flex flex-col shadow-sm transition-colors
                 ${isOverLimit
                     ? 'bg-red-50/80 ring-1 ring-red-200'
-                    : 'bg-gray-100/90 ring-1 ring-gray-200/60'
+                    : `${accent.panel} ring-1 ${accent.border}`
                 }
             `}
         >
@@ -57,17 +57,14 @@ export default memo(function BoardColumn({ column, boardId, userRole, members, t
                 <div className="flex items-center gap-2 min-w-0">
                     {/* Accent dot */}
                     <span className={`w-2 h-2 rounded-full shrink-0 ${isOverLimit ? 'bg-red-500' : accent.dot}`} />
-                    <h2 className={`font-semibold text-sm truncate ${isOverLimit ? 'text-red-700' : 'text-gray-700'}`}>
+                    <h2 className={`font-semibold text-sm truncate ${isOverLimit ? 'text-red-700' : accent.header}`}>
                         {column.title}
                     </h2>
                 </div>
 
                 {/* Task count / WIP badge */}
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2
-                    ${isOverLimit
-                        ? 'bg-red-500 text-white'
-                        : 'bg-white text-gray-600 ring-1 ring-gray-200'
-                    }`}
+                    ${isOverLimit ? 'bg-red-500 text-white' : accent.badge}`}
                 >
                     {column.wipLimit ? `${column.tasks.length} / ${column.wipLimit}` : column.tasks.length}
                 </span>

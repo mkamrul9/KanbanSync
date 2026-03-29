@@ -52,7 +52,23 @@ export async function dispatchPendingTaskRemindersForUser(userId: string, boardI
         if (reminderTasks.length === 0) return;
 
         for (const task of reminderTasks) {
+            const notification = await prisma.notification.create({
+                data: {
+                    userId,
+                    type: 'task-reminder',
+                    data: {
+                        type: 'task-reminder',
+                        taskId: task.id,
+                        boardId: task.column.board.id,
+                        boardTitle: task.column.board.title,
+                        taskTitle: task.title,
+                        reminderAt: task.reminderAt,
+                    },
+                },
+            });
+
             await pusherServer.trigger(`user-${userId}`, 'notification', {
+                id: notification.id,
                 type: 'task-reminder',
                 taskId: task.id,
                 boardId: task.column.board.id,
@@ -80,5 +96,23 @@ export async function dispatchPendingTaskRemindersForUser(userId: string, boardI
             return;
         }
         throw error;
+    }
+}
+
+export async function dispatchPendingTaskRemindersAcrossBoards(userId: string) {
+    if (!userId) return;
+
+    const boards = await prisma.board.findMany({
+        where: {
+            OR: [
+                { userId },
+                { members: { some: { userId } } },
+            ],
+        },
+        select: { id: true },
+    });
+
+    for (const board of boards) {
+        await dispatchPendingTaskRemindersForUser(userId, board.id);
     }
 }

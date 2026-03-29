@@ -162,17 +162,17 @@ export default function BoardAuditLogModal({ isOpen, onClose, board }: BoardAudi
                                             {(event.actorName[0] ?? 'A').toUpperCase()}
                                         </div>
                                         <div className="min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${event.kind === 'activity'
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                : 'bg-blue-50 text-blue-700 border-blue-200'
-                                                }`}>
-                                                {event.kind === 'activity' ? 'Activity' : 'Comment'}
-                                            </span>
-                                            <span className="text-xs text-slate-500">{event.actorName}</span>
-                                        </div>
-                                        <p className="text-sm text-slate-800 mt-1 leading-relaxed wrap-break-word">{event.message}</p>
-                                        <p className="text-[11px] text-slate-500 mt-1 truncate">Task: {event.taskTitle}</p>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${event.kind === 'activity'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                    : 'bg-blue-50 text-blue-700 border-blue-200'
+                                                    }`}>
+                                                    {event.kind === 'activity' ? 'Activity' : 'Comment'}
+                                                </span>
+                                                <span className="text-xs text-slate-500">{event.actorName}</span>
+                                            </div>
+                                            <p className="text-sm text-slate-800 mt-1 leading-relaxed wrap-break-word">{event.message}</p>
+                                            <p className="text-[11px] text-slate-500 mt-1 truncate">Task: {event.taskTitle}</p>
                                         </div>
                                     </div>
                                     <span className="text-[11px] text-slate-400 shrink-0">{formatDistanceToNow(event.createdAt)} ago</span>

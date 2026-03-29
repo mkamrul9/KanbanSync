@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import BoardsGrid from '../components/ui/BoardsGrid';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import DashboardOnboardingTour from '../components/onboarding/DashboardOnboardingTour';
+import { dispatchPendingTaskRemindersAcrossBoards } from '../lib/reminders';
 
 export default async function Dashboard() {
   const session = await auth();
@@ -12,6 +13,12 @@ export default async function Dashboard() {
 
   const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!dbUser) redirect('/login');
+
+  try {
+    await dispatchPendingTaskRemindersAcrossBoards(dbUser.id);
+  } catch (error) {
+    console.warn('Skipping dashboard reminder dispatch for this request:', error);
+  }
 
   const boards = await prisma.board.findMany({
     where: {

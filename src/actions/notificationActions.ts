@@ -4,6 +4,7 @@
 import { prisma } from '../lib/db';
 import { pusherServer } from '../lib/pusher-server';
 import { revalidatePath } from 'next/cache';
+import { auth } from '../../auth';
 
 /**
  * Create a mention notification for a list of userIds.
@@ -99,4 +100,40 @@ export async function declineInvite(inviteId: string) {
         console.error('Failed to decline invite:', error);
         return { success: false, error: 'Failed to decline invite' };
     }
+}
+
+export async function getRecentNotifications(userId: string) {
+    const session = await auth();
+    if (!session?.user?.id || session.user.id !== userId) return [];
+
+    const rows = await prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+            id: true,
+            type: true,
+            data: true,
+            createdAt: true,
+        },
+    });
+
+    return rows.map((row) => {
+        const data = (row.data ?? {}) as Record<string, unknown>;
+        return {
+            id: row.id,
+            type: row.type,
+            boardId: typeof data.boardId === 'string' ? data.boardId : undefined,
+            taskId: typeof data.taskId === 'string' ? data.taskId : undefined,
+            from: typeof data.from === 'string' ? data.from : undefined,
+            fromName: typeof data.fromName === 'string' ? data.fromName : null,
+            excerpt: typeof data.excerpt === 'string' ? data.excerpt : undefined,
+            inviteId: typeof data.inviteId === 'string' ? data.inviteId : undefined,
+            boardTitle: typeof data.boardTitle === 'string' ? data.boardTitle : undefined,
+            taskTitle: typeof data.taskTitle === 'string' ? data.taskTitle : undefined,
+            inviterName: typeof data.inviterName === 'string' ? data.inviterName : null,
+            role: typeof data.role === 'string' ? data.role : null,
+            createdAt: row.createdAt.toISOString(),
+        };
+    });
 }

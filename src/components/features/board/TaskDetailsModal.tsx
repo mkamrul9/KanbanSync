@@ -565,104 +565,104 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         <h3 className="text-xs font-bold text-slate-700 uppercase tracking-[0.16em] mb-3 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Activity</h3>
 
                         <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-3 flex flex-col min-h-76 max-h-96">
-                        {/* Comment list */}
-                        <div className="overflow-y-auto space-y-3 mb-3 px-2 py-2">
-                            {timeline.length === 0 && (
-                                <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
-                                    <svg className="w-14 h-14 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
-                                    <p className="text-slate-600 text-lg font-semibold">No activity yet</p>
-                                    <p className="text-slate-400 text-sm max-w-md">Start the conversation by posting the first comment. Updates, comments, assignments, and checklist changes will appear here.</p>
-                                </div>
-                            )}
-                            {timeline.map((item) => {
-                                if (item.kind === 'comment') {
-                                    const comment = item.value as CommentType;
+                            {/* Comment list */}
+                            <div className="overflow-y-auto space-y-3 mb-3 px-2 py-2">
+                                {timeline.length === 0 && (
+                                    <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
+                                        <svg className="w-14 h-14 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                                        <p className="text-slate-600 text-lg font-semibold">No activity yet</p>
+                                        <p className="text-slate-400 text-sm max-w-md">Start the conversation by posting the first comment. Updates, comments, assignments, and checklist changes will appear here.</p>
+                                    </div>
+                                )}
+                                {timeline.map((item) => {
+                                    if (item.kind === 'comment') {
+                                        const comment = item.value as CommentType;
+                                        return (
+                                            <div key={item.id} className="flex gap-2.5">
+                                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5">
+                                                    {comment.user.name?.[0]?.toUpperCase() || 'U'}
+                                                </div>
+                                                <div className="flex-1 bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100">
+                                                    <div className="flex items-baseline gap-2 mb-1">
+                                                        <span className="text-xs font-semibold text-gray-900">{comment.user.name}</span>
+                                                        <span className="text-[11px] text-gray-400">{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-700 leading-relaxed">{renderCommentText(comment.text)}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    const activity = item.value as ActivityType;
                                     return (
                                         <div key={item.id} className="flex gap-2.5">
-                                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5">
-                                                {comment.user.name?.[0]?.toUpperCase() || 'U'}
+                                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">
+                                                {(activity.actor?.name?.[0] ?? activity.actor?.email?.[0] ?? 'S').toUpperCase()}
                                             </div>
-                                            <div className="flex-1 bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100">
-                                                <div className="flex items-baseline gap-2 mb-1">
-                                                    <span className="text-xs font-semibold text-gray-900">{comment.user.name}</span>
-                                                    <span className="text-[11px] text-gray-400">{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
+                                            <div className="flex-1 bg-white rounded-xl px-3 py-2 border border-slate-100">
+                                                <div className="flex items-center justify-between gap-2 mb-0.5">
+                                                    <span className="text-xs font-semibold text-slate-700">{activity.actor?.name ?? activity.actor?.email ?? 'System'}</span>
+                                                    <span className="text-[11px] text-gray-400">{formatDistanceToNow(new Date(activity.createdAt))} ago</span>
                                                 </div>
-                                                <p className="text-sm text-gray-700 leading-relaxed">{renderCommentText(comment.text)}</p>
+                                                <p className="text-sm text-slate-600">{activity.message}</p>
                                             </div>
                                         </div>
                                     );
-                                }
+                                })}
+                            </div>
 
-                                const activity = item.value as ActivityType;
-                                return (
-                                    <div key={item.id} className="flex gap-2.5">
-                                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">
-                                            {(activity.actor?.name?.[0] ?? activity.actor?.email?.[0] ?? 'S').toUpperCase()}
+                            {/* Comment input */}
+                            <div className="relative flex items-center gap-2.5 bg-white rounded-xl px-2 py-2 border border-slate-200/90 shadow-sm">
+                                {/* @mention dropdown */}
+                                {mentionQuery !== null && mentionSuggestions.length > 0 && (
+                                    <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                                        <div className="px-3 py-1.5 border-b border-gray-100">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mention a member</span>
                                         </div>
-                                        <div className="flex-1 bg-white rounded-xl px-3 py-2 border border-slate-100">
-                                            <div className="flex items-center justify-between gap-2 mb-0.5">
-                                                <span className="text-xs font-semibold text-slate-700">{activity.actor?.name ?? activity.actor?.email ?? 'System'}</span>
-                                                <span className="text-[11px] text-gray-400">{formatDistanceToNow(new Date(activity.createdAt))} ago</span>
-                                            </div>
-                                            <p className="text-sm text-slate-600">{activity.message}</p>
-                                        </div>
+                                        {mentionSuggestions.map(m => (
+                                            <button
+                                                key={m.user.id}
+                                                onMouseDown={(e) => { e.preventDefault(); insertMention(m.user.email!); }}
+                                                className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-blue-50 transition-colors text-left"
+                                            >
+                                                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                                                    {m.user.name?.[0]?.toUpperCase() || 'U'}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{m.user.name}</p>
+                                                    <p className="text-[11px] text-gray-400 truncate">{m.user.email}</p>
+                                                </div>
+                                            </button>
+                                        ))}
                                     </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Comment input */}
-                        <div className="relative flex items-center gap-2.5 bg-white rounded-xl px-2 py-2 border border-slate-200/90 shadow-sm">
-                            {/* @mention dropdown */}
-                            {mentionQuery !== null && mentionSuggestions.length > 0 && (
-                                <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                                    <div className="px-3 py-1.5 border-b border-gray-100">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mention a member</span>
-                                    </div>
-                                    {mentionSuggestions.map(m => (
-                                        <button
-                                            key={m.user.id}
-                                            onMouseDown={(e) => { e.preventDefault(); insertMention(m.user.email!); }}
-                                            className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-blue-50 transition-colors text-left"
-                                        >
-                                            <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                                                {m.user.name?.[0]?.toUpperCase() || 'U'}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="text-xs font-semibold text-gray-800 leading-tight truncate">{m.user.name}</p>
-                                                <p className="text-[11px] text-gray-400 truncate">{m.user.email}</p>
-                                            </div>
-                                        </button>
-                                    ))}
+                                )}
+                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-400 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                                    {currentUserEmail?.[0]?.toUpperCase() || 'M'}
                                 </div>
-                            )}
-                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-400 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
-                                {currentUserEmail?.[0]?.toUpperCase() || 'M'}
+                                <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-xs">
+                                    <input
+                                        type="text"
+                                        data-tour="task-comment-input"
+                                        className="flex-1 bg-transparent text-sm text-gray-800 placeholder-slate-500 focus:outline-none"
+                                        placeholder="Write a comment… type @ to mention"
+                                        value={commentText}
+                                        onChange={(e) => handleCommentChange(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Escape') { setMentionQuery(null); return; }
+                                            if (e.key === 'Enter' && mentionQuery === null) handleAddComment();
+                                        }}
+                                    />
+                                    <button
+                                        onClick={handleAddComment}
+                                        disabled={isPending || !commentText.trim()}
+                                        className="shrink-0 px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Post
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all shadow-xs">
-                                <input
-                                    type="text"
-                                    data-tour="task-comment-input"
-                                    className="flex-1 bg-transparent text-sm text-gray-800 placeholder-slate-500 focus:outline-none"
-                                    placeholder="Write a comment… type @ to mention"
-                                    value={commentText}
-                                    onChange={(e) => handleCommentChange(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Escape') { setMentionQuery(null); return; }
-                                        if (e.key === 'Enter' && mentionQuery === null) handleAddComment();
-                                    }}
-                                />
-                                <button
-                                    onClick={handleAddComment}
-                                    disabled={isPending || !commentText.trim()}
-                                    className="shrink-0 px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    Post
-                                </button>
-                            </div>
-                        </div>
                         </div>
                     </div>
                 </div>
