@@ -221,10 +221,10 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-5xl">
-            <div className="flex flex-col md:flex-row h-[82vh]">
+            <div className="flex flex-col md:flex-row h-[82vh] max-h-[82vh] overflow-hidden">
 
                 {/* ── LEFT: Main content ───────────────────────────────── */}
-                <div className="flex-1 flex flex-col min-h-0 p-7 pr-6">
+                <div className="flex-1 flex flex-col min-h-0 p-7 pr-6 overflow-y-auto">
 
                     {/* Breadcrumb + title */}
                     <div className="mb-5">
@@ -473,7 +473,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                 </div>
 
                 {/* ── RIGHT: Sidebar ───────────────────────────────────── */}
-                <div className="w-full md:w-60 shrink-0 flex flex-col gap-1 bg-gray-50 border-l border-gray-100 p-5 rounded-r-2xl">
+                <div className="w-full md:w-60 shrink-0 flex flex-col gap-1 bg-gray-50 border-l border-gray-100 p-5 rounded-r-2xl overflow-y-auto">
 
                     {/* Assignee */}
                     <div className="mb-4">

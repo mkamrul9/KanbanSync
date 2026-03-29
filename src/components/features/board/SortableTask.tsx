@@ -270,47 +270,56 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                 currentUserEmail={currentUserEmail}
             />
             {/* 3. The Custom Delete Confirmation Modal */}
-            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} className="max-w-sm">
-                <div className="p-6">
-                    {/* Icon */}
-                    <div className="w-11 h-11 rounded-2xl bg-red-100 flex items-center justify-center mb-4">
-                        <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} className="max-w-md">
+                <div className="app-bg">
+                    <div className="px-6 pt-6 pb-5 border-b border-white/70 bg-linear-to-r from-red-50/85 to-orange-50/70">
+                        <div className="flex items-start gap-3">
+                            <div className="w-11 h-11 rounded-2xl bg-red-100/90 border border-red-200/80 flex items-center justify-center shadow-sm shrink-0">
+                                <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </div>
+                            <div className="min-w-0">
+                                <h2 className="text-lg font-semibold text-gray-900">Delete Task</h2>
+                                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                    You are about to permanently remove
+                                    <span className="font-semibold text-gray-800"> &ldquo;{task.title}&rdquo;</span>.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <h2 className="text-lg font-bold text-gray-900 mb-1">Delete Task</h2>
-                    <p className="text-sm text-gray-500 mb-5 leading-relaxed">
-                        Are you sure you want to delete{' '}
-                        <span className="font-semibold text-gray-800">&ldquo;{task.title}&rdquo;</span>?{' '}
-                        This action cannot be undone.
-                    </p>
+                    <div className="px-6 py-5">
+                        <div className="app-surface border border-red-100/80 rounded-xl px-4 py-3 mb-5">
+                            <p className="text-xs text-red-700 font-medium">This action cannot be undone.</p>
+                        </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-100">
-                        <button
-                            onClick={() => setIsDeleteModalOpen(false)}
-                            disabled={isPendingDelete}
-                            className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={confirmDelete}
-                            disabled={isPendingDelete}
-                            className="px-5 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-red-200 flex items-center gap-1.5 min-w-24 justify-center"
-                        >
-                            {isPendingDelete ? (
-                                <>
-                                    <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                    </svg>
-                                    Deleting…
-                                </>
-                            ) : (
-                                <> Delete</>
-                            )}
-                        </button>
+                        <div className="flex items-center justify-end gap-2.5">
+                            <button
+                                onClick={() => setIsDeleteModalOpen(false)}
+                                disabled={isPendingDelete}
+                                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors disabled:opacity-50"
+                            >
+                                Keep Task
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                disabled={isPendingDelete}
+                                className="px-5 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-red-200 flex items-center gap-1.5 min-w-28 justify-center"
+                            >
+                                {isPendingDelete ? (
+                                    <>
+                                        <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                        </svg>
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    <>Delete Task</>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </Modal>
