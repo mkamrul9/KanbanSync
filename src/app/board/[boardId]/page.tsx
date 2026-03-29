@@ -6,6 +6,7 @@ import BoardNavbar from '../../../components/ui/BoardNavbar';
 import { auth, signOut } from '../../../../auth';
 import Link from 'next/link';
 import BoardOnboardingTour from '../../../components/onboarding/BoardOnboardingTour';
+import { dispatchPendingTaskRemindersForUser } from '../../../lib/reminders';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,10 @@ export default async function BoardPage({
 
     if (!session?.user) {
         notFound();
+    }
+
+    if (session.user.id) {
+        await dispatchPendingTaskRemindersForUser(session.user.id, boardId);
     }
 
     const [board, userRole] = await Promise.all([

@@ -107,7 +107,7 @@ export default function DashboardNavbar({
                                     {initials}
                                 </span>
                             )}
-                            <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-[120px] truncate">
+                            <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-30 truncate">
                                 {userName ?? userEmail}
                             </span>
                             <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-gray-400 hidden sm:block" xmlns="http://www.w3.org/2000/svg">

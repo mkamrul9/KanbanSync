@@ -1358,11 +1358,15 @@ export const TaskScalarFieldEnum = {
   description: 'description',
   status: 'status',
   category: 'category',
+  recurrence: 'recurrence',
   order: 'order',
   assigneeId: 'assigneeId',
   columnId: 'columnId',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
+  dueAt: 'dueAt',
+  reminderAt: 'reminderAt',
+  reminderSentAt: 'reminderSentAt',
   priority: 'priority',
   tags: 'tags',
   createdAt: 'createdAt',
@@ -1521,6 +1525,20 @@ export type EnumTaskCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'TaskCategory[]'
  */
 export type ListEnumTaskCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskCategory[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurrenceRule'
+ */
+export type EnumRecurrenceRuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceRule'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurrenceRule[]'
+ */
+export type ListEnumRecurrenceRuleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurrenceRule[]'>
     
 
 

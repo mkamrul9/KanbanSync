@@ -127,7 +127,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" fill="currentColor" />
                 </svg>
                 {items.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
                         {items.length}
                     </span>
                 )}
@@ -144,7 +144,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                     </div>
 
                     {/* List */}
-                    <div className="max-h-[360px] overflow-y-auto divide-y divide-gray-50">
+                    <div className="max-h-90 overflow-y-auto divide-y divide-gray-50">
                         {items.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-10 px-4 text-center gap-2">
                                 <svg className="w-8 h-8 text-gray-200" viewBox="0 0 24 24" fill="currentColor">
@@ -185,7 +185,19 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )}
-                                            {it.type !== 'mention' && it.type !== 'board-invite' && it.type !== 'task-assigned' && (
+                                            {it.type === 'task-reminder' && (
+                                                <svg className="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M12 8v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                                                </svg>
+                                            )}
+                                            {it.type === 'task-overdue' && (
+                                                <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            )}
+                                            {it.type !== 'mention' && it.type !== 'board-invite' && it.type !== 'task-assigned' && it.type !== 'task-reminder' && it.type !== 'task-overdue' && (
                                                 <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none">
                                                     <path d="M15 17H9a3 3 0 006 0z" fill="currentColor" opacity="0.9" />
                                                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" fill="currentColor" />
@@ -201,10 +213,17 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                         ? `Board invitation`
                                                         : it.type === 'task-assigned'
                                                             ? `You've been assigned a task`
-                                                            : it.type === 'added-to-board'
-                                                                ? `Added to a board`
-                                                                : 'Notification'}
+                                                            : it.type === 'task-reminder'
+                                                                ? `Task reminder`
+                                                                : it.type === 'task-overdue'
+                                                                    ? `Task overdue`
+                                                                    : it.type === 'added-to-board'
+                                                                        ? `Added to a board`
+                                                                        : 'Notification'}
                                             </p>
+                                            {(it.type === 'task-reminder' || it.type === 'task-overdue') && it.taskTitle && (
+                                                <p className="text-xs text-gray-700 font-medium mt-0.5 truncate">&ldquo;{it.taskTitle}&rdquo;</p>
+                                            )}
                                             {it.type === 'task-assigned' && (
                                                 <>
                                                     {it.taskTitle && (

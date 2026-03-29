@@ -10,6 +10,14 @@ import { BoardRole } from '../generated/prisma/client';
 import { auth } from '../../auth';
 import { notifyAssignedUser } from './notificationActions';
 
+function addRecurringOffset(base: Date, recurrence: string) {
+    const next = new Date(base);
+    if (recurrence === 'DAILY') next.setDate(next.getDate() + 1);
+    if (recurrence === 'WEEKLY') next.setDate(next.getDate() + 7);
+    if (recurrence === 'MONTHLY') next.setMonth(next.getMonth() + 1);
+    return next;
+}
+
 export async function moveTask(
     taskId: string,
     newColumnId: string,
@@ -95,6 +103,8 @@ export async function moveTask(
             updateData.completedAt = null;
         }
 
+        const movingIntoDone = !wasDone && (targetType.includes('done') || targetType.includes('complete') || targetType.includes('completed'));
+
         try {
             await prisma.task.update({ where: { id: taskId }, data: updateData });
         } catch (err) {
@@ -105,6 +115,51 @@ export async function moveTask(
                 where: { id: taskId },
                 data: { columnId: newColumnId, order: newOrder, status: targetColumn.title },
             });
+        }
+
+        if (movingIntoDone && existingTask.recurrence && existingTask.recurrence !== 'NONE') {
+            const boardColumns = await prisma.column.findMany({
+                where: { boardId },
+                orderBy: { order: 'asc' },
+            });
+
+            const resetColumn =
+                boardColumns.find((c) => /todo|to do|to-do|backlog/i.test(c.title)) ??
+                boardColumns[0] ??
+                null;
+
+            if (resetColumn) {
+                const lastTaskInResetCol = await prisma.task.findFirst({
+                    where: { columnId: resetColumn.id },
+                    orderBy: { order: 'desc' },
+                });
+
+                const nextDueAt = existingTask.dueAt
+                    ? addRecurringOffset(existingTask.dueAt, existingTask.recurrence)
+                    : addRecurringOffset(new Date(), existingTask.recurrence);
+
+                const nextReminderAt = existingTask.reminderAt
+                    ? addRecurringOffset(existingTask.reminderAt, existingTask.recurrence)
+                    : null;
+
+                await prisma.task.create({
+                    data: {
+                        title: existingTask.title,
+                        description: existingTask.description,
+                        status: resetColumn.title,
+                        category: existingTask.category,
+                        recurrence: existingTask.recurrence,
+                        order: (lastTaskInResetCol?.order ?? -1) + 1,
+                        assigneeId: existingTask.assigneeId,
+                        columnId: resetColumn.id,
+                        priority: existingTask.priority,
+                        tags: existingTask.tags,
+                        dueAt: nextDueAt,
+                        reminderAt: nextReminderAt,
+                        reminderSentAt: null,
+                    },
+                });
+            }
         }
 
         // Broadcast the change to the specific board's channel
@@ -132,7 +187,10 @@ export async function createTask(
     description?: string,
     assigneeId?: string,
     priority?: string,
-    tags?: string[]
+    tags?: string[],
+    dueAt?: string,
+    reminderAt?: string,
+    recurrence?: string,
 ) {
     const role = await getUserRole(boardId);
     if (role !== BoardRole.LEADER) {
@@ -172,6 +230,9 @@ export async function createTask(
                 columnId,
                 ...(description ? { description } : {}),
                 ...(assigneeId ? { assigneeId } : {}),
+                ...(dueAt ? { dueAt: new Date(dueAt) } : {}),
+                ...(reminderAt ? { reminderAt: new Date(reminderAt), reminderSentAt: null } : {}),
+                ...(recurrence ? { recurrence: recurrence as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' } : {}),
             },
         });
 
@@ -221,7 +282,10 @@ export async function updateTask(
     title: string,
     category: string,
     priority?: string,
-    tags?: string[]
+    tags?: string[],
+    dueAt?: string | null,
+    reminderAt?: string | null,
+    recurrence?: string,
 ) {
     try {
         await prisma.task.update({
@@ -231,6 +295,9 @@ export async function updateTask(
                 category: category as TaskCategory,
                 ...(priority !== undefined ? { priority: priority as Priority } : {}),
                 ...(tags !== undefined ? { tags } : {}),
+                ...(dueAt !== undefined ? { dueAt: dueAt ? new Date(dueAt) : null } : {}),
+                ...(reminderAt !== undefined ? { reminderAt: reminderAt ? new Date(reminderAt) : null, reminderSentAt: null } : {}),
+                ...(recurrence !== undefined ? { recurrence: recurrence as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY' } : {}),
             },
         });
 

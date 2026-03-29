@@ -136,11 +136,56 @@ export default function GuidedTour({
 
     return (
         <div className="fixed inset-0 z-120 pointer-events-none">
-            <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-[1px] animate-tour-fade" />
+            {!targetRect && (
+                <div className="absolute inset-0 bg-slate-950/45 animate-tour-fade" />
+            )}
+
+            {targetRect && (
+                <>
+                    {/* Top blur layer */}
+                    <div
+                        className="absolute bg-slate-950/45 animate-tour-fade"
+                        style={{ top: 0, left: 0, right: 0, height: Math.max(0, targetRect.top - 10) }}
+                    />
+
+                    {/* Bottom blur layer */}
+                    <div
+                        className="absolute bg-slate-950/45 animate-tour-fade"
+                        style={{
+                            top: targetRect.top + targetRect.height + 10,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                        }}
+                    />
+
+                    {/* Left blur layer */}
+                    <div
+                        className="absolute bg-slate-950/45 animate-tour-fade"
+                        style={{
+                            top: Math.max(0, targetRect.top - 10),
+                            left: 0,
+                            width: Math.max(0, targetRect.left - 10),
+                            height: targetRect.height + 20,
+                        }}
+                    />
+
+                    {/* Right blur layer */}
+                    <div
+                        className="absolute bg-slate-950/45 animate-tour-fade"
+                        style={{
+                            top: Math.max(0, targetRect.top - 10),
+                            left: targetRect.left + targetRect.width + 10,
+                            right: 0,
+                            height: targetRect.height + 20,
+                        }}
+                    />
+                </>
+            )}
 
             {targetRect && (
                 <div
-                    className="absolute rounded-2xl border-2 border-cyan-300 shadow-[0_0_0_9999px_rgba(15,23,42,0.58)] animate-tour-spotlight"
+                    className="absolute rounded-2xl border-2 border-cyan-300 bg-transparent animate-tour-spotlight"
                     style={{
                         top: Math.max(8, targetRect.top - 8),
                         left: Math.max(8, targetRect.left - 8),

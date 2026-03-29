@@ -213,6 +213,13 @@ export type EnumTaskCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel> | $Enums.TaskCategory
 }
 
+export type EnumRecurrenceRuleFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurrenceRule | Prisma.EnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurrenceRuleFilter<$PrismaModel> | $Enums.RecurrenceRule
+}
+
 export type EnumPriorityFilter<$PrismaModel = never> = {
   equals?: $Enums.Priority | Prisma.EnumPriorityFieldRefInput<$PrismaModel>
   in?: $Enums.Priority[] | Prisma.ListEnumPriorityFieldRefInput<$PrismaModel>
@@ -228,6 +235,16 @@ export type EnumTaskCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel>
+}
+
+export type EnumRecurrenceRuleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurrenceRule | Prisma.EnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurrenceRuleWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceRule
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurrenceRuleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurrenceRuleFilter<$PrismaModel>
 }
 
 export type EnumPriorityWithAggregatesFilter<$PrismaModel = never> = {
@@ -516,6 +533,13 @@ export type NestedEnumTaskCategoryFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel> | $Enums.TaskCategory
 }
 
+export type NestedEnumRecurrenceRuleFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurrenceRule | Prisma.EnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurrenceRuleFilter<$PrismaModel> | $Enums.RecurrenceRule
+}
+
 export type NestedEnumPriorityFilter<$PrismaModel = never> = {
   equals?: $Enums.Priority | Prisma.EnumPriorityFieldRefInput<$PrismaModel>
   in?: $Enums.Priority[] | Prisma.ListEnumPriorityFieldRefInput<$PrismaModel>
@@ -531,6 +555,16 @@ export type NestedEnumTaskCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTaskCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumRecurrenceRuleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurrenceRule | Prisma.EnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurrenceRule[] | Prisma.ListEnumRecurrenceRuleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurrenceRuleWithAggregatesFilter<$PrismaModel> | $Enums.RecurrenceRule
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurrenceRuleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurrenceRuleFilter<$PrismaModel>
 }
 
 export type NestedEnumPriorityWithAggregatesFilter<$PrismaModel = never> = {

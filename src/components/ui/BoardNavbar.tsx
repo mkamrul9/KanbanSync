@@ -124,6 +124,7 @@ export default function BoardNavbar({
                         {userRole === 'LEADER' && (
                             <button
                                 onClick={() => setIsInviteOpen(true)}
+                                data-tour="board-invite-button"
                                 className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors text-gray-700"
                             >
                                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-blue-500" xmlns="http://www.w3.org/2000/svg">

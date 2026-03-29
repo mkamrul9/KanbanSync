@@ -84,6 +84,7 @@ function AssigneeAvatar({ name }: { name?: string | null }) {
 export default memo(function SortableTask({ task, boardId, members, currentUserEmail
 }: { task: TaskType; boardId: string; members?: MemberType[]; currentUserEmail?: string | null }) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [nowTs, setNowTs] = useState<number>(0);
 
     useEffect(() => {
         const openFromTour = (event: Event) => {
@@ -105,6 +106,11 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
             window.removeEventListener('ks-tour-close-task-details', closeFromTour);
         };
     }, [task.id]);
+
+    useEffect(() => {
+        const t = window.setTimeout(() => setNowTs(Date.now()), 0);
+        return () => window.clearTimeout(t);
+    }, []);
 
     // Derive whether the current user is a Leader — only Leaders can delete tasks
     const isLeader = members?.some(
@@ -131,6 +137,8 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
     const hasPriority = task.priority && task.priority !== 'NONE';
     const hasTags = task.tags && task.tags.length > 0;
+    const dueAt = task.dueAt ? new Date(task.dueAt) : null;
+    const isOverdue = dueAt ? dueAt.getTime() < nowTs && task.status !== 'DONE' : false;
 
     return (
         <>
@@ -142,6 +150,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                 data-tour="task-card"
                 className={`group bg-white rounded-xl border border-l-[3px] transition-all duration-150 cursor-grab active:cursor-grabbing select-none
                     ${getPriorityAccent(task.priority)}
+                    ${isOverdue ? 'ring-1 ring-red-300 bg-red-50/40' : ''}
                     ${isDragging
                         ? 'border-blue-400 shadow-xl ring-2 ring-blue-100 scale-[1.02]'
                         : 'border-gray-200 hover:border-gray-300 hover:shadow-md shadow-sm'
@@ -171,8 +180,8 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                             }
                         </div>
 
-                        {/* Right cluster: action buttons — appear on hover */}
-                        <div data-tour="task-inline-actions" className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 shrink-0">
+                        {/* Right cluster: action buttons — always visible */}
+                        <div data-tour="task-inline-actions" className="flex items-center gap-0.5 shrink-0">
                             <button
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(true); }}
@@ -221,6 +230,14 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                                     +{task.tags.length - 3}
                                 </span>
                             )}
+                        </div>
+                    )}
+
+                    {dueAt && (
+                        <div className="mt-2 flex items-center gap-1.5">
+                            <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-100 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+                                {isOverdue ? 'Overdue' : 'Due'} {dueAt.toLocaleDateString()}
+                            </span>
                         </div>
                     )}
 

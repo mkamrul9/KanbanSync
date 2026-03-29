@@ -120,6 +120,7 @@ model Task {
   description String?      @db.Text
   status      String
   category    TaskCategory @default(TASK) // NEW: Enforce task types
+  recurrence  RecurrenceRule @default(NONE)
   order       Int
 
   // NEW: Assignment
@@ -134,6 +135,9 @@ model Task {
   // Timestamps for tracking workflow
   startedAt   DateTime?
   completedAt DateTime?
+  dueAt       DateTime?
+  reminderAt  DateTime?
+  reminderSentAt DateTime?
 
   priority    Priority  @default(NONE)
   tags        String[]
@@ -188,6 +192,13 @@ enum BoardRole {
   LEADER
   REVIEWER
   MEMBER
+}
+
+enum RecurrenceRule {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
 }
 
 model BoardInvite {

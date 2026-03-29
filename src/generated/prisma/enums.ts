@@ -51,3 +51,13 @@ export const BoardRole = {
 } as const
 
 export type BoardRole = (typeof BoardRole)[keyof typeof BoardRole]
+
+
+export const RecurrenceRule = {
+  NONE: 'NONE',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY'
+} as const
+
+export type RecurrenceRule = (typeof RecurrenceRule)[keyof typeof RecurrenceRule]

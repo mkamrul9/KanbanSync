@@ -36,6 +36,9 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
     const [assigneeId, setAssigneeId] = useState('');
     const [priority, setPriority] = useState('NONE');
     const [tagsInput, setTagsInput] = useState('');
+    const [dueAt, setDueAt] = useState('');
+    const [reminderAt, setReminderAt] = useState('');
+    const [recurrence, setRecurrence] = useState<'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY'>('NONE');
     const [isPending, startTransition] = useTransition();
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -46,6 +49,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
         setTitle(''); setCategory(TaskCategory.NEW_FEATURE);
         setDescription(''); setAssigneeId(''); setErrorMsg(null);
         setPriority('NONE'); setTagsInput('');
+        setDueAt(''); setReminderAt(''); setRecurrence('NONE');
     };
 
     const handleClose = () => { reset(); onClose(); };
@@ -60,7 +64,20 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
 
         startTransition(async () => {
             const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t !== '');
-            const result = await createTask(boardId, columnId, title, status, category, description, assigneeId || undefined, priority, tags);
+            const result = await createTask(
+                boardId,
+                columnId,
+                title,
+                status,
+                category,
+                description,
+                assigneeId || undefined,
+                priority,
+                tags,
+                dueAt || undefined,
+                reminderAt || undefined,
+                recurrence,
+            );
             if (result.success) { reset(); onClose(); }
             else setErrorMsg(result.error ?? 'Something went wrong');
         });
@@ -232,6 +249,43 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
                         />
                         <p className="text-[10px] text-gray-400 mt-1">Comma separated</p>
+                    </div>
+
+                    {/* Due date */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Due Date</p>
+                        <input
+                            type="datetime-local"
+                            value={dueAt}
+                            onChange={(e) => setDueAt(e.target.value)}
+                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                        />
+                    </div>
+
+                    {/* Reminder */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Reminder</p>
+                        <input
+                            type="datetime-local"
+                            value={reminderAt}
+                            onChange={(e) => setReminderAt(e.target.value)}
+                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                        />
+                    </div>
+
+                    {/* Recurrence */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Recurrence</p>
+                        <select
+                            value={recurrence}
+                            onChange={(e) => setRecurrence(e.target.value as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY')}
+                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                        >
+                            <option value="NONE">None</option>
+                            <option value="DAILY">Daily</option>
+                            <option value="WEEKLY">Weekly</option>
+                            <option value="MONTHLY">Monthly</option>
+                        </select>
                     </div>
 
                     <div className="border-t border-gray-200 mt-auto pt-4">

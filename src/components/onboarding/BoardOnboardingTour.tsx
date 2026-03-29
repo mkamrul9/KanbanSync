@@ -24,6 +24,12 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
             selector: '[data-tour="board-navbar"]',
         },
         {
+            title: 'Invite teammates',
+            description: 'Use Invite to add members to this board so they can collaborate in real time.',
+            selector: '[data-tour="board-invite-button"]',
+            missingHint: 'The Invite button is available for Leaders. If you are a Member/Reviewer, ask a Leader to invite teammates.',
+        },
+        {
             title: 'Search and filter tasks',
             description: 'Use search and filters to quickly narrow by title, assignee, category, priority, tags, date, age, and comments.',
             selector: '[data-tour="board-search"]',
@@ -75,7 +81,7 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
     ]), []);
 
     const handleStepChange = useCallback((stepIndex: number) => {
-        const isDetailsRange = stepIndex >= 5 && stepIndex <= 7;
+        const isDetailsRange = stepIndex >= 6 && stepIndex <= 8;
 
         if (isDetailsRange) {
             window.dispatchEvent(new Event('ks-tour-request-open-task-details'));

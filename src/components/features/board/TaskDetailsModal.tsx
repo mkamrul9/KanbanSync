@@ -60,6 +60,9 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [mentionQuery, setMentionQuery] = useState<string | null>(null);
     const [priority, setPriority] = useState<string>(task.priority ?? 'NONE');
     const [tagsInput, setTagsInput] = useState<string>((task.tags ?? []).join(', '));
+    const [dueAt, setDueAt] = useState<string>(task.dueAt ? new Date(task.dueAt).toISOString().slice(0, 16) : '');
+    const [reminderAt, setReminderAt] = useState<string>(task.reminderAt ? new Date(task.reminderAt).toISOString().slice(0, 16) : '');
+    const [recurrence, setRecurrence] = useState<'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY'>((task.recurrence as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY') ?? 'NONE');
 
     // Detect @word at the end of the current comment text
     const handleCommentChange = (val: string) => {
@@ -123,14 +126,33 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const handlePriorityChange = (newPriority: string) => {
         setPriority(newPriority);
         startTransition(async () => {
-            await updateTask(task.id, boardId, task.title, task.category, newPriority, undefined);
+            await updateTask(task.id, boardId, task.title, task.category, newPriority, undefined, undefined, undefined, undefined);
         });
     };
 
     const handleTagsSave = () => {
         const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t !== '');
         startTransition(async () => {
-            await updateTask(task.id, boardId, task.title, task.category, undefined, tags);
+            await updateTask(task.id, boardId, task.title, task.category, undefined, tags, undefined, undefined, undefined);
+        });
+    };
+
+    const handleDueSave = () => {
+        startTransition(async () => {
+            await updateTask(task.id, boardId, task.title, task.category, undefined, undefined, dueAt || null, undefined, undefined);
+        });
+    };
+
+    const handleReminderSave = () => {
+        startTransition(async () => {
+            await updateTask(task.id, boardId, task.title, task.category, undefined, undefined, undefined, reminderAt || null, undefined);
+        });
+    };
+
+    const handleRecurrenceChange = (next: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY') => {
+        setRecurrence(next);
+        startTransition(async () => {
+            await updateTask(task.id, boardId, task.title, task.category, undefined, undefined, undefined, undefined, next);
         });
     };
 
@@ -355,6 +377,59 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     ))
                                 }
                             </div>
+                        )}
+                    </div>
+
+                    {/* Due date */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Due Date</p>
+                        {isLeader ? (
+                            <input
+                                type="datetime-local"
+                                value={dueAt}
+                                onChange={(e) => setDueAt(e.target.value)}
+                                onBlur={handleDueSave}
+                                onKeyDown={(e) => e.key === 'Enter' && handleDueSave()}
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            />
+                        ) : (
+                            <span className="text-xs text-gray-600">{task.dueAt ? new Date(task.dueAt).toLocaleString() : 'No due date'}</span>
+                        )}
+                    </div>
+
+                    {/* Reminder */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Reminder</p>
+                        {isLeader ? (
+                            <input
+                                type="datetime-local"
+                                value={reminderAt}
+                                onChange={(e) => setReminderAt(e.target.value)}
+                                onBlur={handleReminderSave}
+                                onKeyDown={(e) => e.key === 'Enter' && handleReminderSave()}
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            />
+                        ) : (
+                            <span className="text-xs text-gray-600">{task.reminderAt ? new Date(task.reminderAt).toLocaleString() : 'No reminder'}</span>
+                        )}
+                    </div>
+
+                    {/* Recurrence */}
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Recurrence</p>
+                        {isLeader ? (
+                            <select
+                                value={recurrence}
+                                onChange={(e) => handleRecurrenceChange(e.target.value as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY')}
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            >
+                                <option value="NONE">None</option>
+                                <option value="DAILY">Daily</option>
+                                <option value="WEEKLY">Weekly</option>
+                                <option value="MONTHLY">Monthly</option>
+                            </select>
+                        ) : (
+                            <span className="text-xs text-gray-600">{task.recurrence ?? 'NONE'}</span>
                         )}
                     </div>
 
