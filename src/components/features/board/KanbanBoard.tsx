@@ -4,9 +4,11 @@ import { useMemo, useState, useTransition, useEffect } from 'react';
 import { useOptimistic } from 'react';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
 import { moveTask, purgeExpiredArchivedTasks, restoreTask, restoreArchivedTasks } from '../../../actions/taskActions';
+import { archiveColumn, purgeExpiredArchivedColumns, restoreColumn } from '../../../actions/boardActions';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners } from '@dnd-kit/core';
 import { useRouter } from 'next/navigation';
 import { getPusherClient } from '../../../lib/pusher';
+import { isArchiveExpired, isColumnArchived, parseColumnArchive } from '../../../lib/archiveMarkers';
 
 import BoardColumn from './BoardColumn';
 import MetricsModal from './MetricsModal';
@@ -62,6 +64,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isViewsOpen, setIsViewsOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
+    const [isArchivedColumnsOpen, setIsArchivedColumnsOpen] = useState(false);
     const [archiveSearch, setArchiveSearch] = useState('');
     const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
     const [savedViews, setSavedViews] = useState<Array<{ id: string; name: string; filters: FilterState }>>(() => {
@@ -89,6 +92,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [showCurrentCycleOnly, setShowCurrentCycleOnly] = useState(false);
     const [isRestoringTask, startRestoreTaskTransition] = useTransition();
     const [isPurgingExpiredArchived, startPurgeArchiveTransition] = useTransition();
+    const [isManagingColumnsArchive, startColumnsArchiveTransition] = useTransition();
     // Stable "now" timestamp for age-filter comparisons (refreshed each time the filter panel opens)
     const [filterNow, setFilterNow] = useState(() => Date.now());
 
@@ -246,6 +250,14 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         const cutoff = filterNow - ARCHIVE_RETENTION_DAYS * 86_400_000;
         return archivedTasks.filter((task) => new Date(task.updatedAt).getTime() < cutoff);
     }, [archivedTasks, filterNow]);
+    const archivedColumns = useMemo(
+        () => optimisticColumns.filter((column) => isColumnArchived(column.title)),
+        [optimisticColumns]
+    );
+    const expiredArchivedColumns = useMemo(
+        () => archivedColumns.filter((column) => isArchiveExpired(parseColumnArchive(column.title).archivedAt, ARCHIVE_RETENTION_DAYS)),
+        [archivedColumns]
+    );
 
     // The Real-Time Subscription
     useEffect(() => {
@@ -334,6 +346,39 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         });
     };
 
+    const handleArchiveColumn = (columnId: string) => {
+        startColumnsArchiveTransition(async () => {
+            const result = await archiveColumn(initialBoard.id, columnId);
+            if (!result?.success) {
+                setToastMessage(result?.error ?? 'Failed to archive column.');
+                return;
+            }
+            setToastMessage('Column archived. All tasks in this column were archived.');
+        });
+    };
+
+    const handleRestoreColumn = (columnId: string) => {
+        startColumnsArchiveTransition(async () => {
+            const result = await restoreColumn(initialBoard.id, columnId);
+            if (!result?.success) {
+                setToastMessage(result?.error ?? 'Failed to restore column.');
+                return;
+            }
+            setToastMessage('Column restored.');
+        });
+    };
+
+    const handlePurgeExpiredArchivedColumns = () => {
+        startColumnsArchiveTransition(async () => {
+            const result = await purgeExpiredArchivedColumns(initialBoard.id);
+            if (!result?.success) {
+                setToastMessage(result?.error ?? 'Failed to purge archived columns.');
+                return;
+            }
+            setToastMessage(`Purged ${result.deletedCount ?? 0} expired archived column${(result.deletedCount ?? 0) === 1 ? '' : 's'}.`);
+        });
+    };
+
     // Memoize the filter + sort so it doesn't recalculate during 60fps dragging
     const filteredColumns = useMemo(() => {
         const now = filterNow;
@@ -353,7 +398,9 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         const cycleStart = activeCycle ? new Date(activeCycle.startDate).getTime() : 0;
         const cycleEnd = activeCycle ? new Date(activeCycle.endDate).getTime() + 86_400_000 : 0;
 
-        return optimisticColumns.map(column => {
+        return optimisticColumns
+            .filter((column) => !isColumnArchived(column.title))
+            .map(column => {
             let tasks = [...column.tasks].filter((task) => task.status !== 'ARCHIVED');
 
             // ── Search ─────────────────────────────────────────────
@@ -436,8 +483,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 });
             }
 
-            return { ...column, tasks };
-        });
+                return { ...column, tasks };
+            });
     }, [optimisticColumns, searchQuery, filters, filterNow, cycles, showCurrentCycleOnly]);
 
     useEffect(() => {
@@ -853,6 +900,66 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     </div>
                 )}
 
+                {userRole === 'LEADER' && (
+                    <div className="relative">
+                        <button
+                            onClick={() => {
+                                setFilterNow(Date.now());
+                                setIsArchivedColumnsOpen((o) => !o);
+                            }}
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        >
+                            Archived Columns
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{archivedColumns.length}</span>
+                        </button>
+
+                        {isArchivedColumnsOpen && (
+                            <div className="absolute top-full mt-2 left-0 z-40 w-80 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
+                                <div className="px-2 pb-2 border-b border-slate-200 mb-2 space-y-2">
+                                    <p className="text-[11px] text-slate-500">
+                                        Restore window: {ARCHIVE_RETENTION_DAYS} days.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handlePurgeExpiredArchivedColumns}
+                                        disabled={isManagingColumnsArchive || expiredArchivedColumns.length === 0}
+                                        className="w-full text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
+                                    >
+                                        {isManagingColumnsArchive ? 'Purging...' : `Purge expired (${expiredArchivedColumns.length})`}
+                                    </button>
+                                </div>
+
+                                {archivedColumns.length === 0 ? (
+                                    <div className="px-2 py-2 space-y-1">
+                                        <p className="text-xs text-slate-500">No archived columns.</p>
+                                    </div>
+                                ) : (
+                                    archivedColumns.map((column) => {
+                                        const parsed = parseColumnArchive(column.title);
+                                        const expired = isArchiveExpired(parsed.archivedAt, ARCHIVE_RETENTION_DAYS);
+                                        return (
+                                            <div key={column.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-semibold text-slate-700 truncate">{parsed.original || 'Untitled column'}</p>
+                                                    <p className="text-[11px] text-slate-400">{column.tasks.length} task{column.tasks.length === 1 ? '' : 's'}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRestoreColumn(column.id)}
+                                                    disabled={isManagingColumnsArchive || expired}
+                                                    className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                                >
+                                                    {expired ? 'Expired' : 'Restore'}
+                                                </button>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {cycles.some((c) => c.isActive) && (
                     <button
                         onClick={() => setShowCurrentCycleOnly((v) => !v)}
@@ -1017,7 +1124,17 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     className="grid gap-5 pb-6 items-start"
                 >
                     {filteredColumns.map((column) => (
-                        <BoardColumn key={column.id} column={column} boardId={initialBoard.id} userRole={userRole} members={initialBoard.members} templates={initialBoard.taskTemplates} allTasks={allBoardTasks} currentUserEmail={currentUserEmail} />
+                        <BoardColumn
+                            key={column.id}
+                            column={column}
+                            boardId={initialBoard.id}
+                            userRole={userRole}
+                            members={initialBoard.members}
+                            templates={initialBoard.taskTemplates}
+                            allTasks={allBoardTasks}
+                            currentUserEmail={currentUserEmail}
+                            onArchiveColumn={handleArchiveColumn}
+                        />
                     ))}
                 </div>
 

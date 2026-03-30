@@ -160,6 +160,23 @@ function AgeBar({ title, ageDays, max }: { title: string; ageDays: number; max: 
     );
 }
 
+function ThroughputTrendBars({ points }: { points: Array<{ date: string; completed: number }> }) {
+    const max = Math.max(...points.map((p) => p.completed), 1);
+    return (
+        <div className="flex items-end gap-1 h-28">
+            {points.map((p) => {
+                const height = Math.max(8, Math.round((p.completed / max) * 100));
+                return (
+                    <div key={p.date} className="flex-1 flex flex-col items-center gap-1" title={`${p.date}: ${p.completed} completed`}>
+                        <div className="w-full max-w-4 rounded-md bg-cyan-500/85" style={{ height: `${height}%` }} />
+                        <span className="text-[9px] text-slate-400">{p.date.slice(8)}</span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
 // ──────────────────────────────────────────────────────
 // Main Modal
 // ──────────────────────────────────────────────────────
@@ -185,6 +202,8 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
     const wipEntries = Object.entries(metrics.wip.perColumn);
     const maxWip = Math.max(...wipEntries.map(([, v]) => v), 1);
     const maxAge = Math.max(...metrics.workItemAges.map(t => t.ageDays), 1);
+    const overdueEntries = Object.entries(metrics.overdueByColumn);
+    const maxOverdue = Math.max(...overdueEntries.map(([, v]) => v), 1);
 
     const modal = (
         <div
@@ -317,6 +336,70 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                             </div>
                         </div>
                         <CfdChart cfd={metrics.cfd} />
+                    </div>
+
+                    {/* Advanced reporting */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-base font-bold text-gray-800">Overdue Heatmap</span>
+                                <span className="text-xs text-slate-400">by column</span>
+                            </div>
+                            <div className="space-y-3">
+                                {overdueEntries.map(([column, count]) => {
+                                    const pct = maxOverdue === 0 ? 0 : Math.round((count / maxOverdue) * 100);
+                                    return (
+                                        <div key={column} className="flex items-center gap-3">
+                                            <div className="w-28 text-xs text-slate-600 truncate" title={column}>{column}</div>
+                                            <div className="flex-1 h-3 rounded-full bg-slate-100 overflow-hidden">
+                                                <div className="h-full bg-rose-400" style={{ width: `${pct}%` }} />
+                                            </div>
+                                            <div className="w-5 text-xs font-semibold text-rose-700 text-right">{count}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-base font-bold text-gray-800">Team Workload</span>
+                                <span className="text-xs text-slate-400">active tasks</span>
+                            </div>
+                            <div className="space-y-2">
+                                {metrics.workloadByMember.map((member) => (
+                                    <div key={member.userId} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                                        <span className="text-sm text-slate-700 truncate">{member.name}</span>
+                                        <span className="text-sm font-semibold text-cyan-700">{member.activeTasks}</span>
+                                    </div>
+                                ))}
+                                {metrics.workloadByMember.length === 0 && <p className="text-sm text-slate-400">No members found.</p>}
+                            </div>
+                        </div>
+
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-base font-bold text-gray-800">Throughput Trend</span>
+                                <span className="text-xs text-slate-400">last 14 days</span>
+                            </div>
+                            <ThroughputTrendBars points={metrics.throughputTrend} />
+                        </div>
+
+                        <div className="rounded-2xl app-surface border border-slate-200/70 p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-base font-bold text-gray-800">SLA Breaches</span>
+                                <span className="text-xs text-slate-400">cycle time &gt; 7d</span>
+                            </div>
+                            <div className="space-y-2 max-h-28 overflow-auto pr-1">
+                                {metrics.slaBreaches.slice(0, 8).map((task) => (
+                                    <div key={task.id} className="flex items-center justify-between gap-2 text-sm rounded-lg border border-rose-100 bg-rose-50 px-3 py-1.5">
+                                        <span className="text-rose-800 truncate">{task.title}</span>
+                                        <span className="font-semibold text-rose-700">{task.cycleDays.toFixed(1)}d</span>
+                                    </div>
+                                ))}
+                                {metrics.slaBreaches.length === 0 && <p className="text-sm text-slate-400">No SLA breaches detected.</p>}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Footer note */}

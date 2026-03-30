@@ -9,6 +9,7 @@ import {
     getRecentNotifications,
     markAllNotificationsRead,
     markNotificationRead,
+    sendNotificationDigestNow,
 } from '../../actions/notificationActions';
 
 type NotificationItem = {
@@ -49,6 +50,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
     // Track the outcome to show a brief confirmation before removing
     const [results, setResults] = useState<Map<string, InviteResult>>(new Map());
     const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
+    const [isSendingDigest, setIsSendingDigest] = useState(false);
     const [snoozedUntil, setSnoozedUntil] = useState<Record<string, number>>({});
     const containerRef = useRef<HTMLDivElement>(null);
     const unreadCount = items.filter((item) => !item.read).length;
@@ -198,7 +200,9 @@ export default function NotificationsBell({ userId }: { userId: string }) {
 
         if (filterMode === 'unread') return !item.read;
         if (filterMode === 'invites') return item.type === 'board-invite';
-        if (filterMode === 'tasks') return item.type === 'task-assigned' || item.type === 'task-reminder' || item.type === 'task-overdue';
+        if (filterMode === 'tasks') {
+            return item.type === 'task-assigned' || item.type === 'task-reminder' || item.type === 'task-overdue' || item.type === 'digest-sent';
+        }
         return true;
     });
 
@@ -218,6 +222,16 @@ export default function NotificationsBell({ userId }: { userId: string }) {
         if (!href) return;
         setOpen(false);
         router.push(href);
+    };
+
+    const handleSendDigest = async () => {
+        if (isSendingDigest) return;
+        setIsSendingDigest(true);
+        try {
+            await sendNotificationDigestNow(24);
+        } finally {
+            setIsSendingDigest(false);
+        }
     };
 
     return (
@@ -325,7 +339,13 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                     <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )}
-                                            {it.type !== 'mention' && it.type !== 'board-invite' && it.type !== 'task-assigned' && it.type !== 'task-reminder' && it.type !== 'task-overdue' && (
+                                            {it.type === 'digest-sent' && (
+                                                <svg className="w-4 h-4 text-cyan-600" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M3 8l9 6 9-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
+                                                </svg>
+                                            )}
+                                            {it.type !== 'mention' && it.type !== 'board-invite' && it.type !== 'task-assigned' && it.type !== 'task-reminder' && it.type !== 'task-overdue' && it.type !== 'digest-sent' && (
                                                 <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none">
                                                     <path d="M15 17H9a3 3 0 006 0z" fill="currentColor" opacity="0.9" />
                                                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" fill="currentColor" />
@@ -345,6 +365,8 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                                 ? `Task reminder`
                                                                 : it.type === 'task-overdue'
                                                                     ? `Task overdue`
+                                                                    : it.type === 'digest-sent'
+                                                                        ? 'Email digest sent'
                                                                     : it.type === 'added-to-board'
                                                                         ? `Added to a board`
                                                                         : 'Notification'}
@@ -475,13 +497,22 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                     {/* Footer — mark all read */}
                     {items.length > 0 && (
                         <div className="border-t border-gray-100 px-4 py-2.5 flex items-center justify-between gap-2">
-                            <button
-                                onClick={handleMarkAllRead}
-                                disabled={unreadCount === 0 || isMarkingAllRead}
-                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                                {isMarkingAllRead ? 'Marking all read...' : 'Mark all as read'}
-                            </button>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={handleMarkAllRead}
+                                    disabled={unreadCount === 0 || isMarkingAllRead}
+                                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    {isMarkingAllRead ? 'Marking all read...' : 'Mark all as read'}
+                                </button>
+                                <button
+                                    onClick={handleSendDigest}
+                                    disabled={isSendingDigest}
+                                    className="text-xs text-cyan-600 hover:text-cyan-700 transition-colors disabled:opacity-60"
+                                >
+                                    {isSendingDigest ? 'Sending digest...' : 'Send digest'}
+                                </button>
+                            </div>
                             <button
                                 onClick={handleClearVisible}
                                 disabled={visibleItems.length === 0}

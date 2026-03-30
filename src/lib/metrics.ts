@@ -88,6 +88,54 @@ export function computeBoardMetrics(board: BoardWithColumnsAndTasks, opts?: Metr
 
     const workItemAges = activeTasks.map(t => ({ id: t.id, title: t.title, ageDays: t.created ? daysBetween(t.created, now) : 0 }));
 
+    const overdueByColumn: Record<string, number> = {};
+    for (const col of board.columns) {
+        overdueByColumn[col.title] = col.tasks.filter((task) => {
+            if (!task.dueAt) return false;
+            if (task.status === 'DONE' || task.status === 'ARCHIVED') return false;
+            return new Date(task.dueAt).getTime() < now.getTime();
+        }).length;
+    }
+
+    const workloadByMember = board.members.map((member) => {
+        const activeCount = allTasks.filter((task) => {
+            if (task.status === 'DONE' || task.status === 'ARCHIVED') return false;
+            return task.assigneeId === member.userId;
+        }).length;
+        return {
+            userId: member.userId,
+            name: member.user.name ?? member.user.email ?? 'Unknown user',
+            activeTasks: activeCount,
+        };
+    }).sort((a, b) => b.activeTasks - a.activeTasks);
+
+    const throughputTrendDays = 14;
+    const throughputTrend: Array<{ date: string; completed: number }> = [];
+    for (let i = throughputTrendDays - 1; i >= 0; i--) {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const end = new Date(start.getTime() + 86_400_000);
+        const completed = completedWithTimes.filter((task) => {
+            if (!task.completed) return false;
+            const ts = task.completed.getTime();
+            return ts >= start.getTime() && ts < end.getTime();
+        }).length;
+
+        throughputTrend.push({
+            date: start.toISOString().slice(0, 10),
+            completed,
+        });
+    }
+
+    const SLA_DAYS = 7;
+    const slaBreaches = completedWithTimes
+        .map((task) => ({
+            id: task.id,
+            title: task.title,
+            cycleDays: task.started ? daysBetween(task.started, task.completed!) : daysBetween(task.created!, task.completed!),
+        }))
+        .filter((task) => task.cycleDays > SLA_DAYS)
+        .sort((a, b) => b.cycleDays - a.cycleDays);
+
     // Blocked items: we don't have explicit blocked flag — return empty list for now
     const blocked: Array<{ id: string; title: string }> = [];
 
@@ -117,7 +165,11 @@ export function computeBoardMetrics(board: BoardWithColumnsAndTasks, opts?: Metr
         cycleTime: { avgDays: cycleTimeAvg, medianDays: cycleTimeMedian, samples: cycleTimes.length },
         wip: { total: wipTotal, perColumn: wipPerColumn },
         throughput: { count: throughput, periodDays: throughputDays },
+        throughputTrend,
         workItemAges: workItemAges.sort((a, b) => b.ageDays - a.ageDays),
+        overdueByColumn,
+        workloadByMember,
+        slaBreaches,
         blocked,
         cfd: { dates, series }
     };

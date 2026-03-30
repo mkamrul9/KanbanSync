@@ -5,6 +5,7 @@ import Link from 'next/link';
 import NotificationsBell from './NotificationsBell';
 import InviteMemberModal from '../features/board/InviteMemberModal';
 import type { BoardWithColumnsAndTasks } from '../../types/board';
+import { parseBoardArchive } from '../../lib/archiveMarkers';
 
 type Props = {
     board: BoardWithColumnsAndTasks;
@@ -41,6 +42,7 @@ export default function BoardNavbar({
     const doneTasks = board.columns
         .filter((col) => col.title.toLowerCase().includes('done'))
         .reduce((sum, col) => sum + col.tasks.length, 0);
+    const visibleBoardDescription = parseBoardArchive(board.description).original;
 
     return (
         <>
@@ -72,8 +74,8 @@ export default function BoardNavbar({
                     {/* ── Board title + description ───────────────────── */}
                     <div className="flex-1 min-w-0">
                         <h1 className="text-base font-bold text-gray-900 truncate leading-tight">{board.title}</h1>
-                        {board.description && (
-                            <p className="text-xs text-gray-400 truncate hidden md:block leading-tight mt-0.5">{board.description}</p>
+                        {visibleBoardDescription && (
+                            <p className="text-xs text-gray-400 truncate hidden md:block leading-tight mt-0.5">{visibleBoardDescription}</p>
                         )}
                     </div>
 

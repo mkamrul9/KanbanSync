@@ -5,6 +5,7 @@ import { prisma } from '../lib/db';
 import { pusherServer } from '../lib/pusher-server';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../../auth';
+import { sendDigestEmail } from '../lib/emailDigest';
 
 async function getSessionUserId() {
     const session = await auth();
@@ -184,4 +185,77 @@ export async function markAllNotificationsRead(userId: string) {
     });
 
     return { success: true };
+}
+
+export async function sendNotificationDigestNow(windowHours = 24) {
+    const session = await auth();
+    if (!session?.user?.email) {
+        return { success: false, error: 'Unauthorized' };
+    }
+
+    const dbUser = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true, email: true, name: true },
+    });
+
+    if (!dbUser?.id || !dbUser.email) {
+        return { success: false, error: 'User not found' };
+    }
+
+    const cutoff = new Date(Date.now() - windowHours * 60 * 60 * 1000);
+    const rows = await prisma.notification.findMany({
+        where: {
+            userId: dbUser.id,
+            read: false,
+            createdAt: { gte: cutoff },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 30,
+        select: {
+            type: true,
+            createdAt: true,
+            data: true,
+        },
+    });
+
+    const items = rows.map((row) => {
+        const data = (row.data ?? {}) as Record<string, unknown>;
+        return {
+            type: row.type,
+            createdAt: row.createdAt,
+            boardTitle: typeof data.boardTitle === 'string' ? data.boardTitle : undefined,
+            taskTitle: typeof data.taskTitle === 'string' ? data.taskTitle : undefined,
+        };
+    });
+
+    await sendDigestEmail({
+        toEmail: dbUser.email,
+        toName: dbUser.name ?? null,
+        unreadCount: rows.length,
+        windowHours,
+        items,
+    });
+
+    await prisma.notification.create({
+        data: {
+            userId: dbUser.id,
+            type: 'digest-sent',
+            data: {
+                windowHours,
+                digestCount: rows.length,
+            },
+        },
+    });
+
+    await pusherServer.trigger(`user-${dbUser.id}`, 'notification', {
+        type: 'digest-sent',
+        read: false,
+        createdAt: new Date().toISOString(),
+        excerpt: rows.length > 0
+            ? `Digest sent with ${rows.length} unread notification${rows.length === 1 ? '' : 's'}.`
+            : 'Digest sent. No unread notifications in the selected window.',
+    });
+
+    revalidatePath('/');
+    return { success: true, count: rows.length };
 }

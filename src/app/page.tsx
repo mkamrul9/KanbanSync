@@ -5,6 +5,7 @@ import BoardsGrid from '../components/ui/BoardsGrid';
 import DashboardNavbar from '../components/ui/DashboardNavbar';
 import DashboardOnboardingTour from '../components/onboarding/DashboardOnboardingTour';
 import { dispatchPendingTaskRemindersAcrossBoards } from '../lib/reminders';
+import { isBoardArchived } from '../lib/archiveMarkers';
 
 export default async function Dashboard() {
   const session = await auth();
@@ -29,6 +30,7 @@ export default async function Dashboard() {
     },
     orderBy: { createdAt: 'desc' },
   });
+  const activeBoardCount = boards.filter((board) => !isBoardArchived(board.description)).length;
 
   const signOutAction = async () => {
     'use server';
@@ -42,7 +44,7 @@ export default async function Dashboard() {
         userName={session.user.name}
         userEmail={session.user.email}
         userImage={session.user.image}
-        boardCount={boards.length}
+        boardCount={activeBoardCount}
         signOutAction={signOutAction}
       />
 
@@ -57,7 +59,7 @@ export default async function Dashboard() {
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                {boards.length} active board{boards.length === 1 ? '' : 's'}
+                {activeBoardCount} active board{activeBoardCount === 1 ? '' : 's'}
               </span>
             </div>
           </div>

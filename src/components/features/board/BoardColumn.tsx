@@ -25,7 +25,7 @@ function getColumnAccent(title: string): { dot: string; header: string; panel: s
     return { dot: 'bg-cyan-500', header: 'text-cyan-800', panel: 'bg-cyan-50/70', badge: 'bg-cyan-100 text-cyan-800 ring-1 ring-cyan-200', border: 'ring-cyan-200/70' };
 }
 
-export default memo(function BoardColumn({ column, boardId, userRole, members, templates, allTasks, currentUserEmail }: { column: ColumnWithTasks; boardId?: string; userRole?: string | null; members?: MemberType[]; templates?: TemplateType[]; allTasks?: TaskType[]; currentUserEmail?: string | null }) {
+export default memo(function BoardColumn({ column, boardId, userRole, members, templates, allTasks, currentUserEmail, onArchiveColumn }: { column: ColumnWithTasks; boardId?: string; userRole?: string | null; members?: MemberType[]; templates?: TemplateType[]; allTasks?: TaskType[]; currentUserEmail?: string | null; onArchiveColumn?: (columnId: string) => void }) {
     const effectiveBoardId = boardId ?? column.boardId;
 
     const { setNodeRef } = useDroppable({
@@ -62,12 +62,25 @@ export default memo(function BoardColumn({ column, boardId, userRole, members, t
                     </h2>
                 </div>
 
-                {/* Task count / WIP badge */}
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2
-                    ${isOverLimit ? 'bg-red-500 text-white' : accent.badge}`}
-                >
-                    {column.wipLimit ? `${column.tasks.length} / ${column.wipLimit}` : column.tasks.length}
-                </span>
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                    {userRole === 'LEADER' && onArchiveColumn && (
+                        <button
+                            type="button"
+                            onClick={() => onArchiveColumn(column.id)}
+                            className="text-[11px] px-2 py-0.5 rounded-md border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                            title="Archive this column"
+                        >
+                            Archive
+                        </button>
+                    )}
+
+                    {/* Task count / WIP badge */}
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full
+                        ${isOverLimit ? 'bg-red-500 text-white' : accent.badge}`}
+                    >
+                        {column.wipLimit ? `${column.tasks.length} / ${column.wipLimit}` : column.tasks.length}
+                    </span>
+                </div>
             </div>
 
             {/* WIP exceeded warning stripe */}
