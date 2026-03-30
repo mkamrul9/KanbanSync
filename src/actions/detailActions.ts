@@ -9,6 +9,7 @@ import { TaskActivityType } from '../generated/prisma/client';
 import { logTaskActivity } from '../lib/activity';
 import { getUserRole } from '../lib/permission';
 import { BoardRole } from '../generated/prisma/enums';
+import { canPerformBoardAction } from '../lib/permissionsMatrix';
 
 export async function addComment(taskId: string, boardId: string, text: string) {
     const session = await auth();
@@ -314,6 +315,11 @@ export async function saveTaskAsTemplate(taskId: string, boardId: string, name: 
     const session = await auth();
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
     if (!name.trim()) return { success: false, error: 'Template name is required' };
+
+    const role = await getUserRole(boardId);
+    if (!canPerformBoardAction(role, 'TEMPLATE_MANAGE')) {
+        return { success: false, error: 'Unauthorized: insufficient role to manage templates.' };
+    }
 
     try {
         const task = await prisma.task.findUnique({ where: { id: taskId } });

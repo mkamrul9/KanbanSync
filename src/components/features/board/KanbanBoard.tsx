@@ -13,6 +13,7 @@ import MetricsModal from './MetricsModal';
 import BoardAuditLogModal from './BoardAuditLogModal';
 import CyclePlannerModal from './CyclePlannerModal';
 import DailyTimesheetModal from './DailyTimesheetModal';
+import Modal from '../../ui/Modal';
 import FilterPanel, { DEFAULT_FILTERS, countActiveFilters, FilterState, TASK_CATEGORIES } from './FilterPanel';
 // import { TaskStatus } from '../../../types/board';
 
@@ -56,6 +57,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [isAuditOpen, setIsAuditOpen] = useState(false);
     const [isCycleOpen, setIsCycleOpen] = useState(false);
     const [isTimesheetOpen, setIsTimesheetOpen] = useState(false);
+    const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+    const [globalSearchQuery, setGlobalSearchQuery] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isViewsOpen, setIsViewsOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
@@ -175,6 +178,57 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             done: inCycle.filter((t) => t.status === 'DONE').length,
         };
     }, [cycles, allBoardTasks]);
+    const globalSearchResults = useMemo(() => {
+        const q = globalSearchQuery.trim().toLowerCase();
+        if (!q) return [] as Array<{ taskId: string; taskTitle: string; columnTitle?: string; matchedIn: 'title' | 'description' | 'comment'; snippet: string }>;
+
+        const results: Array<{ taskId: string; taskTitle: string; columnTitle?: string; matchedIn: 'title' | 'description' | 'comment'; snippet: string }> = [];
+
+        for (const column of optimisticColumns) {
+            for (const task of column.tasks) {
+                if (task.status === 'ARCHIVED') continue;
+                const title = task.title ?? '';
+                const description = task.description ?? '';
+                const titleHit = title.toLowerCase().includes(q);
+                const descriptionHit = description.toLowerCase().includes(q);
+                const commentHit = (task.comments ?? []).find((c) => c.text.toLowerCase().includes(q));
+
+                if (titleHit) {
+                    results.push({
+                        taskId: task.id,
+                        taskTitle: task.title,
+                        columnTitle: column.title,
+                        matchedIn: 'title',
+                        snippet: task.title,
+                    });
+                    continue;
+                }
+
+                if (descriptionHit) {
+                    results.push({
+                        taskId: task.id,
+                        taskTitle: task.title,
+                        columnTitle: column.title,
+                        matchedIn: 'description',
+                        snippet: description.slice(0, 120),
+                    });
+                    continue;
+                }
+
+                if (commentHit) {
+                    results.push({
+                        taskId: task.id,
+                        taskTitle: task.title,
+                        columnTitle: column.title,
+                        matchedIn: 'comment',
+                        snippet: commentHit.text.slice(0, 120),
+                    });
+                }
+            }
+        }
+
+        return results.slice(0, 80);
+    }, [globalSearchQuery, optimisticColumns]);
     const archivedTasks = useMemo(
         () => allBoardTasks.filter((task) => task.status === 'ARCHIVED').sort((a, b) => {
             return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -704,6 +758,16 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 </button>
 
                 <button
+                    onClick={() => {
+                        setGlobalSearchQuery('');
+                        setIsGlobalSearchOpen(true);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                >
+                    Global Search
+                </button>
+
+                <button
                     onClick={() => setIsTimesheetOpen(true)}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                 >
@@ -879,6 +943,51 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 onClose={() => setIsTimesheetOpen(false)}
                 tasks={allBoardTasks}
             />
+            <Modal isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} className="max-w-4xl">
+                <div className="app-bg p-5">
+                    <div className="mb-3">
+                        <h3 className="text-lg font-semibold text-slate-900">Global Search</h3>
+                        <p className="text-xs text-slate-500">Search tasks and comments across this board.</p>
+                    </div>
+                    <input
+                        type="text"
+                        autoFocus
+                        value={globalSearchQuery}
+                        onChange={(e) => setGlobalSearchQuery(e.target.value)}
+                        placeholder="Search by title, description, or comment text..."
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none"
+                    />
+
+                    <div className="mt-3 max-h-[28rem] overflow-y-auto space-y-2 pr-1">
+                        {globalSearchQuery.trim().length === 0 && (
+                            <p className="text-sm text-slate-400 px-1 py-2">Start typing to search.</p>
+                        )}
+                        {globalSearchQuery.trim().length > 0 && globalSearchResults.length === 0 && (
+                            <p className="text-sm text-slate-400 px-1 py-2">No results found.</p>
+                        )}
+                        {globalSearchResults.map((result, idx) => (
+                            <button
+                                key={`${result.taskId}-${idx}`}
+                                type="button"
+                                onClick={() => {
+                                    setIsGlobalSearchOpen(false);
+                                    window.dispatchEvent(new CustomEvent('ks-tour-open-task-details', {
+                                        detail: { taskId: result.taskId }
+                                    }));
+                                }}
+                                className="w-full text-left bg-white border border-slate-200 rounded-xl px-3 py-2.5 hover:border-blue-300 hover:bg-blue-50/20 transition-colors"
+                            >
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                    <p className="text-sm font-semibold text-slate-800 truncate">{result.taskTitle}</p>
+                                    <span className="text-[10px] uppercase font-semibold tracking-wide text-slate-500">{result.matchedIn}</span>
+                                </div>
+                                <p className="text-xs text-slate-500 line-clamp-2">{result.snippet}</p>
+                                {result.columnTitle && <p className="text-[11px] text-slate-400 mt-1">Column: {result.columnTitle}</p>}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </Modal>
             <CyclePlannerModal
                 isOpen={isCycleOpen}
                 onClose={() => setIsCycleOpen(false)}

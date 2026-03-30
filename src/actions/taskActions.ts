@@ -10,6 +10,7 @@ import { BoardRole } from '../generated/prisma/client';
 import { auth } from '../../auth';
 import { notifyAssignedUser } from './notificationActions';
 import { logTaskActivity } from '../lib/activity';
+import { canPerformBoardAction } from '../lib/permissionsMatrix';
 
 const ARCHIVE_RETENTION_DAYS = 30;
 
@@ -107,6 +108,10 @@ export async function moveTask(
                     };
                 }
             }
+        }
+
+        if (movingIntoDone && !canPerformBoardAction(role, 'MOVE_TO_DONE')) {
+            return { success: false, error: 'Unauthorized: insufficient role to move tasks to Done.' };
         }
 
         // GUARD: MEMBERs can't move tasks INTO Done, and can't move tasks OUT of Done
@@ -265,7 +270,7 @@ export async function createTask(
     recurrence?: string,
 ) {
     const role = await getUserRole(boardId);
-    if (role !== BoardRole.LEADER) {
+    if (!canPerformBoardAction(role, 'CREATE_TASK')) {
         return { success: false, error: 'Unauthorized: Only Leaders can create tasks.' };
     }
 
@@ -352,7 +357,7 @@ export async function deleteTask(taskId: string, boardId: string) {
 export async function archiveTask(taskId: string, boardId: string) {
     try {
         const role = await getUserRole(boardId);
-        if (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER) {
+        if (!canPerformBoardAction(role, 'ARCHIVE_TASK')) {
             return { success: false, error: 'Unauthorized: Only Leaders and Reviewers can archive tasks.' };
         }
         const session = await auth();
@@ -465,7 +470,11 @@ export async function updateTask(
 ) {
     try {
         const role = await getUserRole(boardId);
-        if (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER) {
+        const requiresPriorityPermission = priority !== undefined;
+        if (requiresPriorityPermission && !canPerformBoardAction(role, 'PRIORITY_EDIT')) {
+            return { success: false, error: 'Unauthorized: insufficient role to edit priority.' };
+        }
+        if (!role || (role !== BoardRole.LEADER && role !== BoardRole.REVIEWER)) {
             return { success: false, error: 'Unauthorized: insufficient role' };
         }
         const session = await auth();

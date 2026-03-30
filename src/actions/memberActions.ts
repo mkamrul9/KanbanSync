@@ -7,6 +7,7 @@ import { BoardRole } from '../generated/prisma/client';
 import { revalidatePath } from 'next/cache';
 import { pusherServer } from '../lib/pusher-server';
 import { auth } from '../../auth';
+import { canPerformBoardAction } from '../lib/permissionsMatrix';
 
 /**
  * NOTE: This function was updated to create a pending invite and notify the user
@@ -17,7 +18,7 @@ import { auth } from '../../auth';
 export async function inviteMember(boardId: string, email: string, role: BoardRole) {
     // 1. GUARD: Only Leaders can invite people
     const currentRole = await getUserRole(boardId);
-    if (currentRole !== BoardRole.LEADER) {
+    if (!canPerformBoardAction(currentRole, 'INVITE_MEMBER')) {
         return { success: false, error: 'Unauthorized: Only Leaders can invite members.' };
     }
 
