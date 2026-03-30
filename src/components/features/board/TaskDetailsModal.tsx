@@ -189,6 +189,10 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [gitLinkType, setGitLinkType] = useState<'PR' | 'Commit' | 'Branch'>('PR');
     const [gitLinkUrl, setGitLinkUrl] = useState('');
     const [archiveError, setArchiveError] = useState<string | null>(null);
+    const [aiSubtasks, setAiSubtasks] = useState<string[]>([]);
+    const [aiRiskSummary, setAiRiskSummary] = useState<string>('');
+    const [aiPrioritySuggestion, setAiPrioritySuggestion] = useState<string>('');
+    const [aiStandupDraft, setAiStandupDraft] = useState<string>('');
 
     const priorityOptions = [
         { value: 'URGENT', label: 'Urgent' },
@@ -529,6 +533,66 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                 return;
             }
             onClose();
+        });
+    };
+
+    const runAiAssist = () => {
+        const text = `${task.title} ${description} ${(task.tags ?? []).join(' ')}`.toLowerCase();
+        const baseSubtasks = [
+            'Define acceptance criteria',
+            'Implement core changes',
+            'Add or update tests',
+            'Review and prepare release notes',
+        ];
+
+        const keywordSubtasks: string[] = [];
+        if (/bug|fix|error|crash/.test(text)) keywordSubtasks.push('Reproduce issue and confirm root cause');
+        if (/api|backend|server|db|prisma/.test(text)) keywordSubtasks.push('Validate API/database behavior and edge cases');
+        if (/ui|ux|modal|style|design|frontend/.test(text)) keywordSubtasks.push('Verify responsive UI behavior and visual consistency');
+        if (/notify|email|reminder/.test(text)) keywordSubtasks.push('Validate notification delivery and fallback behavior');
+
+        const candidateSubtasks = [...keywordSubtasks, ...baseSubtasks]
+            .filter((value, index, array) => array.indexOf(value) === index)
+            .slice(0, 6);
+
+        const overdue = dueAt ? new Date(dueAt).getTime() < Date.now() : false;
+        const hasDependencies = blocking.length > 0;
+        const riskSignals: string[] = [];
+        if (overdue) riskSignals.push('Due date has already passed.');
+        if (hasDependencies) riskSignals.push(`${blocking.length} dependency blocker${blocking.length === 1 ? '' : 's'} detected.`);
+        if ((task.comments ?? []).length > 8) riskSignals.push('High discussion volume may indicate unclear requirements.');
+        if ((task.attachments ?? []).length === 0) riskSignals.push('No supporting links/attachments captured yet.');
+
+        let suggestedPriority = 'MEDIUM';
+        if (overdue || /urgent|blocker|critical|prod/.test(text)) suggestedPriority = 'URGENT';
+        else if (hasDependencies || /high|important|security/.test(text)) suggestedPriority = 'HIGH';
+        else if (/low|minor|nice-to-have/.test(text)) suggestedPriority = 'LOW';
+
+        const standup = [
+            `Yesterday: progressed \"${task.title}\" and aligned context from activity/comments.`,
+            `Today: ${candidateSubtasks.slice(0, 2).join(' + ')}.`,
+            `Blockers: ${hasDependencies ? blocking.map((b) => b.dependsOn.title).slice(0, 2).join(', ') : 'None currently flagged.'}`,
+        ].join(' ');
+
+        setAiSubtasks(candidateSubtasks);
+        setAiPrioritySuggestion(suggestedPriority);
+        setAiRiskSummary(riskSignals.length > 0 ? riskSignals.join(' ') : 'No immediate risk flags detected.');
+        setAiStandupDraft(standup);
+    };
+
+    const handleApplyAiSubtasks = () => {
+        if (aiSubtasks.length === 0) return;
+
+        startTransition(async () => {
+            const created: SubtaskType[] = [];
+            for (const title of aiSubtasks) {
+                const result = await addSubtask(task.id, boardId, title);
+                if (result.success && result.subtask) created.push(result.subtask);
+            }
+            if (created.length > 0) {
+                setSubtasks((prev) => [...prev, ...created]);
+                setAiSubtasks([]);
+            }
         });
     };
 
@@ -1052,6 +1116,63 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 >
                                     Add
                                 </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* AI Assist */}
+                    <div className="mb-3 rounded-xl border border-sky-200/70 bg-sky-50/35 p-3">
+                        <SideSectionTitle label="AI Assist" dotColor="bg-sky-500" />
+                        <p className="text-[11px] text-slate-500 mb-2">Generate practical subtasks, risk hints, and a standup draft from current task context.</p>
+                        <button
+                            type="button"
+                            onClick={runAiAssist}
+                            className="w-full px-3 py-2 bg-sky-600 text-white text-xs font-semibold rounded-lg hover:bg-sky-700"
+                        >
+                            Generate Suggestions
+                        </button>
+
+                        {(aiSubtasks.length > 0 || aiRiskSummary || aiStandupDraft) && (
+                            <div className="mt-2 space-y-2">
+                                {aiSubtasks.length > 0 && (
+                                    <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <p className="text-[11px] font-semibold text-slate-700 mb-1">Suggested Subtasks</p>
+                                        <ul className="space-y-1">
+                                            {aiSubtasks.map((item) => (
+                                                <li key={item} className="text-xs text-slate-600">- {item}</li>
+                                            ))}
+                                        </ul>
+                                        <button
+                                            type="button"
+                                            onClick={handleApplyAiSubtasks}
+                                            disabled={isPending}
+                                            className="mt-2 w-full px-2.5 py-1.5 text-[11px] font-semibold rounded-md border border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 disabled:opacity-50"
+                                        >
+                                            Apply Suggested Subtasks
+                                        </button>
+                                    </div>
+                                )}
+
+                                {aiPrioritySuggestion && (
+                                    <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <p className="text-[11px] font-semibold text-slate-700">Priority Suggestion</p>
+                                        <p className="text-xs text-slate-600 mt-0.5">Suggested level: {aiPrioritySuggestion}</p>
+                                    </div>
+                                )}
+
+                                {aiRiskSummary && (
+                                    <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <p className="text-[11px] font-semibold text-slate-700">Risk Summary</p>
+                                        <p className="text-xs text-slate-600 mt-0.5">{aiRiskSummary}</p>
+                                    </div>
+                                )}
+
+                                {aiStandupDraft && (
+                                    <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <p className="text-[11px] font-semibold text-slate-700">Standup Draft</p>
+                                        <p className="text-xs text-slate-600 mt-0.5">{aiStandupDraft}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
