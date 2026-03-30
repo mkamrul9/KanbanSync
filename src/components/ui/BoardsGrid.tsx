@@ -68,7 +68,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
     const togglePin = (boardId: string, boardTitle: string) => {
         const isPinned = pinnedBoardIds.has(boardId);
         const newPinned = new Set(pinnedBoardIds);
-        
+
         if (isPinned) {
             newPinned.delete(boardId);
             success(`"${boardTitle}" unpinned`);
@@ -76,7 +76,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
             newPinned.add(boardId);
             success(`"${boardTitle}" pinned to top`);
         }
-        
+
         setPinnedBoardIds(newPinned);
         if (userId) {
             const pinnedKey = `pinned-boards-${userId}`;
@@ -193,7 +193,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">Other Boards</h2>
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {visibleUnpinned.map((board) => renderBoardCard(board))}                   
+                    {visibleUnpinned.map((board) => renderBoardCard(board))}
                 </div>
 
                 {/* Show-more / show-less spanning full row */}
