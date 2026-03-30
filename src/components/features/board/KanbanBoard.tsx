@@ -9,8 +9,6 @@ import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners }
 import { useRouter } from 'next/navigation';
 import { getPusherClient } from '../../../lib/pusher';
 import { isArchiveExpired, isColumnArchived, parseColumnArchive } from '../../../lib/archiveMarkers';
-// TODO: Integrate toast notifications and tooltips for board operations
-// import { useToast } from '../../ui/ToastContainer';
 import Tooltip from '../../ui/Tooltip';
 
 import BoardColumn from './BoardColumn';
@@ -19,7 +17,6 @@ import BoardAuditLogModal from './BoardAuditLogModal';
 import CyclePlannerModal from './CyclePlannerModal';
 import DailyTimesheetModal from './DailyTimesheetModal';
 import FilterPanel, { DEFAULT_FILTERS, countActiveFilters, FilterState, TASK_CATEGORIES } from './FilterPanel';
-// import { TaskStatus } from '../../../types/board';
 
 const ARCHIVE_RETENTION_DAYS = 30;
 
@@ -54,8 +51,6 @@ type Cycle = {
 export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }: KanbanBoardProps) {
     const router = useRouter();
     const canManageArchive = userRole === 'LEADER' || userRole === 'REVIEWER';
-    // TODO: Integrate toast notifications for board operations
-    // const { success, error, info } = useToast();
     // Add a new "movedTask" property to the state, which we can use to render the dragging task in the overlay
     const [activeTask, setActiveTask] = useState<TaskType | null>(null);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -662,16 +657,18 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                 {/* Saved Views Button */}
                 <div className="relative" ref={savedViewsRef}>
-                    <button
-                        onClick={() => setIsViewsOpen((o) => !o)}
-                        data-tour="board-saved-views-button"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                    >
-                        Saved Views
-                        {savedViews.length > 0 && (
-                            <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{savedViews.length}</span>
-                        )}
-                    </button>
+                    <Tooltip text="Open and apply your saved filter views" position="bottom">
+                        <button
+                            onClick={() => setIsViewsOpen((o) => !o)}
+                            data-tour="board-saved-views-button"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        >
+                            Saved Views
+                            {savedViews.length > 0 && (
+                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{savedViews.length}</span>
+                            )}
+                        </button>
+                    </Tooltip>
 
                     {isViewsOpen && (
                         <div className="absolute top-full mt-2 left-0 z-40 w-64 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
@@ -727,27 +724,29 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                 {/* Filter Button */}
                 <div className="relative">
-                    <button
-                        onClick={() => {
-                            setFilterNow(Date.now()); // capture current time so age filters are accurate
-                            setIsFilterOpen(o => !o);
-                        }}
-                        data-tour="board-filter-button"
-                        className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border shadow-sm transition-all text-sm font-medium whitespace-nowrap ${countActiveFilters(filters) > 0
-                            ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                            : 'bg-white/90 text-gray-700 border-slate-300 hover:bg-white hover:border-slate-400'
-                            }`}
-                    >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
-                        </svg>
-                        Filters
-                        {countActiveFilters(filters) > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white text-blue-600 border border-blue-600 text-xs font-bold flex items-center justify-center leading-none">
-                                {countActiveFilters(filters)}
-                            </span>
-                        )}
-                    </button>
+                    <Tooltip text="Filter tasks by assignee, category, priority, dates, and more" position="bottom">
+                        <button
+                            onClick={() => {
+                                setFilterNow(Date.now()); // capture current time so age filters are accurate
+                                setIsFilterOpen(o => !o);
+                            }}
+                            data-tour="board-filter-button"
+                            className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border shadow-sm transition-all text-sm font-medium whitespace-nowrap ${countActiveFilters(filters) > 0
+                                ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                                : 'bg-white/90 text-gray-700 border-slate-300 hover:bg-white hover:border-slate-400'
+                                }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                            </svg>
+                            Filters
+                            {countActiveFilters(filters) > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white text-blue-600 border border-blue-600 text-xs font-bold flex items-center justify-center leading-none">
+                                    {countActiveFilters(filters)}
+                                </span>
+                            )}
+                        </button>
+                    </Tooltip>
 
                     <FilterPanel
                         isOpen={isFilterOpen}
@@ -773,58 +772,68 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 </div>
 
                 {/* Board Metrics Button */}
-                <button
-                    onClick={() => setIsMetricsOpen(true)}
-                    data-tour="board-metrics-button"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Board Metrics
-                </button>
+                <Tooltip text="Open board analytics and team performance insights" position="bottom">
+                    <button
+                        onClick={() => setIsMetricsOpen(true)}
+                        data-tour="board-metrics-button"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Board Metrics
+                    </button>
+                </Tooltip>
 
-                <button
-                    onClick={() => setIsAuditOpen(true)}
-                    data-tour="board-audit-button"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Audit Log
-                </button>
+                <Tooltip text="See a timeline of important board and task changes" position="bottom">
+                    <button
+                        onClick={() => setIsAuditOpen(true)}
+                        data-tour="board-audit-button"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Audit Log
+                    </button>
+                </Tooltip>
 
-                <button
-                    onClick={() => setIsCycleOpen(true)}
-                    data-tour="board-cycles-button"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                >
-                    Cycles
-                </button>
+                <Tooltip text="Plan and track sprint cycles for this board" position="bottom">
+                    <button
+                        onClick={() => setIsCycleOpen(true)}
+                        data-tour="board-cycles-button"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                    >
+                        Cycles
+                    </button>
+                </Tooltip>
 
-                <button
-                    onClick={() => setIsTimesheetOpen(true)}
-                    data-tour="board-timesheet-button"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                >
-                    Timesheet
-                </button>
+                <Tooltip text="Open daily team time logs and export summaries" position="bottom">
+                    <button
+                        onClick={() => setIsTimesheetOpen(true)}
+                        data-tour="board-timesheet-button"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                    >
+                        Timesheet
+                    </button>
+                </Tooltip>
 
                 {canManageArchive && (
                     <div className="relative" ref={archivePanelRef}>
-                        <button
-                            onClick={() => {
-                                setFilterNow(Date.now());
-                                setArchiveSearch('');
-                                setIsArchiveOpen((o) => !o);
-                            }}
-                            data-tour="board-archive-button"
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50/90 border border-rose-200 shadow-sm hover:bg-rose-100 hover:border-rose-300 transition-all text-sm font-semibold text-rose-700 whitespace-nowrap"
-                        >
-                            Archived
-                            <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-rose-200 text-rose-600">{archivedTasks.length + archivedColumns.length}</span>
-                        </button>
+                        <Tooltip text="Open archived tasks and archived columns hub" position="bottom">
+                            <button
+                                onClick={() => {
+                                    setFilterNow(Date.now());
+                                    setArchiveSearch('');
+                                    setIsArchiveOpen((o) => !o);
+                                }}
+                                data-tour="board-archive-button"
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50/90 border border-rose-200 shadow-sm hover:bg-rose-100 hover:border-rose-300 transition-all text-sm font-semibold text-rose-700 whitespace-nowrap"
+                            >
+                                Archived
+                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-rose-200 text-rose-600">{archivedTasks.length + archivedColumns.length}</span>
+                            </button>
+                        </Tooltip>
 
                         {isArchiveOpen && (
                             <div className="absolute top-full mt-2 left-0 z-40 w-84 app-bg rounded-xl border border-slate-200 shadow-xl p-2">

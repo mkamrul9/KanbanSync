@@ -2,9 +2,7 @@
 
 import { useTransition, useState } from 'react';
 import Modal from '../../../components/ui/Modal';
-// TODO: Integrate tooltips for form fields
 import Tooltip from '../../ui/Tooltip';
-// import { useToast } from '../../ui/ToastContainer';
 import { createTask } from '../../../actions/taskActions';
 import { TaskStatus, TaskCategory } from '../../../generated/prisma/enums';
 import { BoardWithColumnsAndTasks } from '../../../types/board';
@@ -202,27 +200,31 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-2 pt-5 mt-4 border-t border-gray-100">
-                        <button
-                            onClick={handleClose}
-                            className="px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            disabled={isPending || !title.trim()}
-                            className="px-5 py-2 ui-btn-primary active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                            {isPending ? (
-                                <span className="flex items-center gap-1.5">
-                                    <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                                    </svg>
-                                    Saving…
-                                </span>
-                            ) : 'Save Task'}
-                        </button>
+                        <Tooltip text="Close without creating this task" position="top">
+                            <button
+                                onClick={handleClose}
+                                className="px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </Tooltip>
+                        <Tooltip text="Create task in this column" position="top">
+                            <button
+                                onClick={handleSave}
+                                disabled={isPending || !title.trim()}
+                                className="px-5 py-2 ui-btn-primary active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                {isPending ? (
+                                    <span className="flex items-center gap-1.5">
+                                        <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                        </svg>
+                                        Saving…
+                                    </span>
+                                ) : 'Save Task'}
+                            </button>
+                        </Tooltip>
                     </div>
                 </div>
 
@@ -234,48 +236,54 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     {/* Template */}
                     <div className="mb-3 rounded-xl border border-slate-200/70 bg-slate-50/35 p-3">
                         <SideSectionTitle label="Template" dotColor="bg-slate-500" />
-                        <select
-                            value={selectedTemplateId}
-                            onChange={(e) => setSelectedTemplateId(e.target.value)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
-                        >
-                            <option value="">Start blank</option>
-                            {templates.map((template) => (
-                                <option key={template.id} value={template.id}>
-                                    {template.name}
-                                </option>
-                            ))}
-                        </select>
-                        <button
-                            type="button"
-                            onClick={handleApplyTemplate}
-                            disabled={!selectedTemplateId}
-                            className="mt-2 w-full px-3 py-2 rounded-lg bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Apply Template
-                        </button>
+                        <Tooltip text="Choose a template to prefill task details" position="left">
+                            <select
+                                value={selectedTemplateId}
+                                onChange={(e) => setSelectedTemplateId(e.target.value)}
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            >
+                                <option value="">Start blank</option>
+                                {templates.map((template) => (
+                                    <option key={template.id} value={template.id}>
+                                        {template.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </Tooltip>
+                        <Tooltip text="Apply selected template fields to this task" position="left">
+                            <button
+                                type="button"
+                                onClick={handleApplyTemplate}
+                                disabled={!selectedTemplateId}
+                                className="mt-2 w-full px-3 py-2 rounded-lg bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Apply Template
+                            </button>
+                        </Tooltip>
                         <p className="text-[10px] text-gray-400 mt-1">Pick one and click Apply to prefill this form.</p>
                     </div>
 
                     {/* Category */}
                     <div className="mb-3 rounded-xl border border-indigo-200/70 bg-indigo-50/35 p-3">
                         <SideSectionTitle label="Category" dotColor="bg-indigo-500" />
-                        <select
-                            data-tour="new-task-category"
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value as TaskCategory)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
-                        >
-                            <option value={TaskCategory.NEW_FEATURE}>Feature</option>
-                            <option value={TaskCategory.EPIC}>Epic</option>
-                            <option value={TaskCategory.STORY}>Story</option>
-                            <option value={TaskCategory.TASK}>Task</option>
-                            <option value={TaskCategory.SUB_TASK}>Sub-task</option>
-                            <option value={TaskCategory.BUG}>Bug</option>
-                            <option value={TaskCategory.ENHANCEMENT}>Enhancement</option>
-                            <option value={TaskCategory.PATCH}>Patch</option>
-                            <option value={TaskCategory.HOTFIX}>Hotfix</option>
-                        </select>
+                        <Tooltip text="Set task type to improve reporting and filtering" position="left">
+                            <select
+                                data-tour="new-task-category"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value as TaskCategory)}
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            >
+                                <option value={TaskCategory.NEW_FEATURE}>Feature</option>
+                                <option value={TaskCategory.EPIC}>Epic</option>
+                                <option value={TaskCategory.STORY}>Story</option>
+                                <option value={TaskCategory.TASK}>Task</option>
+                                <option value={TaskCategory.SUB_TASK}>Sub-task</option>
+                                <option value={TaskCategory.BUG}>Bug</option>
+                                <option value={TaskCategory.ENHANCEMENT}>Enhancement</option>
+                                <option value={TaskCategory.PATCH}>Patch</option>
+                                <option value={TaskCategory.HOTFIX}>Hotfix</option>
+                            </select>
+                        </Tooltip>
                     </div>
 
                     {/* Priority */}
@@ -319,19 +327,21 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                                 <span className="text-xs">Unassigned</span>
                             </div>
                         )}
-                        <select
-                            data-tour="new-task-assignee"
-                            value={assigneeId}
-                            onChange={(e) => setAssigneeId(e.target.value)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
-                        >
-                            <option value="">Unassigned</option>
-                            {members.map((m) => (
-                                <option key={m.user.id} value={m.user.id}>
-                                    {m.user.name || m.user.email}
-                                </option>
-                            ))}
-                        </select>
+                        <Tooltip text="Assign an owner for accountability" position="left">
+                            <select
+                                data-tour="new-task-assignee"
+                                value={assigneeId}
+                                onChange={(e) => setAssigneeId(e.target.value)}
+                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            >
+                                <option value="">Unassigned</option>
+                                {members.map((m) => (
+                                    <option key={m.user.id} value={m.user.id}>
+                                        {m.user.name || m.user.email}
+                                    </option>
+                                ))}
+                            </select>
+                        </Tooltip>
                     </div>
 
                     {/* Tags */}

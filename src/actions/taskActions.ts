@@ -3,7 +3,6 @@
 import { prisma } from '../lib/db';
 import { revalidatePath } from 'next/cache';
 import { TaskStatus, TaskCategory, Priority, TaskActivityType } from '../generated/prisma/client';
-// import { auth } from '../../auth';
 import { pusherServer } from '../lib/pusher-server';
 import { getUserRole } from '../lib/permission';
 import { BoardRole } from '../generated/prisma/client';
@@ -273,9 +272,6 @@ export async function createTask(
     if (!canPerformBoardAction(role, 'CREATE_TASK')) {
         return { success: false, error: 'Unauthorized: Only Leaders can create tasks.' };
     }
-
-    // const session = await auth();
-    // if (!session?.user) return { success: false, error: 'Unauthorized' };
 
     try {
         // Enforce WIP limit server-side
