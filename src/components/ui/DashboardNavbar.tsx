@@ -19,12 +19,23 @@ export default function DashboardNavbar({
     userId, userName, userEmail, userImage, boardCount, signOutAction,
 }: Props) {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const menuRef = useRef<HTMLDivElement>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const desktopMenuRef = useRef<HTMLDivElement>(null);
+    const mobileUserMenuRef = useRef<HTMLDivElement>(null);
+    const mobileDropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handler = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+            const target = e.target as Node;
+            const desktopMenuInside = desktopMenuRef.current?.contains(target);
+            const mobileUserMenuInside = mobileUserMenuRef.current?.contains(target);
+            const mobileDropdownInside = mobileDropdownRef.current?.contains(target);
+
+            if (!desktopMenuInside && !mobileUserMenuInside) {
                 setUserMenuOpen(false);
+            }
+            if (!mobileDropdownInside) {
+                setMobileMenuOpen(false);
             }
         };
         document.addEventListener('mousedown', handler);
@@ -37,7 +48,7 @@ export default function DashboardNavbar({
 
     return (
         <nav className="sticky top-0 z-40 w-full bg-white/92 backdrop-blur-md border-b border-slate-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
 
                 {/* ── Brand ────────────────────────────── */}
                 <KanbanSyncLogo />
@@ -55,7 +66,7 @@ export default function DashboardNavbar({
                 </div>
 
                 {/* ── Right actions ────────────────────── */}
-                <div className="flex items-center gap-2 ml-auto">
+                <div className="hidden md:flex items-center gap-2 ml-auto">
 
                     <button
                         type="button"
@@ -84,7 +95,7 @@ export default function DashboardNavbar({
                     <div className="w-px h-6 bg-gray-200 mx-1" />
 
                     {/* User avatar + dropdown */}
-                    <div className="relative" ref={menuRef}>
+                    <div className="relative" ref={desktopMenuRef}>
                         <button
                             onClick={() => setUserMenuOpen((v) => !v)}
                             className="flex items-center gap-2 rounded-full hover:bg-gray-100 transition-colors px-2 py-1"
@@ -151,6 +162,98 @@ export default function DashboardNavbar({
                                 </Link>
 
                                 {/* Menu items */}
+                                <form action={signOutAction}>
+                                    <button
+                                        type="submit"
+                                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Sign out
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── Mobile actions ───────────────────── */}
+                <div className="md:hidden flex items-center gap-2 ml-auto">
+                    <div className="relative" ref={mobileDropdownRef}>
+                        <button
+                            type="button"
+                            onClick={() => setMobileMenuOpen((v) => !v)}
+                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            aria-label="Open mobile menu"
+                        >
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+                            </svg>
+                        </button>
+
+                        {mobileMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-72 app-bg rounded-xl border border-slate-200 shadow-xl p-2 z-50">
+                                <div className="grid grid-cols-2 gap-2 mb-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            window.dispatchEvent(new Event('ks-open-dashboard-tour'));
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        className="flex items-center justify-center gap-1.5 border border-slate-200 hover:bg-slate-50 text-gray-700 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+                                    >
+                                        <svg className="w-4 h-4 text-cyan-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 3l8.5 4.5v9L12 21 3.5 16.5v-9L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                                            <path d="M12 8.5v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                                            <circle cx="12" cy="15.8" r="1" fill="currentColor" />
+                                        </svg>
+                                        Tutorial
+                                    </button>
+                                    <div className="[&>button]:w-full [&>button]:justify-center">
+                                        <CreateBoardModal />
+                                    </div>
+                                </div>
+
+                                <div className="px-1 py-2 border-t border-slate-200 text-xs text-slate-500">
+                                    {boardCount} {boardCount === 1 ? 'board' : 'boards'}
+                                </div>
+
+                                <div className="px-1 pb-2 border-b border-slate-200">
+                                    <NotificationsBell userId={userId} />
+                                </div>
+
+                                <div className="pt-2 space-y-1">
+                                    <Link href="/help" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50">Help</Link>
+                                    <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50">About Us</Link>
+                                    <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50">Contact Us</Link>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="relative" ref={mobileUserMenuRef}>
+                        <button
+                            onClick={() => setUserMenuOpen((v) => !v)}
+                            className="flex items-center gap-2 rounded-full hover:bg-gray-100 transition-colors px-1 py-1"
+                            aria-label="User menu"
+                        >
+                            {userImage ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={userImage} alt={userName ?? 'User'} className="w-8 h-8 rounded-full object-cover" />
+                            ) : (
+                                <span className="w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-semibold flex items-center justify-center">
+                                    {initials}
+                                </span>
+                            )}
+                        </button>
+
+                        {userMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-56 app-bg rounded-xl border border-slate-200 shadow-xl py-1 z-50">
+                                <div className="px-4 py-3 border-b border-gray-100">
+                                    <p className="text-sm font-semibold text-gray-800 truncate">{userName}</p>
+                                    <p className="text-xs text-gray-400 truncate">{userEmail}</p>
+                                </div>
                                 <form action={signOutAction}>
                                     <button
                                         type="submit"

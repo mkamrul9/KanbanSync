@@ -1072,23 +1072,23 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 onDragEnd={handleDragEnd}
                 onDragCancel={handleDragCancel}
             >
-                <div
-                    style={{ gridTemplateColumns: `repeat(${Math.min(filteredColumns.length, 5)}, minmax(260px, 1fr))` }}
-                    className="grid gap-5 pb-6 items-start"
-                >
-                    {filteredColumns.map((column) => (
-                        <BoardColumn
-                            key={column.id}
-                            column={column}
-                            boardId={initialBoard.id}
-                            userRole={userRole}
-                            members={initialBoard.members}
-                            templates={initialBoard.taskTemplates}
-                            allTasks={allBoardTasks}
-                            currentUserEmail={currentUserEmail}
-                            onArchiveColumn={handleArchiveColumn}
-                        />
-                    ))}
+                <div className="overflow-x-auto pb-2 -mx-1 px-1">
+                    <div className="grid grid-flow-col auto-cols-[minmax(280px,86vw)] sm:auto-cols-[minmax(300px,70vw)] lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5 pb-6 items-start min-w-max lg:min-w-0 snap-x snap-mandatory">
+                        {filteredColumns.map((column) => (
+                            <div key={column.id} className="snap-start">
+                                <BoardColumn
+                                    column={column}
+                                    boardId={initialBoard.id}
+                                    userRole={userRole}
+                                    members={initialBoard.members}
+                                    templates={initialBoard.taskTemplates}
+                                    allTasks={allBoardTasks}
+                                    currentUserEmail={currentUserEmail}
+                                    onArchiveColumn={handleArchiveColumn}
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* The Overlay */}
