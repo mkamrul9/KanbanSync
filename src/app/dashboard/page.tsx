@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import BoardsGrid from '../../components/ui/BoardsGrid';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
+import ToastContainer from '../../components/ui/ToastContainer';
 import DashboardOnboardingTour from '../../components/onboarding/DashboardOnboardingTour';
 import { dispatchPendingTaskRemindersAcrossBoards } from '../../lib/reminders';
 import { isBoardArchived } from '../../lib/archiveMarkers';
@@ -257,6 +258,7 @@ export default async function DashboardPage({
                 boardCount={activeBoardCount}
                 signOutAction={signOutAction}
             />
+            <ToastContainer />
 
             <main className="flex-1 px-6 py-10 max-w-7xl mx-auto w-full">
                 <div className="mb-8 app-surface rounded-3xl p-6 md:p-7 border border-slate-200/70 anim-fade-up" data-tour="dashboard-title">
@@ -458,7 +460,7 @@ export default async function DashboardPage({
                             <p className="text-gray-500 mt-1 text-base">Click &ldquo;Create Board&rdquo; in the navbar to get started.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 anim-fade-up">
+                        <div className="grid grid-cols-1userId={dbUser.id}  sm:grid-cols-2 md:grid-cols-3 gap-6 anim-fade-up">
                             <BoardsGrid boards={boards} />
                         </div>
                     )}

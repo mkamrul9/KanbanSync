@@ -9,6 +9,9 @@ import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners }
 import { useRouter } from 'next/navigation';
 import { getPusherClient } from '../../../lib/pusher';
 import { isArchiveExpired, isColumnArchived, parseColumnArchive } from '../../../lib/archiveMarkers';
+// TODO: Integrate toast notifications and tooltips for board operations
+// import { useToast } from '../../ui/ToastContainer';
+// import Tooltip from '../../ui/Tooltip';
 
 import BoardColumn from './BoardColumn';
 import MetricsModal from './MetricsModal';
@@ -51,6 +54,8 @@ type Cycle = {
 export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }: KanbanBoardProps) {
     const router = useRouter();
     const canManageArchive = userRole === 'LEADER' || userRole === 'REVIEWER';
+    // TODO: Integrate toast notifications for board operations
+    // const { success, error, info } = useToast();
     // Add a new "movedTask" property to the state, which we can use to render the dragging task in the overlay
     const [activeTask, setActiveTask] = useState<TaskType | null>(null);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
