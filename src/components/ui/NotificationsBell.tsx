@@ -367,9 +367,9 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                                     ? `Task overdue`
                                                                     : it.type === 'digest-sent'
                                                                         ? 'Email digest sent'
-                                                                    : it.type === 'added-to-board'
-                                                                        ? `Added to a board`
-                                                                        : 'Notification'}
+                                                                        : it.type === 'added-to-board'
+                                                                            ? `Added to a board`
+                                                                            : 'Notification'}
                                             </p>
                                             {(it.type === 'task-reminder' || it.type === 'task-overdue') && it.taskTitle && (
                                                 <p className="text-xs text-gray-700 font-medium mt-0.5 truncate">&ldquo;{it.taskTitle}&rdquo;</p>

@@ -2,30 +2,36 @@ import { BoardRole } from '../generated/prisma/client';
 
 export type BoardAction =
     | 'CREATE_TASK'
+    | 'COMMENT_ADD'
     | 'ARCHIVE_TASK'
     | 'MOVE_TO_DONE'
     | 'PRIORITY_EDIT'
     | 'TASK_EDIT'
     | 'ASSIGN_TASK'
     | 'SUBTASK_MANAGE'
+    | 'SUBTASK_TOGGLE'
     | 'ATTACHMENT_MANAGE'
     | 'DEPENDENCY_MANAGE'
     | 'TIME_ENTRY_MANAGE'
+    | 'TIME_ENTRY_DELETE_ANY'
     | 'INVITE_MEMBER'
     | 'EXPORT_DATA'
     | 'TEMPLATE_MANAGE';
 
 const ACTION_MATRIX: Record<BoardAction, BoardRole[]> = {
     CREATE_TASK: [BoardRole.LEADER],
+    COMMENT_ADD: [BoardRole.LEADER, BoardRole.REVIEWER, BoardRole.MEMBER],
     ARCHIVE_TASK: [BoardRole.LEADER, BoardRole.REVIEWER],
     MOVE_TO_DONE: [BoardRole.LEADER, BoardRole.REVIEWER],
     PRIORITY_EDIT: [BoardRole.LEADER, BoardRole.REVIEWER],
     TASK_EDIT: [BoardRole.LEADER, BoardRole.REVIEWER],
     ASSIGN_TASK: [BoardRole.LEADER, BoardRole.REVIEWER],
     SUBTASK_MANAGE: [BoardRole.LEADER, BoardRole.REVIEWER],
+    SUBTASK_TOGGLE: [BoardRole.LEADER, BoardRole.REVIEWER, BoardRole.MEMBER],
     ATTACHMENT_MANAGE: [BoardRole.LEADER, BoardRole.REVIEWER],
     DEPENDENCY_MANAGE: [BoardRole.LEADER, BoardRole.REVIEWER],
     TIME_ENTRY_MANAGE: [BoardRole.LEADER, BoardRole.REVIEWER, BoardRole.MEMBER],
+    TIME_ENTRY_DELETE_ANY: [BoardRole.LEADER, BoardRole.REVIEWER],
     INVITE_MEMBER: [BoardRole.LEADER],
     EXPORT_DATA: [BoardRole.LEADER, BoardRole.REVIEWER],
     TEMPLATE_MANAGE: [BoardRole.LEADER],

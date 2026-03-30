@@ -15,7 +15,6 @@ import MetricsModal from './MetricsModal';
 import BoardAuditLogModal from './BoardAuditLogModal';
 import CyclePlannerModal from './CyclePlannerModal';
 import DailyTimesheetModal from './DailyTimesheetModal';
-import Modal from '../../ui/Modal';
 import FilterPanel, { DEFAULT_FILTERS, countActiveFilters, FilterState, TASK_CATEGORIES } from './FilterPanel';
 // import { TaskStatus } from '../../../types/board';
 
@@ -59,12 +58,9 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
     const [isAuditOpen, setIsAuditOpen] = useState(false);
     const [isCycleOpen, setIsCycleOpen] = useState(false);
     const [isTimesheetOpen, setIsTimesheetOpen] = useState(false);
-    const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
-    const [globalSearchQuery, setGlobalSearchQuery] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isViewsOpen, setIsViewsOpen] = useState(false);
     const [isArchiveOpen, setIsArchiveOpen] = useState(false);
-    const [isArchivedColumnsOpen, setIsArchivedColumnsOpen] = useState(false);
     const [archiveSearch, setArchiveSearch] = useState('');
     const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
     const [savedViews, setSavedViews] = useState<Array<{ id: string; name: string; filters: FilterState }>>(() => {
@@ -182,57 +178,6 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
             done: inCycle.filter((t) => t.status === 'DONE').length,
         };
     }, [cycles, allBoardTasks]);
-    const globalSearchResults = useMemo(() => {
-        const q = globalSearchQuery.trim().toLowerCase();
-        if (!q) return [] as Array<{ taskId: string; taskTitle: string; columnTitle?: string; matchedIn: 'title' | 'description' | 'comment'; snippet: string }>;
-
-        const results: Array<{ taskId: string; taskTitle: string; columnTitle?: string; matchedIn: 'title' | 'description' | 'comment'; snippet: string }> = [];
-
-        for (const column of optimisticColumns) {
-            for (const task of column.tasks) {
-                if (task.status === 'ARCHIVED') continue;
-                const title = task.title ?? '';
-                const description = task.description ?? '';
-                const titleHit = title.toLowerCase().includes(q);
-                const descriptionHit = description.toLowerCase().includes(q);
-                const commentHit = (task.comments ?? []).find((c) => c.text.toLowerCase().includes(q));
-
-                if (titleHit) {
-                    results.push({
-                        taskId: task.id,
-                        taskTitle: task.title,
-                        columnTitle: column.title,
-                        matchedIn: 'title',
-                        snippet: task.title,
-                    });
-                    continue;
-                }
-
-                if (descriptionHit) {
-                    results.push({
-                        taskId: task.id,
-                        taskTitle: task.title,
-                        columnTitle: column.title,
-                        matchedIn: 'description',
-                        snippet: description.slice(0, 120),
-                    });
-                    continue;
-                }
-
-                if (commentHit) {
-                    results.push({
-                        taskId: task.id,
-                        taskTitle: task.title,
-                        columnTitle: column.title,
-                        matchedIn: 'comment',
-                        snippet: commentHit.text.slice(0, 120),
-                    });
-                }
-            }
-        }
-
-        return results.slice(0, 80);
-    }, [globalSearchQuery, optimisticColumns]);
     const archivedTasks = useMemo(
         () => allBoardTasks.filter((task) => task.status === 'ARCHIVED').sort((a, b) => {
             return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -254,6 +199,15 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         () => optimisticColumns.filter((column) => isColumnArchived(column.title)),
         [optimisticColumns]
     );
+    const filteredArchivedColumns = useMemo(() => {
+        const q = archiveSearch.trim().toLowerCase();
+        if (!q) return archivedColumns;
+        return archivedColumns.filter((column) => {
+            const parsed = parseColumnArchive(column.title);
+            const original = parsed.original.toLowerCase();
+            return original.includes(q);
+        });
+    }, [archivedColumns, archiveSearch]);
     const expiredArchivedColumns = useMemo(
         () => archivedColumns.filter((column) => isArchiveExpired(parseColumnArchive(column.title).archivedAt, ARCHIVE_RETENTION_DAYS)),
         [archivedColumns]
@@ -401,87 +355,91 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         return optimisticColumns
             .filter((column) => !isColumnArchived(column.title))
             .map(column => {
-            let tasks = [...column.tasks].filter((task) => task.status !== 'ARCHIVED');
+                let tasks = [...column.tasks].filter((task) => task.status !== 'ARCHIVED');
 
-            // ── Search ─────────────────────────────────────────────
-            if (hasSearch) {
-                const q = searchQuery.toLowerCase();
-                tasks = tasks.filter(t => t.title.toLowerCase().includes(q));
-            }
+                // ── Search ─────────────────────────────────────────────
+                if (hasSearch) {
+                    const q = searchQuery.toLowerCase();
+                    tasks = tasks.filter((t) => {
+                        if (t.title.toLowerCase().includes(q)) return true;
+                        if ((t.description ?? '').toLowerCase().includes(q)) return true;
+                        return (t.comments ?? []).some((comment) => comment.text.toLowerCase().includes(q));
+                    });
+                }
 
-            // ── Assignee ───────────────────────────────────────────
-            if (hasAssignee) {
-                tasks = tasks.filter(t => {
-                    if (filters.assignees.includes('unassigned') && t.assigneeId === null) return true;
-                    if (t.assigneeId && filters.assignees.includes(t.assigneeId)) return true;
-                    return false;
-                });
-            }
+                // ── Assignee ───────────────────────────────────────────
+                if (hasAssignee) {
+                    tasks = tasks.filter(t => {
+                        if (filters.assignees.includes('unassigned') && t.assigneeId === null) return true;
+                        if (t.assigneeId && filters.assignees.includes(t.assigneeId)) return true;
+                        return false;
+                    });
+                }
 
-            // ── Category ───────────────────────────────────────────
-            if (hasCat) {
-                tasks = tasks.filter(t => filters.categories.includes(t.category));
-            }
-            // ── Priority ───────────────────────────────────────────────
-            if (hasPriority) {
-                tasks = tasks.filter(t => filters.priorities.includes(t.priority));
-            }
+                // ── Category ───────────────────────────────────────────
+                if (hasCat) {
+                    tasks = tasks.filter(t => filters.categories.includes(t.category));
+                }
+                // ── Priority ───────────────────────────────────────────────
+                if (hasPriority) {
+                    tasks = tasks.filter(t => filters.priorities.includes(t.priority));
+                }
 
-            // ── Tag search ──────────────────────────────────────────────
-            if (hasTagSearch) {
-                const tq = filters.tagSearch.trim().toLowerCase();
-                tasks = tasks.filter(t => t.tags?.some(tag => tag.toLowerCase().includes(tq)));
-            }
-            // ── Created date range ─────────────────────────────────
-            if (hasDateFrom) {
-                const from = new Date(filters.dateFrom).getTime();
-                tasks = tasks.filter(t => new Date(t.createdAt).getTime() >= from);
-            }
-            if (hasDateTo) {
-                const to = new Date(filters.dateTo).getTime() + 86_400_000; // inclusive
-                tasks = tasks.filter(t => new Date(t.createdAt).getTime() <= to);
-            }
+                // ── Tag search ──────────────────────────────────────────────
+                if (hasTagSearch) {
+                    const tq = filters.tagSearch.trim().toLowerCase();
+                    tasks = tasks.filter(t => t.tags?.some(tag => tag.toLowerCase().includes(tq)));
+                }
+                // ── Created date range ─────────────────────────────────
+                if (hasDateFrom) {
+                    const from = new Date(filters.dateFrom).getTime();
+                    tasks = tasks.filter(t => new Date(t.createdAt).getTime() >= from);
+                }
+                if (hasDateTo) {
+                    const to = new Date(filters.dateTo).getTime() + 86_400_000; // inclusive
+                    tasks = tasks.filter(t => new Date(t.createdAt).getTime() <= to);
+                }
 
-            // ── Task age (days since createdAt) ────────────────────
-            if (hasAge) {
-                tasks = tasks.filter(t => {
-                    const ageDays = (now - new Date(t.createdAt).getTime()) / 86_400_000;
-                    if (filters.ageFilter === 'fresh') return ageDays < 3;
-                    if (filters.ageFilter === 'aging') return ageDays >= 3 && ageDays <= 7;
-                    if (filters.ageFilter === 'stale') return ageDays > 7;
-                    return true;
-                });
-            }
+                // ── Task age (days since createdAt) ────────────────────
+                if (hasAge) {
+                    tasks = tasks.filter(t => {
+                        const ageDays = (now - new Date(t.createdAt).getTime()) / 86_400_000;
+                        if (filters.ageFilter === 'fresh') return ageDays < 3;
+                        if (filters.ageFilter === 'aging') return ageDays >= 3 && ageDays <= 7;
+                        if (filters.ageFilter === 'stale') return ageDays > 7;
+                        return true;
+                    });
+                }
 
-            // ── Comments ───────────────────────────────────────────
-            if (hasComment) {
-                if (filters.commentFilter === 'with') tasks = tasks.filter(t => t.comments.length > 0);
-                if (filters.commentFilter === 'without') tasks = tasks.filter(t => t.comments.length === 0);
-            }
+                // ── Comments ───────────────────────────────────────────
+                if (hasComment) {
+                    if (filters.commentFilter === 'with') tasks = tasks.filter(t => t.comments.length > 0);
+                    if (filters.commentFilter === 'without') tasks = tasks.filter(t => t.comments.length === 0);
+                }
 
-            if (hasCycleFilter) {
-                tasks = tasks.filter((t) => {
-                    const dueTs = t.dueAt ? new Date(t.dueAt).getTime() : null;
-                    const createdTs = new Date(t.createdAt).getTime();
-                    const anchor = dueTs ?? createdTs;
-                    return anchor >= cycleStart && anchor <= cycleEnd;
-                });
-            }
+                if (hasCycleFilter) {
+                    tasks = tasks.filter((t) => {
+                        const dueTs = t.dueAt ? new Date(t.dueAt).getTime() : null;
+                        const createdTs = new Date(t.createdAt).getTime();
+                        const anchor = dueTs ?? createdTs;
+                        return anchor >= cycleStart && anchor <= cycleEnd;
+                    });
+                }
 
-            // ── Sort ───────────────────────────────────────────────
-            if (hasSort) {
-                tasks = [...tasks].sort((a, b) => {
-                    switch (filters.sortBy) {
-                        case 'newest': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                        case 'oldest': return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-                        case 'longest': return new Date(a.startedAt ?? a.createdAt).getTime() - new Date(b.startedAt ?? b.createdAt).getTime();
-                        case 'shortest': return new Date(b.startedAt ?? b.createdAt).getTime() - new Date(a.startedAt ?? a.createdAt).getTime();
-                        case 'az': return a.title.localeCompare(b.title);
-                        case 'za': return b.title.localeCompare(a.title);
-                        default: return 0;
-                    }
-                });
-            }
+                // ── Sort ───────────────────────────────────────────────
+                if (hasSort) {
+                    tasks = [...tasks].sort((a, b) => {
+                        switch (filters.sortBy) {
+                            case 'newest': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                            case 'oldest': return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+                            case 'longest': return new Date(a.startedAt ?? a.createdAt).getTime() - new Date(b.startedAt ?? b.createdAt).getTime();
+                            case 'shortest': return new Date(b.startedAt ?? b.createdAt).getTime() - new Date(a.startedAt ?? a.createdAt).getTime();
+                            case 'az': return a.title.localeCompare(b.title);
+                            case 'za': return b.title.localeCompare(a.title);
+                            default: return 0;
+                        }
+                    });
+                }
 
                 return { ...column, tasks };
             });
@@ -654,7 +612,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         data-tour="board-search"
                         value={inputValue}
                         onChange={handleSearchChange}
-                        placeholder="Search tasks..."
+                        placeholder="Search titles, descriptions, and comments..."
                         className="w-full pl-10 pr-10 py-2.5 border border-slate-300 rounded-xl bg-white/90 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                     />
 
@@ -682,6 +640,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 <div className="relative">
                     <button
                         onClick={() => setIsViewsOpen((o) => !o)}
+                        data-tour="board-saved-views-button"
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                     >
                         Saved Views
@@ -789,6 +748,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                 <button
                     onClick={() => setIsAuditOpen(true)}
+                    data-tour="board-audit-button"
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -799,23 +759,15 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                 <button
                     onClick={() => setIsCycleOpen(true)}
+                    data-tour="board-cycles-button"
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                 >
                     Cycles
                 </button>
 
                 <button
-                    onClick={() => {
-                        setGlobalSearchQuery('');
-                        setIsGlobalSearchOpen(true);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                >
-                    Global Search
-                </button>
-
-                <button
                     onClick={() => setIsTimesheetOpen(true)}
+                    data-tour="board-timesheet-button"
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                 >
                     Timesheet
@@ -829,33 +781,41 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                 setArchiveSearch('');
                                 setIsArchiveOpen((o) => !o);
                             }}
+                            data-tour="board-archive-button"
                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
                         >
                             Archived
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{archivedTasks.length}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{archivedTasks.length + archivedColumns.length}</span>
                         </button>
 
                         {isArchiveOpen && (
-                            <div className="absolute top-full mt-2 left-0 z-40 w-80 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
-                                {archivedTasks.length > 0 && (
-                                    <div className="px-2 pb-2 border-b border-slate-200 mb-2 space-y-2">
-                                        <p className="text-[11px] text-slate-500">
-                                            Restore window: {ARCHIVE_RETENTION_DAYS} days. Older archived tasks are expired.
-                                        </p>
-                                        <input
-                                            type="text"
-                                            value={archiveSearch}
-                                            onChange={(e) => setArchiveSearch(e.target.value)}
-                                            placeholder="Search archived tasks..."
-                                            className="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none"
-                                        />
+                            <div className="absolute top-full mt-2 left-0 z-40 w-84 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
+                                <div className="px-2 pb-2 border-b border-slate-200 mb-2 space-y-2">
+                                    <p className="text-[11px] text-slate-500">
+                                        Unified archive hub for tasks and columns. Restore window: {ARCHIVE_RETENTION_DAYS} days.
+                                    </p>
+                                    <input
+                                        type="text"
+                                        value={archiveSearch}
+                                        onChange={(e) => setArchiveSearch(e.target.value)}
+                                        placeholder="Search archived tasks and columns..."
+                                        className="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none"
+                                    />
+                                </div>
+
+                                <div className="px-2 pb-2 border-b border-slate-200 mb-2">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Archived Tasks</p>
+                                        <span className="text-[10px] text-slate-400">{filteredArchivedTasks.length}</span>
+                                    </div>
+                                    <div className="space-y-2 mb-2">
                                         <button
                                             type="button"
                                             onClick={handleRestoreVisibleArchivedTasks}
                                             disabled={isRestoringTask || filteredArchivedTasks.length === 0}
                                             className="w-full text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1.5 rounded-md hover:bg-emerald-100 disabled:opacity-50"
                                         >
-                                            Restore all visible ({filteredArchivedTasks.length})
+                                            Restore visible tasks ({filteredArchivedTasks.length})
                                         </button>
                                         <button
                                             type="button"
@@ -863,98 +823,75 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                             disabled={isPurgingExpiredArchived || expiredArchivedTasks.length === 0}
                                             className="w-full text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
                                         >
-                                            {isPurgingExpiredArchived ? 'Purging...' : `Purge expired (${expiredArchivedTasks.length})`}
+                                            {isPurgingExpiredArchived ? 'Purging tasks...' : `Purge expired tasks (${expiredArchivedTasks.length})`}
                                         </button>
                                     </div>
-                                )}
 
-                                {archivedTasks.length === 0 ? (
-                                    <div className="px-2 py-2 space-y-1">
-                                        <p className="text-xs text-slate-500">No archived tasks.</p>
-                                        <p className="text-[11px] text-slate-400">Archive a task from its card to keep the board clean without losing history.</p>
-                                    </div>
-                                ) : filteredArchivedTasks.length === 0 ? (
-                                    <div className="px-2 py-2 space-y-1">
-                                        <p className="text-xs text-slate-500">No archived tasks match your search.</p>
-                                    </div>
-                                ) : (
-                                    filteredArchivedTasks.map((task) => (
-                                        <div key={task.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
-                                            <div className="min-w-0">
-                                                <p className="text-xs font-semibold text-slate-700 truncate">{task.title}</p>
-                                                <p className="text-[11px] text-slate-400">{task.category.replace(/_/g, ' ')}</p>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRestoreTask(task.id)}
-                                                disabled={isRestoringTask}
-                                                className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
-                                            >
-                                                Restore
-                                            </button>
+                                    {filteredArchivedTasks.length === 0 ? (
+                                        <p className="text-xs text-slate-400">No archived tasks found.</p>
+                                    ) : (
+                                        <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                                            {filteredArchivedTasks.map((task) => (
+                                                <div key={task.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
+                                                    <div className="min-w-0">
+                                                        <p className="text-xs font-semibold text-slate-700 truncate">{task.title}</p>
+                                                        <p className="text-[11px] text-slate-400">{task.category.replace(/_/g, ' ')}</p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRestoreTask(task.id)}
+                                                        disabled={isRestoringTask}
+                                                        className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                                    >
+                                                        Restore
+                                                    </button>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )}
+                                    )}
+                                </div>
 
-                {userRole === 'LEADER' && (
-                    <div className="relative">
-                        <button
-                            onClick={() => {
-                                setFilterNow(Date.now());
-                                setIsArchivedColumnsOpen((o) => !o);
-                            }}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
-                        >
-                            Archived Columns
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{archivedColumns.length}</span>
-                        </button>
-
-                        {isArchivedColumnsOpen && (
-                            <div className="absolute top-full mt-2 left-0 z-40 w-80 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
-                                <div className="px-2 pb-2 border-b border-slate-200 mb-2 space-y-2">
-                                    <p className="text-[11px] text-slate-500">
-                                        Restore window: {ARCHIVE_RETENTION_DAYS} days.
-                                    </p>
+                                <div className="px-2">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Archived Columns</p>
+                                        <span className="text-[10px] text-slate-400">{filteredArchivedColumns.length}</span>
+                                    </div>
                                     <button
                                         type="button"
                                         onClick={handlePurgeExpiredArchivedColumns}
                                         disabled={isManagingColumnsArchive || expiredArchivedColumns.length === 0}
-                                        className="w-full text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
+                                        className="w-full mb-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
                                     >
-                                        {isManagingColumnsArchive ? 'Purging...' : `Purge expired (${expiredArchivedColumns.length})`}
+                                        {isManagingColumnsArchive ? 'Purging columns...' : `Purge expired columns (${expiredArchivedColumns.length})`}
                                     </button>
-                                </div>
 
-                                {archivedColumns.length === 0 ? (
-                                    <div className="px-2 py-2 space-y-1">
-                                        <p className="text-xs text-slate-500">No archived columns.</p>
-                                    </div>
-                                ) : (
-                                    archivedColumns.map((column) => {
-                                        const parsed = parseColumnArchive(column.title);
-                                        const expired = isArchiveExpired(parsed.archivedAt, ARCHIVE_RETENTION_DAYS);
-                                        return (
-                                            <div key={column.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
-                                                <div className="min-w-0">
-                                                    <p className="text-xs font-semibold text-slate-700 truncate">{parsed.original || 'Untitled column'}</p>
-                                                    <p className="text-[11px] text-slate-400">{column.tasks.length} task{column.tasks.length === 1 ? '' : 's'}</p>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRestoreColumn(column.id)}
-                                                    disabled={isManagingColumnsArchive || expired}
-                                                    className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
-                                                >
-                                                    {expired ? 'Expired' : 'Restore'}
-                                                </button>
-                                            </div>
-                                        );
-                                    })
-                                )}
+                                    {filteredArchivedColumns.length === 0 ? (
+                                        <p className="text-xs text-slate-400">No archived columns found.</p>
+                                    ) : (
+                                        <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                            {filteredArchivedColumns.map((column) => {
+                                                const parsed = parseColumnArchive(column.title);
+                                                const expired = isArchiveExpired(parsed.archivedAt, ARCHIVE_RETENTION_DAYS);
+                                                return (
+                                                    <div key={column.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
+                                                        <div className="min-w-0">
+                                                            <p className="text-xs font-semibold text-slate-700 truncate">{parsed.original || 'Untitled column'}</p>
+                                                            <p className="text-[11px] text-slate-400">{column.tasks.length} task{column.tasks.length === 1 ? '' : 's'}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRestoreColumn(column.id)}
+                                                            disabled={isManagingColumnsArchive || expired}
+                                                            className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                                        >
+                                                            {expired ? 'Expired' : 'Restore'}
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -1050,51 +987,6 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 onClose={() => setIsTimesheetOpen(false)}
                 tasks={allBoardTasks}
             />
-            <Modal isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} className="max-w-4xl">
-                <div className="app-bg p-5">
-                    <div className="mb-3">
-                        <h3 className="text-lg font-semibold text-slate-900">Global Search</h3>
-                        <p className="text-xs text-slate-500">Search tasks and comments across this board.</p>
-                    </div>
-                    <input
-                        type="text"
-                        autoFocus
-                        value={globalSearchQuery}
-                        onChange={(e) => setGlobalSearchQuery(e.target.value)}
-                        placeholder="Search by title, description, or comment text..."
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none"
-                    />
-
-                    <div className="mt-3 max-h-[28rem] overflow-y-auto space-y-2 pr-1">
-                        {globalSearchQuery.trim().length === 0 && (
-                            <p className="text-sm text-slate-400 px-1 py-2">Start typing to search.</p>
-                        )}
-                        {globalSearchQuery.trim().length > 0 && globalSearchResults.length === 0 && (
-                            <p className="text-sm text-slate-400 px-1 py-2">No results found.</p>
-                        )}
-                        {globalSearchResults.map((result, idx) => (
-                            <button
-                                key={`${result.taskId}-${idx}`}
-                                type="button"
-                                onClick={() => {
-                                    setIsGlobalSearchOpen(false);
-                                    window.dispatchEvent(new CustomEvent('ks-tour-open-task-details', {
-                                        detail: { taskId: result.taskId }
-                                    }));
-                                }}
-                                className="w-full text-left bg-white border border-slate-200 rounded-xl px-3 py-2.5 hover:border-blue-300 hover:bg-blue-50/20 transition-colors"
-                            >
-                                <div className="flex items-center justify-between gap-2 mb-1">
-                                    <p className="text-sm font-semibold text-slate-800 truncate">{result.taskTitle}</p>
-                                    <span className="text-[10px] uppercase font-semibold tracking-wide text-slate-500">{result.matchedIn}</span>
-                                </div>
-                                <p className="text-xs text-slate-500 line-clamp-2">{result.snippet}</p>
-                                {result.columnTitle && <p className="text-[11px] text-slate-400 mt-1">Column: {result.columnTitle}</p>}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </Modal>
             <CyclePlannerModal
                 isOpen={isCycleOpen}
                 onClose={() => setIsCycleOpen(false)}

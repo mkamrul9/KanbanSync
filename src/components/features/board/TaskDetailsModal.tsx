@@ -193,6 +193,8 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
     const [aiRiskSummary, setAiRiskSummary] = useState<string>('');
     const [aiPrioritySuggestion, setAiPrioritySuggestion] = useState<string>('');
     const [aiStandupDraft, setAiStandupDraft] = useState<string>('');
+    const [aiThreadSummary, setAiThreadSummary] = useState<string>('');
+    const [aiActionItems, setAiActionItems] = useState<string[]>([]);
 
     const priorityOptions = [
         { value: 'URGENT', label: 'Urgent' },
@@ -574,10 +576,38 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
             `Blockers: ${hasDependencies ? blocking.map((b) => b.dependsOn.title).slice(0, 2).join(', ') : 'None currently flagged.'}`,
         ].join(' ');
 
+        const latestComments = [...(task.comments ?? [])]
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, 8);
+
+        const unresolvedSignals = latestComments.filter((comment) => /\?|block|stuck|waiting|need|todo|follow up/i.test(comment.text));
+        const decisionSignals = latestComments.filter((comment) => /decided|approved|merged|done|shipped|fixed/i.test(comment.text));
+
+        const threadSummary = latestComments.length === 0
+            ? 'No comment thread yet. Use comments to capture decisions and blockers.'
+            : `Recent thread activity: ${latestComments.length} comment${latestComments.length === 1 ? '' : 's'} reviewed, ${decisionSignals.length} decision/update signal${decisionSignals.length === 1 ? '' : 's'}, ${unresolvedSignals.length} unresolved question/blocker signal${unresolvedSignals.length === 1 ? '' : 's'}.`;
+
+        const actionCandidates = latestComments
+            .filter((comment) => /\?|todo|action|follow up|next|please|need to|should/i.test(comment.text))
+            .map((comment) => comment.text.trim())
+            .filter(Boolean)
+            .slice(0, 4)
+            .map((text, index) => {
+                const normalized = text.replace(/\s+/g, ' ').slice(0, 110);
+                return `Action ${index + 1}: ${normalized}${normalized.endsWith('.') ? '' : '.'}`;
+            });
+
+        const fallbackActions = [
+            `Action 1: Clarify open points in the latest discussion for "${task.title}".`,
+            'Action 2: Confirm owner and due date for the next deliverable.',
+        ];
+
         setAiSubtasks(candidateSubtasks);
         setAiPrioritySuggestion(suggestedPriority);
         setAiRiskSummary(riskSignals.length > 0 ? riskSignals.join(' ') : 'No immediate risk flags detected.');
         setAiStandupDraft(standup);
+        setAiThreadSummary(threadSummary);
+        setAiActionItems(actionCandidates.length > 0 ? actionCandidates : fallbackActions);
     };
 
     const handleApplyAiSubtasks = () => {
@@ -1055,7 +1085,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Dependencies */}
-                    <div className="mb-3 rounded-xl border border-orange-200/70 bg-orange-50/35 p-3">
+                    <div data-tour="task-dependencies" className="mb-3 rounded-xl border border-orange-200/70 bg-orange-50/35 p-3">
                         <SideSectionTitle label="Dependencies" dotColor="bg-orange-500" />
                         <p className="text-[11px] text-slate-500 mb-2">
                             Dependency means this task cannot move forward until its blocker task is completed.
@@ -1121,7 +1151,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* AI Assist */}
-                    <div className="mb-3 rounded-xl border border-sky-200/70 bg-sky-50/35 p-3">
+                    <div data-tour="task-ai-assist" className="mb-3 rounded-xl border border-sky-200/70 bg-sky-50/35 p-3">
                         <SideSectionTitle label="AI Assist" dotColor="bg-sky-500" />
                         <p className="text-[11px] text-slate-500 mb-2">Generate practical subtasks, risk hints, and a standup draft from current task context.</p>
                         <button
@@ -1132,7 +1162,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                             Generate Suggestions
                         </button>
 
-                        {(aiSubtasks.length > 0 || aiRiskSummary || aiStandupDraft) && (
+                        {(aiSubtasks.length > 0 || aiRiskSummary || aiStandupDraft || aiThreadSummary || aiActionItems.length > 0) && (
                             <div className="mt-2 space-y-2">
                                 {aiSubtasks.length > 0 && (
                                     <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
@@ -1160,6 +1190,24 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     </div>
                                 )}
 
+                                {aiThreadSummary && (
+                                    <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <p className="text-[11px] font-semibold text-slate-700">Thread Summary</p>
+                                        <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{aiThreadSummary}</p>
+                                    </div>
+                                )}
+
+                                {aiActionItems.length > 0 && (
+                                    <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
+                                        <p className="text-[11px] font-semibold text-slate-700 mb-1">Suggested Follow-ups</p>
+                                        <ul className="space-y-1">
+                                            {aiActionItems.map((item) => (
+                                                <li key={item} className="text-xs text-slate-600">- {item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
                                 {aiRiskSummary && (
                                     <div className="bg-white border border-slate-200 rounded-lg px-2.5 py-2">
                                         <p className="text-[11px] font-semibold text-slate-700">Risk Summary</p>
@@ -1178,7 +1226,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Time tracking */}
-                    <div className="mb-3 rounded-xl border border-teal-200/70 bg-teal-50/35 p-3">
+                    <div data-tour="task-time-tracking" className="mb-3 rounded-xl border border-teal-200/70 bg-teal-50/35 p-3">
                         <div className="flex items-center justify-between gap-2 mb-2">
                             <SideSectionTitle label="Time Tracking" dotColor="bg-teal-500" />
                             <span className="text-[11px] text-slate-600 font-semibold">{totalTrackedMinutes} min total</span>

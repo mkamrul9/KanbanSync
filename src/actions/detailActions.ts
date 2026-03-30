@@ -8,10 +8,14 @@ import { pusherServer } from '../lib/pusher-server';
 import { TaskActivityType } from '../generated/prisma/client';
 import { logTaskActivity } from '../lib/activity';
 import { getUserRole } from '../lib/permission';
-import { BoardRole } from '../generated/prisma/enums';
 import { canPerformBoardAction } from '../lib/permissionsMatrix';
 
 export async function addComment(taskId: string, boardId: string, text: string) {
+    const role = await getUserRole(boardId);
+    if (!canPerformBoardAction(role, 'COMMENT_ADD')) {
+        return { success: false, error: 'Unauthorized: insufficient role' };
+    }
+
     const session = await auth();
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
 
@@ -199,6 +203,11 @@ export async function addSubtask(taskId: string, boardId: string, title: string)
 
 export async function toggleSubtask(subtaskId: string, boardId: string, done: boolean) {
     try {
+        const role = await getUserRole(boardId);
+        if (!canPerformBoardAction(role, 'SUBTASK_TOGGLE')) {
+            return { success: false, error: 'Unauthorized: insufficient role' };
+        }
+
         const subtask = await prisma.subtask.update({
             where: { id: subtaskId },
             data: { done },
@@ -488,7 +497,8 @@ export async function deleteTaskTimeEntry(timeEntryId: string, boardId: string) 
         if (!entry) return { success: false, error: 'Time entry not found' };
 
         const role = await getUserRole(boardId);
-        const canDelete = entry.userId === session.user.id || role === BoardRole.LEADER || role === BoardRole.REVIEWER;
+        const canDeletePrivileged = canPerformBoardAction(role, 'TIME_ENTRY_DELETE_ANY');
+        const canDelete = entry.userId === session.user.id || canDeletePrivileged;
         if (!canDelete) {
             return { success: false, error: 'Unauthorized: cannot delete this time entry' };
         }

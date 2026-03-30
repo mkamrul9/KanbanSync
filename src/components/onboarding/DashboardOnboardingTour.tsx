@@ -47,7 +47,7 @@ export default function DashboardOnboardingTour({ userId, firstBoardId, boardCou
             {
                 title: 'Ready for full feature tour',
                 description: hasBoards
-                    ? 'When you continue, we will open your board and explain task category, priority, assignee, tags, description, comments, edit, and delete flows.'
+                    ? 'When you continue, we will open your board and cover global search, archive hub, cycles, time tracking, AI assist, and full task workflows.'
                     : 'When your first board is ready, open it and the full board feature tour will start automatically.',
             },
         ];
