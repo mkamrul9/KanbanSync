@@ -4,8 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import NotificationsBell from './NotificationsBell';
 import InviteMemberModal from '../features/board/InviteMemberModal';
+import BoardSettingsModal from '../features/board/BoardSettingsModal';
 import type { BoardWithColumnsAndTasks } from '../../types/board';
-import { parseBoardArchive } from '../../lib/archiveMarkers';
+import { isColumnArchived, parseBoardArchive } from '../../lib/archiveMarkers';
 
 type Props = {
     board: BoardWithColumnsAndTasks;
@@ -22,6 +23,8 @@ export default function BoardNavbar({
 }: Props) {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState(false);
+    const [boardSettingsSeed, setBoardSettingsSeed] = useState(0);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -43,6 +46,7 @@ export default function BoardNavbar({
         .filter((col) => col.title.toLowerCase().includes('done'))
         .reduce((sum, col) => sum + col.tasks.length, 0);
     const visibleBoardDescription = parseBoardArchive(board.description).original;
+    const editableColumns = board.columns.filter((col) => !isColumnArchived(col.title));
 
     return (
         <>
@@ -122,6 +126,23 @@ export default function BoardNavbar({
                             </svg>
                             <span className="hidden sm:inline">Tutorial</span>
                         </button>
+
+                        {/* Invite button — LEADER only */}
+                        {userRole === 'LEADER' && (
+                            <button
+                                onClick={() => {
+                                    setBoardSettingsSeed((prev) => prev + 1);
+                                    setIsBoardSettingsOpen(true);
+                                }}
+                                data-tour="board-settings-button"
+                                className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 active:bg-slate-100 transition-colors text-gray-700"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-emerald-600" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                </svg>
+                                <span className="hidden sm:inline">Settings</span>
+                            </button>
+                        )}
 
                         {/* Invite button — LEADER only */}
                         {userRole === 'LEADER' && (
@@ -211,6 +232,20 @@ export default function BoardNavbar({
                 isOpen={isInviteOpen}
                 onClose={() => setIsInviteOpen(false)}
                 boardId={board.id}
+            />
+
+            <BoardSettingsModal
+                key={`board-settings-${board.id}-${boardSettingsSeed}`}
+                isOpen={isBoardSettingsOpen}
+                onClose={() => setIsBoardSettingsOpen(false)}
+                boardId={board.id}
+                initialTitle={board.title}
+                initialDescription={visibleBoardDescription}
+                initialColumns={editableColumns.map((column) => ({
+                    id: column.id,
+                    title: column.title,
+                    wipLimit: column.wipLimit,
+                }))}
             />
         </>
     );

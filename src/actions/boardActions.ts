@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { BoardRole } from '../generated/prisma/client';
 import {
     isArchiveExpired,
+    isColumnArchived,
     markBoardArchived,
     markColumnArchived,
     parseBoardArchive,
@@ -383,5 +384,133 @@ export async function purgeExpiredArchivedColumns(boardId: string) {
     } catch (error) {
         console.error('purgeExpiredArchivedColumns failed:', error);
         return { success: false, error: 'Failed to purge archived columns.' };
+    }
+}
+
+type BoardColumnInput = {
+    id?: string;
+    title: string;
+    wipLimit?: number | null;
+};
+
+export async function updateBoardSettings(
+    boardId: string,
+    payload: {
+        title: string;
+        description: string | null;
+        columns: BoardColumnInput[];
+    }
+) {
+    try {
+        const sessionUser = await getSessionUser();
+        if (!sessionUser) return { success: false, error: 'Unauthorized' };
+
+        const role = await getBoardRoleForUser(boardId, sessionUser.userId);
+        if (role !== BoardRole.LEADER) {
+            return { success: false, error: 'Only board leaders can edit board settings.' };
+        }
+
+        const nextTitle = payload.title.trim();
+        if (!nextTitle) {
+            return { success: false, error: 'Board title is required.' };
+        }
+
+        const sanitizedColumns = payload.columns
+            .map((column, index) => ({
+                id: column.id,
+                title: column.title.trim(),
+                wipLimit: typeof column.wipLimit === 'number' && Number.isFinite(column.wipLimit)
+                    ? Math.max(1, Math.round(column.wipLimit))
+                    : null,
+                order: index,
+            }))
+            .filter((column) => column.title.length > 0);
+
+        if (sanitizedColumns.length === 0) {
+            return { success: false, error: 'At least one active column is required.' };
+        }
+
+        const dupSet = new Set<string>();
+        for (const column of sanitizedColumns) {
+            const key = column.title.toLowerCase();
+            if (dupSet.has(key)) {
+                return { success: false, error: `Duplicate column title: ${column.title}` };
+            }
+            dupSet.add(key);
+        }
+
+        const existingColumns = await prisma.column.findMany({
+            where: { boardId },
+            select: { id: true, title: true },
+        });
+
+        const activeColumns = existingColumns.filter((column) => !isColumnArchived(column.title));
+        const activeColumnMap = new Map(activeColumns.map((column) => [column.id, column]));
+        const incomingIds = new Set(sanitizedColumns.map((column) => column.id).filter((id): id is string => !!id));
+
+        for (const column of sanitizedColumns) {
+            if (column.id && !activeColumnMap.has(column.id)) {
+                return { success: false, error: 'Invalid column update request.' };
+            }
+        }
+
+        const columnsToDelete = activeColumns.filter((column) => !incomingIds.has(column.id));
+        if (columnsToDelete.length > 0) {
+            const nonEmptyColumns = await Promise.all(columnsToDelete.map(async (column) => {
+                const taskCount = await prisma.task.count({ where: { columnId: column.id } });
+                return { column, taskCount };
+            }));
+
+            const blocked = nonEmptyColumns.filter((entry) => entry.taskCount > 0);
+            if (blocked.length > 0) {
+                return {
+                    success: false,
+                    error: `Cannot delete non-empty columns: ${blocked.map((entry) => entry.column.title).join(', ')}`,
+                };
+            }
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.board.update({
+                where: { id: boardId },
+                data: {
+                    title: nextTitle,
+                    description: payload.description?.trim() ? payload.description.trim() : null,
+                },
+            });
+
+            for (const column of columnsToDelete) {
+                await tx.column.delete({ where: { id: column.id } });
+            }
+
+            for (const column of sanitizedColumns) {
+                if (column.id) {
+                    await tx.column.update({
+                        where: { id: column.id },
+                        data: {
+                            title: column.title,
+                            order: column.order,
+                            wipLimit: column.wipLimit,
+                        },
+                    });
+                } else {
+                    await tx.column.create({
+                        data: {
+                            boardId,
+                            title: column.title,
+                            order: column.order,
+                            wipLimit: column.wipLimit,
+                        },
+                    });
+                }
+            }
+        });
+
+        revalidatePath('/');
+        revalidatePath(`/board/${boardId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('updateBoardSettings failed:', error);
+        return { success: false, error: 'Failed to update board settings.' };
     }
 }

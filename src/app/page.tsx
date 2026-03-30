@@ -8,8 +8,14 @@ import { dispatchPendingTaskRemindersAcrossBoards } from '../lib/reminders';
 import { isBoardArchived } from '../lib/archiveMarkers';
 import { createExampleBoardForUser } from '../lib/onboardingExampleBoard';
 
-export default async function Dashboard() {
+export default async function Dashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ tour?: string }>;
+}) {
   const session = await auth();
+  const query = await searchParams;
+  const forceDashboardTour = query?.tour === '1';
 
   if (!session?.user?.email) redirect('/login');
 
@@ -26,8 +32,8 @@ export default async function Dashboard() {
   });
 
   if (hasAnyBoardAccess === 0) {
-    const exampleBoardId = await createExampleBoardForUser(dbUser.id);
-    redirect(`/board/${exampleBoardId}?tour=1`);
+    await createExampleBoardForUser(dbUser.id);
+    redirect('/?tour=1');
   }
 
   try {
@@ -105,6 +111,7 @@ export default async function Dashboard() {
         firstBoardId={boards[0]?.id}
         boardCount={boards.length}
         autoStart={false}
+        forceStart={forceDashboardTour}
       />
     </div>
   );
