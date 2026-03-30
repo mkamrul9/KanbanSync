@@ -6,6 +6,7 @@ import DashboardNavbar from '../components/ui/DashboardNavbar';
 import DashboardOnboardingTour from '../components/onboarding/DashboardOnboardingTour';
 import { dispatchPendingTaskRemindersAcrossBoards } from '../lib/reminders';
 import { isBoardArchived } from '../lib/archiveMarkers';
+import { createExampleBoardForUser } from '../lib/onboardingExampleBoard';
 
 export default async function Dashboard() {
   const session = await auth();
@@ -14,6 +15,20 @@ export default async function Dashboard() {
 
   const dbUser = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!dbUser) redirect('/login');
+
+  const hasAnyBoardAccess = await prisma.board.count({
+    where: {
+      OR: [
+        { userId: dbUser.id },
+        { members: { some: { userId: dbUser.id } } },
+      ],
+    },
+  });
+
+  if (hasAnyBoardAccess === 0) {
+    const exampleBoardId = await createExampleBoardForUser(dbUser.id);
+    redirect(`/board/${exampleBoardId}?tour=1`);
+  }
 
   try {
     await dispatchPendingTaskRemindersAcrossBoards(dbUser.id);
@@ -89,6 +104,7 @@ export default async function Dashboard() {
         userId={dbUser.id}
         firstBoardId={boards[0]?.id}
         boardCount={boards.length}
+        autoStart={false}
       />
     </div>
   );

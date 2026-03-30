@@ -782,10 +782,10 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                 setIsArchiveOpen((o) => !o);
                             }}
                             data-tour="board-archive-button"
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50/90 border border-rose-200 shadow-sm hover:bg-rose-100 hover:border-rose-300 transition-all text-sm font-semibold text-rose-700 whitespace-nowrap"
                         >
                             Archived
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{archivedTasks.length + archivedColumns.length}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-rose-200 text-rose-600">{archivedTasks.length + archivedColumns.length}</span>
                         </button>
 
                         {isArchiveOpen && (

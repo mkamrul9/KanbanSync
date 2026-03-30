@@ -8,9 +8,10 @@ interface DashboardOnboardingTourProps {
     userId: string;
     firstBoardId?: string;
     boardCount: number;
+    autoStart?: boolean;
 }
 
-export default function DashboardOnboardingTour({ userId, firstBoardId, boardCount }: DashboardOnboardingTourProps) {
+export default function DashboardOnboardingTour({ userId, firstBoardId, boardCount, autoStart = false }: DashboardOnboardingTourProps) {
     const router = useRouter();
     const [forceStartToken, setForceStartToken] = useState(0);
 
@@ -59,6 +60,7 @@ export default function DashboardOnboardingTour({ userId, firstBoardId, boardCou
             storageKey="dashboard-onboarding-v1"
             tourName="Dashboard Tour"
             steps={steps}
+            autoStartWhenUnseen={autoStart}
             forceStartToken={forceStartToken}
             finishLabel={firstBoardId ? 'Open board tour' : 'Finish'}
             onFinish={() => {

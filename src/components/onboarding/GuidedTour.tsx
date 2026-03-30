@@ -23,6 +23,7 @@ interface GuidedTourProps {
     steps: GuidedTourStep[];
     forceStart?: boolean;
     forceStartToken?: number;
+    autoStartWhenUnseen?: boolean;
     finishLabel?: string;
     onStepChange?: (stepIndex: number, step: GuidedTourStep) => void;
     onFinish?: () => void;
@@ -39,6 +40,7 @@ export default function GuidedTour({
     steps,
     forceStart = false,
     forceStartToken = 0,
+    autoStartWhenUnseen = true,
     finishLabel = 'Finish tour',
     onStepChange,
     onFinish,
@@ -54,14 +56,14 @@ export default function GuidedTour({
     useEffect(() => {
         if (!userId) return;
         const done = localStorage.getItem(fullStorageKey) === 'done';
-        if (forceStart || forceStartToken > 0 || !done) {
+        if (forceStart || forceStartToken > 0 || (autoStartWhenUnseen && !done)) {
             const openTimer = window.setTimeout(() => {
                 setStepIndex(0);
                 setIsOpen(true);
             }, 0);
             return () => window.clearTimeout(openTimer);
         }
-    }, [forceStart, forceStartToken, fullStorageKey, userId]);
+    }, [forceStart, forceStartToken, autoStartWhenUnseen, fullStorageKey, userId]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -107,6 +109,33 @@ export default function GuidedTour({
             window.clearInterval(timer);
         };
     }, [isOpen, step]);
+
+    useEffect(() => {
+        const selector = step?.selector;
+        if (!isOpen || !selector) return;
+
+        let attempts = 0;
+        const maxAttempts = 8;
+
+        const scrollTargetIntoView = () => {
+            const target = document.querySelector(selector) as HTMLElement | null;
+            if (!target) {
+                attempts += 1;
+                if (attempts >= maxAttempts) return;
+                window.setTimeout(scrollTargetIntoView, 120);
+                return;
+            }
+
+            const rect = target.getBoundingClientRect();
+            const needsVerticalScroll = rect.top < 80 || rect.bottom > (window.innerHeight - 120);
+            if (needsVerticalScroll) {
+                target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+            }
+        };
+
+        const timer = window.setTimeout(scrollTargetIntoView, 40);
+        return () => window.clearTimeout(timer);
+    }, [isOpen, stepIndex, step]);
 
     useEffect(() => {
         if (!isOpen || !step) return;

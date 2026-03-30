@@ -191,6 +191,7 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
             storageKey="board-onboarding-v1"
             tourName="Board Feature Tour"
             steps={steps}
+            autoStartWhenUnseen={false}
             forceStart={forceStart}
             forceStartToken={forceStartToken}
             finishLabel="Start working"
