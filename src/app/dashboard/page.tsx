@@ -445,6 +445,17 @@ export default async function DashboardPage({
                         <h2 className="text-xl font-semibold text-slate-900">Boards</h2>
                         <p className="text-sm text-slate-500">All boards you can access</p>
                     </div>
+                    <div className="mb-4 flex flex-wrap items-center gap-2" data-tour="dashboard-help-links">
+                        <Link href="/help" className="text-xs px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 hover:border-cyan-300 hover:text-cyan-700 transition-colors">
+                            Help Center
+                        </Link>
+                        <Link href="/about" className="text-xs px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 hover:border-cyan-300 hover:text-cyan-700 transition-colors">
+                            About Us
+                        </Link>
+                        <Link href="/contact" className="text-xs px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-700 hover:border-cyan-300 hover:text-cyan-700 transition-colors">
+                            Contact Us
+                        </Link>
+                    </div>
 
                     {boards.length === 0 ? (
                         <div className="app-surface rounded-3xl flex flex-col items-center justify-center py-24 text-center border border-slate-200/70 anim-soft-pop" data-tour="dashboard-empty-state">
@@ -460,8 +471,8 @@ export default async function DashboardPage({
                             <p className="text-gray-500 mt-1 text-base">Click &ldquo;Create Board&rdquo; in the navbar to get started.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1userId={dbUser.id}  sm:grid-cols-2 md:grid-cols-3 gap-6 anim-fade-up">
-                            <BoardsGrid boards={boards} />
+                        <div className="anim-fade-up">
+                            <BoardsGrid boards={boards} userId={dbUser.id} />
                         </div>
                     )}
                 </section>

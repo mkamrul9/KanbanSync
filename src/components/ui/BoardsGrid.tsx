@@ -62,6 +62,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
 
     const pinnedBoards = activeBoards.filter((b) => pinnedBoardIds.has(b.id));
     const unpinnedBoards = activeBoards.filter((b) => !pinnedBoardIds.has(b.id));
+    const firstBoardForTour = pinnedBoards[0]?.id ?? unpinnedBoards[0]?.id;
     const visibleUnpinned = showAll ? unpinnedBoards : unpinnedBoards.slice(0, PAGE_SIZE);
     const hiddenCount = unpinnedBoards.length - PAGE_SIZE;
 
@@ -123,13 +124,14 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
         <Link
             href={`/board/${board.id}`}
             key={board.id}
-            data-tour={board.id === pinnedBoards[0]?.id ? 'open-board-card' : undefined}
-            className="relative app-surface p-6 rounded-2xl shadow-sm border border-slate-200/70 hover:shadow-md hover:border-cyan-300 transition-all group h-36 flex flex-col justify-between"
+            data-tour={board.id === firstBoardForTour ? 'open-board-card' : undefined}
+            className="relative app-surface p-6 rounded-2xl shadow-sm border border-slate-200/70 hover:shadow-md hover:border-cyan-300 transition-all group h-44 flex flex-col justify-between"
         >
             <div className="absolute top-3 right-3 flex items-center gap-2">
                 <Tooltip text={pinnedBoardIds.has(board.id) ? 'Unpin board' : 'Pin board to top'} position="left">
                     <button
                         type="button"
+                        data-tour={board.id === firstBoardForTour ? 'dashboard-pin-board' : undefined}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -152,6 +154,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
                 <Tooltip text="Archive board" position="left">
                     <button
                         type="button"
+                        data-tour={board.id === firstBoardForTour ? 'dashboard-archive-board' : undefined}
                         onClick={(e) => onArchiveBoard(e, board.id, board.title)}
                         disabled={isPending}
                         className="p-1.5 rounded-md border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 disabled:opacity-60 transition-colors"
@@ -217,6 +220,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
                         <Tooltip text="View archived boards from previous 30 days">
                             <button
                                 type="button"
+                                data-tour="dashboard-archived-toggle"
                                 onClick={() => setShowArchived((v) => !v)}
                                 className="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
                             >

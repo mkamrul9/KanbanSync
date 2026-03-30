@@ -40,6 +40,11 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
             selector: '[data-tour="board-notifications"]',
         },
         {
+            title: 'Need help while working?',
+            description: 'Use Help Center, About Us, and Contact Us from your user menu whenever you need docs, product context, or support.',
+            selector: '[data-tour="board-navbar"]',
+        },
+        {
             title: 'Unified search bar',
             description: 'Use one search bar for full board lookup across task titles, descriptions, and comments.',
             selector: '[data-tour="board-search"]',
@@ -188,7 +193,7 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
     return (
         <GuidedTour
             userId={userId}
-            storageKey="board-onboarding-v1"
+            storageKey="board-onboarding-v2"
             tourName="Board Feature Tour"
             steps={steps}
             autoStartWhenUnseen={false}
