@@ -648,7 +648,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         </div>
                         <h2 className="text-[24px] font-bold text-slate-900 leading-tight">{task.title}</h2>
                         {isLeader && (
-                            <div className="mt-3 flex items-center gap-2">
+                            <div data-tour="task-template-save" className="mt-3 flex items-center gap-2">
                                 <input
                                     type="text"
                                     value={templateName}
@@ -669,7 +669,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Description */}
-                    <div className="mb-4 app-surface rounded-2xl border border-slate-200/70 p-4">
+                    <div data-tour="task-checklist" className="mb-4 app-surface rounded-2xl border border-slate-200/70 p-4">
                         <div className="flex items-center justify-between mb-1.5">
                             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-[0.16em] flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />Description</h3>
                             <span className={`text-[11px] transition-opacity duration-300 ${saved ? 'text-green-500 opacity-100' : 'opacity-0'}`}>
@@ -691,7 +691,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Subtasks */}
-                    <div className="mb-4 app-surface rounded-2xl border border-slate-200/70 p-4">
+                    <div data-tour="task-attachments" className="mb-4 app-surface rounded-2xl border border-slate-200/70 p-4">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-[0.16em] flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-blue-500" />Checklist</h3>
                             <span className="text-[11px] text-gray-500">{doneSubtasks}/{subtasks.length} done</span>
@@ -1049,7 +1049,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Reminder */}
-                    <div className="mb-3 rounded-xl border border-cyan-200/70 bg-cyan-50/35 p-3">
+                    <div data-tour="task-reminder" className="mb-3 rounded-xl border border-cyan-200/70 bg-cyan-50/35 p-3">
                         <SideSectionTitle label="Reminder" dotColor="bg-cyan-500" />
                         {isLeader ? (
                             <input
@@ -1066,7 +1066,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Recurrence */}
-                    <div className="mb-3 rounded-xl border border-violet-200/70 bg-violet-50/35 p-3">
+                    <div data-tour="task-recurrence" className="mb-3 rounded-xl border border-violet-200/70 bg-violet-50/35 p-3">
                         <SideSectionTitle label="Recurrence" dotColor="bg-violet-500" />
                         {isLeader ? (
                             <select
@@ -1338,7 +1338,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     </div>
 
                     {/* Git integration */}
-                    <div className="mb-3 rounded-xl border border-sky-200/70 bg-sky-50/35 p-3">
+                    <div data-tour="task-git-links" className="mb-3 rounded-xl border border-sky-200/70 bg-sky-50/35 p-3">
                         <SideSectionTitle label="Git Links" dotColor="bg-sky-500" />
                         <p className="text-[11px] text-slate-500 mb-2">Attach PRs, commits, or branch links to this task.</p>
 

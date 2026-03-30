@@ -111,6 +111,7 @@ export default function BoardNavbar({
                         <button
                             type="button"
                             onClick={() => window.dispatchEvent(new Event('ks-open-board-tour'))}
+                            data-tour="board-tutorial-button"
                             className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 active:bg-slate-100 transition-colors text-gray-700"
                             aria-label="Start board tutorial"
                         >
@@ -140,7 +141,9 @@ export default function BoardNavbar({
                         <div className="w-px h-6 bg-gray-200 mx-1" />
 
                         {/* Notifications */}
-                        <NotificationsBell userId={userId} />
+                        <div data-tour="board-notifications">
+                            <NotificationsBell userId={userId} />
+                        </div>
 
                         {/* Divider */}
                         <div className="w-px h-6 bg-gray-200 mx-1" />

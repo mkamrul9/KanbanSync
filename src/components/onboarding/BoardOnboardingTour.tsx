@@ -19,102 +19,148 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
 
     const steps = useMemo<GuidedTourStep[]>(() => ([
         {
-            title: 'Board workspace overview',
-            description: 'This board is your active workspace. You can invite members, monitor progress, and keep all task context in one place.',
+            title: 'Welcome to your board',
+            description: 'This is your main workspace. Everything important happens here: planning, collaboration, execution, and reporting.',
             selector: '[data-tour="board-navbar"]',
         },
         {
+            title: 'Run this tutorial anytime',
+            description: 'Click Tutorial whenever you need a guided walkthrough again.',
+            selector: '[data-tour="board-tutorial-button"]',
+        },
+        {
             title: 'Invite teammates',
-            description: 'Use Invite to add members to this board so they can collaborate in real time.',
+            description: 'Leaders can invite members so work is shared and visible to the whole team.',
             selector: '[data-tour="board-invite-button"]',
             missingHint: 'The Invite button is available for Leaders. If you are a Member/Reviewer, ask a Leader to invite teammates.',
         },
         {
+            title: 'Notifications',
+            description: 'Open notifications for mentions, assignments, reminders, and digests so you do not miss updates.',
+            selector: '[data-tour="board-notifications"]',
+        },
+        {
             title: 'Unified search bar',
-            description: 'Use this single search bar for global board search across task titles, descriptions, and comment text.',
+            description: 'Use one search bar for full board lookup across task titles, descriptions, and comments.',
             selector: '[data-tour="board-search"]',
         },
         {
             title: 'Saved filter views',
-            description: 'Save and reuse complex filter combinations for quick context switching between workflows.',
+            description: 'Save your filter combinations and reuse them in one click.',
             selector: '[data-tour="board-saved-views-button"]',
         },
         {
             title: 'Advanced filters',
-            description: 'Use filters to narrow by assignee, category, priority, tags, date, age, and comment presence.',
+            description: 'Filter by assignee, category, priority, tags, dates, age, and comment presence to focus fast.',
             selector: '[data-tour="board-filter-button"]',
         },
         {
             title: 'Metrics and insights',
-            description: 'Open Board Metrics to review cycle-time and throughput trends for better planning.',
+            description: 'Use metrics to track throughput, lead/cycle time, workload, and SLA risk.',
             selector: '[data-tour="board-metrics-button"]',
         },
         {
             title: 'Audit trail',
-            description: 'Open Audit Log to review important task events and role-sensitive workflow changes.',
+            description: 'Audit Log records key changes so your workflow stays transparent.',
             selector: '[data-tour="board-audit-button"]',
         },
         {
             title: 'Plan with cycles',
-            description: 'Create and activate cycles to focus board views on current planning windows.',
+            description: 'Use cycles for sprint-style planning and focused execution windows.',
             selector: '[data-tour="board-cycles-button"]',
         },
         {
             title: 'Team timesheet',
-            description: 'Use Timesheet for day-level time summaries and exports to share progress externally.',
+            description: 'Use timesheet for day-level summaries and CSV export.',
             selector: '[data-tour="board-timesheet-button"]',
         },
         {
             title: 'Unified archive hub',
-            description: 'The Archived tab now includes both archived tasks and archived columns with restore and purge controls.',
+            description: 'Manage archived tasks and archived columns in one place. Restore or purge expired items here.',
             selector: '[data-tour="board-archive-button"]',
         },
         {
-            title: 'Create tasks with full details',
-            description: 'Use Add Task to set title, category, priority, assignee, tags, and initial description.',
+            title: 'Create tasks',
+            description: 'Add tasks from any column, then enrich them with details in Task Details.',
             selector: '[data-tour="column-add-task"]',
         },
         {
-            title: 'Task cards and quick actions',
-            description: 'Every card supports drag-and-drop status changes. Hover cards to access quick edit and delete controls.',
+            title: 'Task cards and drag-and-drop',
+            description: 'Move tasks across columns with drag-and-drop. Use quick actions for edit/delete.',
             selector: '[data-tour="task-card"]',
             missingHint: 'Create at least one task to see task-card steps in action.',
         },
         {
             title: 'Open task details',
-            description: 'Click a task card to open details, then manage long-form description and comments after creation.',
+            description: 'Open task details to manage everything for a task in one place.',
             selector: '[data-tour="task-description-field"]',
             missingHint: 'Open any task card, then click Next to continue this part of the tour.',
         },
         {
+            title: 'Save reusable templates',
+            description: 'Leaders can save a task as a template for repeatable work.',
+            selector: '[data-tour="task-template-save"]',
+            missingHint: 'Task details modal must be open and you must be a Leader.',
+        },
+        {
+            title: 'Checklist execution',
+            description: 'Break work into subtasks and track progress with the checklist.',
+            selector: '[data-tour="task-checklist"]',
+            missingHint: 'Task details modal must be open to highlight checklist.',
+        },
+        {
+            title: 'Attachments and references',
+            description: 'Attach docs, links, and external references directly to tasks.',
+            selector: '[data-tour="task-attachments"]',
+            missingHint: 'Task details modal must be open to highlight attachments.',
+        },
+        {
             title: 'Comments and mentions',
-            description: 'Post comments and mention teammates with @email to keep communication linked directly to each task.',
+            description: 'Discuss work directly in the task and mention teammates with @email.',
             selector: '[data-tour="task-comment-input"]',
             missingHint: 'Task details modal must be open to highlight this input.',
         },
         {
             title: 'Priority, assignee, and tags',
-            description: 'In the task sidebar you can adjust assignee, priority, and tags without leaving the board.',
+            description: 'Update ownership and urgency quickly from the sidebar.',
             selector: '[data-tour="task-priority-field"]',
             missingHint: 'Task details modal must be open to highlight sidebar fields.',
         },
         {
+            title: 'Reminder scheduling',
+            description: 'Set reminders to notify the right people before deadlines.',
+            selector: '[data-tour="task-reminder"]',
+            missingHint: 'Task details modal must be open to highlight reminder controls.',
+        },
+        {
+            title: 'Recurrence automation',
+            description: 'Use recurrence for repeating work like weekly checks or monthly tasks.',
+            selector: '[data-tour="task-recurrence"]',
+            missingHint: 'Task details modal must be open to highlight recurrence controls.',
+        },
+        {
             title: 'Dependency management',
-            description: 'Track blockers between tasks so completion flow respects task dependencies.',
+            description: 'Set blockers between tasks so completion flow follows real dependency order.',
             selector: '[data-tour="task-dependencies"]',
             missingHint: 'Task details modal must be open to highlight dependency controls.',
         },
         {
             title: 'AI assist and summaries',
-            description: 'Generate subtasks, risk summaries, thread summaries, and follow-up actions from task context.',
+            description: 'Generate subtasks, risk analysis, thread summaries, and follow-up actions in one click.',
             selector: '[data-tour="task-ai-assist"]',
             missingHint: 'Task details modal must be open to highlight AI assist controls.',
         },
         {
             title: 'Timer and time logging',
-            description: 'Use live timer and manual entries to capture work time directly on each task.',
+            description: 'Log time with live timer or manual entries to keep effort tracking accurate.',
             selector: '[data-tour="task-time-tracking"]',
             missingHint: 'Task details modal must be open to highlight time tracking controls.',
+        },
+        {
+            title: 'Git links on tasks',
+            description: 'Connect PRs, commits, and branches to tasks for end-to-end traceability.',
+            selector: '[data-tour="task-git-links"]',
+            missingHint: 'Task details modal must be open to highlight Git links section.',
         },
         {
             title: 'Edit and delete flow',
@@ -123,13 +169,13 @@ export default function BoardOnboardingTour({ userId, forceStart = false }: Boar
             missingHint: 'Hover a task card to reveal quick action buttons.',
         },
         {
-            title: 'You are ready',
-            description: 'You now have the full workflow: search globally, filter, archive/restore tasks and columns, plan cycles, track time, use AI assist, and ship tasks confidently.',
+            title: 'You can now use the full app',
+            description: 'You are ready to run the complete workflow: plan, execute, collaborate, automate, report, and ship with confidence.',
         },
     ]), []);
 
     const handleStepChange = useCallback((stepIndex: number) => {
-        const isDetailsRange = stepIndex >= 12 && stepIndex <= 16;
+        const isDetailsRange = stepIndex >= 14 && stepIndex <= 25;
 
         if (isDetailsRange) {
             window.dispatchEvent(new Event('ks-tour-request-open-task-details'));
