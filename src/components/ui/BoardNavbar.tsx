@@ -203,6 +203,42 @@ export default function BoardNavbar({
                                         Dashboard
                                     </Link>
 
+                                    <Link
+                                        href="/help"
+                                        onClick={() => setUserMenuOpen(false)}
+                                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 18h.01M10.5 8.5a1.5 1.5 0 113 0c0 1-1.5 1.5-1.5 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                                        </svg>
+                                        Help
+                                    </Link>
+
+                                    <Link
+                                        href="/about"
+                                        onClick={() => setUserMenuOpen(false)}
+                                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                                            <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                        </svg>
+                                        About Us
+                                    </Link>
+
+                                    <Link
+                                        href="/contact"
+                                        onClick={() => setUserMenuOpen(false)}
+                                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="2" />
+                                            <path d="M4 8l8 6 8-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Contact Us
+                                    </Link>
+
                                     {/* Sign out */}
                                     <form action={signOutAction}>
                                         <button
