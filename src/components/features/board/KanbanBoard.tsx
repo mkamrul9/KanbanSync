@@ -11,7 +11,7 @@ import { getPusherClient } from '../../../lib/pusher';
 import { isArchiveExpired, isColumnArchived, parseColumnArchive } from '../../../lib/archiveMarkers';
 // TODO: Integrate toast notifications and tooltips for board operations
 // import { useToast } from '../../ui/ToastContainer';
-// import Tooltip from '../../ui/Tooltip';
+import Tooltip from '../../ui/Tooltip';
 
 import BoardColumn from './BoardColumn';
 import MetricsModal from './MetricsModal';

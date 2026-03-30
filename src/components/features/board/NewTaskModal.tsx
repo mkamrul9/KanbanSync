@@ -3,7 +3,7 @@
 import { useTransition, useState } from 'react';
 import Modal from '../../../components/ui/Modal';
 // TODO: Integrate tooltips for form fields
-// import Tooltip from '../../ui/Tooltip';
+import Tooltip from '../../ui/Tooltip';
 // import { useToast } from '../../ui/ToastContainer';
 import { createTask } from '../../../actions/taskActions';
 import { TaskStatus, TaskCategory } from '../../../generated/prisma/enums';
