@@ -51,11 +51,11 @@ export default function ContactPage() {
     };
 
     return (
-        <main className="min-h-screen app-bg px-4 py-10 sm:px-6">
+        <main className="min-h-screen app-bg px-3 py-7 sm:px-6 sm:py-10">
             <div className="mx-auto max-w-3xl">
-                <section className="app-surface rounded-2xl p-6 sm:p-8">
+                <section className="app-surface rounded-2xl p-5 sm:p-8">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">Contact Us</p>
-                    <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Send us a message</h1>
+                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Send us a message</h1>
                     <p className="mt-3 text-sm text-slate-600 sm:text-base">
                         Tell us what you need help with, what feature you want, or what is not working.
                     </p>
@@ -112,7 +112,7 @@ export default function ContactPage() {
                             />
                         </div>
 
-                        <button type="submit" disabled={isSubmitting} className="ui-btn-primary disabled:cursor-not-allowed disabled:opacity-60">
+                        <button type="submit" disabled={isSubmitting} className="ui-btn-primary w-full text-center sm:w-auto disabled:cursor-not-allowed disabled:opacity-60">
                             {isSubmitting ? 'Sending...' : 'Send message'}
                         </button>
                     </form>

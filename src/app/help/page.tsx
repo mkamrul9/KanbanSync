@@ -29,19 +29,19 @@ const faqs = [
 
 export default function HelpPage() {
     return (
-        <main className="min-h-screen app-bg px-4 py-10 sm:px-6">
-            <div className="mx-auto max-w-5xl space-y-8">
-                <section className="app-surface rounded-2xl p-6 sm:p-8 anim-panel-in">
+        <main className="min-h-screen app-bg px-3 py-7 sm:px-6 sm:py-10">
+            <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
+                <section className="app-surface rounded-2xl p-5 sm:p-8 anim-panel-in">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Help Center</p>
-                    <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
                         Everything you need to use KanbanSync
                     </h1>
                     <p className="mt-3 text-sm text-slate-600 sm:text-base">
                         Start quickly, organize work clearly, and collaborate smoothly with your team.
                     </p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                        <Link href="/dashboard" className="ui-btn-primary">Go to Dashboard</Link>
-                        <Link href="/contact" className="ui-btn-secondary">Contact Support</Link>
+                    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                        <Link href="/dashboard" className="ui-btn-primary w-full text-center sm:w-auto">Go to Dashboard</Link>
+                        <Link href="/contact" className="ui-btn-secondary w-full text-center sm:w-auto">Contact Support</Link>
                     </div>
                 </section>
 
@@ -60,12 +60,12 @@ export default function HelpPage() {
                     </article>
                 </section>
 
-                <section className="app-surface rounded-2xl p-6 sm:p-8">
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-900">FAQ</h2>
+                <section className="app-surface rounded-2xl p-5 sm:p-8">
+                    <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">FAQ</h2>
                     <div className="mt-4 space-y-3">
                         {faqs.map((item) => (
                             <details key={item.q} className="rounded-xl border border-slate-200 bg-white p-4">
-                                <summary className="cursor-pointer text-sm font-semibold text-slate-800">{item.q}</summary>
+                                <summary className="cursor-pointer pr-4 text-sm font-semibold text-slate-800">{item.q}</summary>
                                 <p className="mt-2 text-sm text-slate-600">{item.a}</p>
                             </details>
                         ))}

@@ -17,19 +17,19 @@ const values = [
 
 export default function AboutPage() {
     return (
-        <main className="min-h-screen app-bg px-4 py-10 sm:px-6">
-            <div className="mx-auto max-w-5xl space-y-8">
-                <section className="app-surface rounded-2xl p-6 sm:p-8">
+        <main className="min-h-screen app-bg px-3 py-7 sm:px-6 sm:py-10">
+            <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
+                <section className="app-surface rounded-2xl p-5 sm:p-8">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">About Us</p>
-                    <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
                         We build calm, high-clarity project execution tools
                     </h1>
                     <p className="mt-3 text-sm text-slate-600 sm:text-base">
                         KanbanSync helps teams turn scattered tasks into a focused, accountable, and measurable workflow.
                     </p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                        <Link href="/help" className="ui-btn-secondary">Read Help Center</Link>
-                        <Link href="/contact" className="ui-btn-primary">Talk to Us</Link>
+                    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                        <Link href="/help" className="ui-btn-secondary w-full text-center sm:w-auto">Read Help Center</Link>
+                        <Link href="/contact" className="ui-btn-primary w-full text-center sm:w-auto">Talk to Us</Link>
                     </div>
                 </section>
 
@@ -42,8 +42,8 @@ export default function AboutPage() {
                     ))}
                 </section>
 
-                <section className="app-surface rounded-2xl p-6 sm:p-8">
-                    <h2 className="text-2xl font-bold tracking-tight text-slate-900">What KanbanSync includes</h2>
+                <section className="app-surface rounded-2xl p-5 sm:p-8">
+                    <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">What KanbanSync includes</h2>
                     <ul className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
                         <li className="rounded-xl border border-slate-200 bg-white p-3">Boards with role-based collaboration</li>
                         <li className="rounded-xl border border-slate-200 bg-white p-3">Drag-and-drop workflow with real-time updates</li>
