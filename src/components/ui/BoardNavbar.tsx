@@ -55,7 +55,7 @@ export default function BoardNavbar({
 
                     {/* ── Brand / back link ──────────────────────────── */}
                     <Link
-                        href="/"
+                        href="/dashboard"
                         className="flex items-center gap-2 shrink-0 hover:opacity-75 transition-opacity"
                         title="Back to Dashboard"
                     >
@@ -199,7 +199,7 @@ export default function BoardNavbar({
 
                                     {/* Dashboard link */}
                                     <Link
-                                        href="/"
+                                        href="/dashboard"
                                         onClick={() => setUserMenuOpen(false)}
                                         className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                                     >

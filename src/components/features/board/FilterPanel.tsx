@@ -95,7 +95,7 @@ function toggle<T>(arr: T[], val: T): T[] {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
     return (
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+        <p className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2">
             {children}
         </p>
     );
@@ -200,22 +200,22 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
         >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/80 bg-white/85 backdrop-blur-sm">
-                <span className="font-semibold text-slate-800 text-sm">Filters & Sort</span>
+                <span className="font-semibold text-slate-800 text-base">Filters & Sort</span>
                 <div className="flex items-center gap-2">
                     {countActiveFilters(filters) > 0 && (
                         <button
                             onClick={() => onChange({ ...DEFAULT_FILTERS })}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                            className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
                         >
                             Clear all
                         </button>
                     )}
                     <button
                         onClick={onClose}
-                        className="w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all"
+                        className="w-8 h-8 flex items-center justify-center rounded-full text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 shadow-sm transition-colors"
                         aria-label="Close"
                     >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                     </button>
@@ -234,7 +234,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             value={viewName}
                             onChange={(e) => setViewName(e.target.value)}
                             placeholder="View name"
-                            className="ui-field py-1.5 text-xs"
+                            className="ui-field py-2 text-sm"
                         />
                         <button
                             type="button"
@@ -243,7 +243,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                                 onSaveView(viewName.trim(), filters);
                                 setViewName('');
                             }}
-                            className="ui-btn-primary px-3 py-1.5 text-xs"
+                            className="ui-btn-primary px-3 py-2 text-sm"
                         >
                             Save
                         </button>
@@ -256,14 +256,14 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                                     <button
                                         type="button"
                                         onClick={() => onApplyView(view.id)}
-                                        className="text-xs font-medium text-slate-700 hover:text-cyan-700 truncate text-left"
+                                        className="text-sm font-medium text-slate-700 hover:text-cyan-700 truncate text-left"
                                     >
                                         {view.name}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => onDeleteView(view.id)}
-                                        className="text-[11px] text-slate-400 hover:text-red-600"
+                                        className="text-xs text-slate-400 hover:text-red-600"
                                         aria-label={`Delete ${view.name} view`}
                                     >
                                         Delete
@@ -283,7 +283,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={opt.value}
                             onClick={() => set({ sortBy: opt.value })}
-                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all text-left ${filters.sortBy === opt.value
+                            className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-sm font-medium border transition-all text-left ${filters.sortBy === opt.value
                                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                                 : 'bg-white/90 text-gray-600 border-slate-200 hover:border-slate-300 hover:bg-white'
                                 }`}
@@ -302,7 +302,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                     {/* Unassigned */}
                     <button
                         onClick={() => set({ assignees: toggle(filters.assignees, 'unassigned') })}
-                        className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all ${filters.assignees.includes('unassigned')
+                        className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-medium border transition-all ${filters.assignees.includes('unassigned')
                             ? 'bg-blue-50 border-blue-300 text-blue-700'
                             : 'bg-white/90 border-slate-200 text-gray-600 hover:bg-white'
                             }`}
@@ -321,7 +321,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={m.user.id}
                             onClick={() => set({ assignees: toggle(filters.assignees, m.user.id) })}
-                            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all ${filters.assignees.includes(m.user.id)
+                            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-medium border transition-all ${filters.assignees.includes(m.user.id)
                                 ? 'bg-blue-50 border-blue-300 text-blue-700'
                                 : 'bg-white/90 border-slate-200 text-gray-600 hover:bg-white'
                                 }`}
@@ -354,7 +354,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={cat.value}
                             onClick={() => set({ categories: toggle(filters.categories, cat.value) })}
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${filters.categories.includes(cat.value)
+                            className={`px-2.5 py-1.5 rounded-full text-sm font-medium border transition-all ${filters.categories.includes(cat.value)
                                 ? `${cat.color} border-current ring-2 ring-offset-1 ring-blue-400`
                                 : `${cat.color} opacity-60 hover:opacity-100`
                                 }`}
@@ -375,7 +375,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             <button
                                 key={p.value}
                                 onClick={() => set({ priorities: toggle(filters.priorities, p.value) })}
-                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${isActive ? p.active : `${p.color} opacity-70 hover:opacity-100`
+                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${isActive ? p.active : `${p.color} opacity-70 hover:opacity-100`
                                     }`}
                             >
                                 <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -400,7 +400,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         value={filters.tagSearch}
                         onChange={e => set({ tagSearch: e.target.value })}
                         placeholder="Filter by tag…"
-                        className="w-full pl-8 pr-8 py-1.5 text-xs border border-slate-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full pl-8 pr-8 py-2 text-sm border border-slate-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                     {filters.tagSearch && (
                         <button
@@ -421,13 +421,13 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                 <SectionLabel>Created Date</SectionLabel>
                 <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                        <label className="text-xs text-gray-500 w-7 shrink-0">From</label>
+                        <label className="text-sm text-gray-500 w-10 shrink-0">From</label>
                         <input
                             type="date"
                             value={filters.dateFrom}
                             max={filters.dateTo || undefined}
                             onChange={e => set({ dateFrom: e.target.value })}
-                            className="flex-1 text-xs border border-slate-200 rounded-xl px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                            className="flex-1 text-sm border border-slate-200 rounded-xl px-2 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         />
                         {filters.dateFrom && (
                             <button onClick={() => set({ dateFrom: '' })} className="text-gray-400 hover:text-gray-600" aria-label="Clear">
@@ -436,13 +436,13 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         )}
                     </div>
                     <div className="flex items-center gap-2">
-                        <label className="text-xs text-gray-500 w-7 shrink-0">To</label>
+                        <label className="text-sm text-gray-500 w-10 shrink-0">To</label>
                         <input
                             type="date"
                             value={filters.dateTo}
                             min={filters.dateFrom || undefined}
                             onChange={e => set({ dateTo: e.target.value })}
-                            className="flex-1 text-xs border border-slate-200 rounded-xl px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                            className="flex-1 text-sm border border-slate-200 rounded-xl px-2 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         />
                         {filters.dateTo && (
                             <button onClick={() => set({ dateTo: '' })} className="text-gray-400 hover:text-gray-600" aria-label="Clear">
@@ -461,7 +461,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={opt.value}
                             onClick={() => set({ ageFilter: opt.value })}
-                            className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${filters.ageFilter === opt.value
+                            className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm font-medium border transition-all ${filters.ageFilter === opt.value
                                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                                 : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                                 }`}
@@ -469,7 +469,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             <span className={`w-2 h-2 rounded-full shrink-0 ${opt.dot}`} />
                             <span className="flex flex-col leading-tight">
                                 <span>{opt.label}</span>
-                                {opt.desc && <span className={`text-[10px] ${filters.ageFilter === opt.value ? 'text-blue-200' : 'text-gray-400'}`}>{opt.desc}</span>}
+                                {opt.desc && <span className={`text-xs ${filters.ageFilter === opt.value ? 'text-blue-200' : 'text-gray-400'}`}>{opt.desc}</span>}
                             </span>
                         </button>
                     ))}
@@ -484,7 +484,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         <button
                             key={opt.value}
                             onClick={() => set({ commentFilter: opt.value })}
-                            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${filters.commentFilter === opt.value
+                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium border transition-all ${filters.commentFilter === opt.value
                                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                                 : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                                 }`}

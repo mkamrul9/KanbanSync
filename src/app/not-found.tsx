@@ -22,7 +22,7 @@ export default function NotFound() {
 
                 <div className="flex flex-wrap gap-3">
                     <Link
-                        href="/"
+                        href="/dashboard"
                         className="ui-btn-primary"
                     >
                         Go To Boards

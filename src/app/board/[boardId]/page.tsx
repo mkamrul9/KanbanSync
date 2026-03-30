@@ -74,7 +74,7 @@ export default async function BoardPage({
             <div className="app-surface border-b border-gray-100">
                 <div className="px-6 py-3 flex items-center gap-3">
                     <Link
-                        href="/"
+                        href="/dashboard"
                         className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors shrink-0 group"
                     >
                         <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" xmlns="http://www.w3.org/2000/svg">

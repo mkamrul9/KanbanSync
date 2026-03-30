@@ -22,7 +22,7 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
                             Try Again
                         </button>
                         <Link
-                            href="/"
+                            href="/dashboard"
                             className="ui-btn-secondary"
                         >
                             Back To Boards

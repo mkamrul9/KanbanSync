@@ -156,7 +156,7 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
                                 Export CSV
                             </button>
                         </div>
-                        <div className="space-y-2 max-h-[26rem] overflow-y-auto pr-1">
+                        <div className="space-y-2 max-h-104 overflow-y-auto pr-1">
                             {rows.length === 0 && (
                                 <div className="border border-dashed border-slate-200 rounded-xl p-6 text-center text-sm text-slate-500">
                                     No time entries for this date.

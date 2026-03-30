@@ -234,7 +234,7 @@
   border-radius: 0.75rem;
   border: 1px solid rgba(29, 78, 216, 0.35);
   padding: 0.625rem 1rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
   transition: all 180ms ease;
@@ -254,7 +254,7 @@
   border: 1px solid rgba(148, 163, 184, 0.35);
   border-radius: 0.75rem;
   padding: 0.625rem 1rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   transition: all 180ms ease;
 }
@@ -269,7 +269,7 @@
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 0.75rem;
   color: #334155;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   padding: 0.625rem 0.75rem;
   outline: none;
   transition: all 180ms ease;
