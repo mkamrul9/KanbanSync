@@ -13,7 +13,7 @@ export default function CreateBoardModal() {
             <button
                 onClick={() => setOpen(true)}
                 data-tour="create-board-button"
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors shadow-sm"
+                className="flex items-center gap-2 ui-btn-primary"
             >
                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />

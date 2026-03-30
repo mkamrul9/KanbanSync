@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import NotificationsBell from './NotificationsBell';
+import KanbanSyncLogo from './KanbanSyncLogo';
 import InviteMemberModal from '../features/board/InviteMemberModal';
 import BoardSettingsModal from '../features/board/BoardSettingsModal';
 import type { BoardWithColumnsAndTasks } from '../../types/board';
@@ -59,14 +60,7 @@ export default function BoardNavbar({
                         className="flex items-center gap-2 shrink-0 hover:opacity-75 transition-opacity"
                         title="Back to Dashboard"
                     >
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow">
-                            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="3" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
-                                <rect x="14" y="3" width="7" height="5" rx="1.5" fill="currentColor" />
-                                <rect x="14" y="12" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
-                                <rect x="3" y="16" width="7" height="5" rx="1.5" fill="currentColor" />
-                            </svg>
-                        </div>
+                        <KanbanSyncLogo showText={false} className="w-8 h-8" />
                         <span className="hidden sm:block text-sm font-semibold text-gray-400 tracking-tight">KanbanSync</span>
                     </Link>
 

@@ -112,13 +112,13 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
                         />
 
                         <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                            <p className="text-[11px] uppercase tracking-wide font-semibold text-emerald-700">Total Logged</p>
+                            <p className="text-sm uppercase tracking-wide font-semibold text-emerald-700">Total Logged</p>
                             <p className="text-2xl font-bold text-emerald-800 mt-1">{Math.round((totalMinutes / 60) * 10) / 10}h</p>
                             <p className="text-xs text-emerald-700 mt-1">{totalMinutes} minutes</p>
                         </div>
 
                         <div className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 p-3">
-                            <p className="text-[11px] uppercase tracking-wide font-semibold text-cyan-700 mb-2">By Member</p>
+                            <p className="text-sm uppercase tracking-wide font-semibold text-cyan-700 mb-2">By Member</p>
                             <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                                 {byMember.length === 0 && <p className="text-xs text-cyan-700">No entries.</p>}
                                 {byMember.map(([member, minutes]) => (
@@ -131,7 +131,7 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
                         </div>
 
                         <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50 p-3">
-                            <p className="text-[11px] uppercase tracking-wide font-semibold text-violet-700 mb-2">Top Tasks</p>
+                            <p className="text-sm uppercase tracking-wide font-semibold text-violet-700 mb-2">Top Tasks</p>
                             <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                                 {byTask.length === 0 && <p className="text-xs text-violet-700">No entries.</p>}
                                 {byTask.map(([task, minutes]) => (
@@ -146,12 +146,12 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
 
                     <div className="lg:col-span-2 app-surface rounded-2xl border border-slate-200/70 p-4">
                         <div className="flex items-center justify-between gap-2 mb-3">
-                            <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Entries</p>
+                            <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Entries</p>
                             <button
                                 type="button"
                                 onClick={handleExportCsv}
                                 disabled={rows.length === 0}
-                                className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-blue-300 disabled:opacity-40"
+                                className="px-2.5 py-1.5 text-sm font-semibold rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-blue-300 disabled:opacity-40"
                             >
                                 Export CSV
                             </button>

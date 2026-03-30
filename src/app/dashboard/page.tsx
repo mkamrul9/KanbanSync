@@ -27,6 +27,16 @@ function priorityPill(priority: string) {
     return 'bg-slate-50 text-slate-600 border-slate-200';
 }
 
+function getInitials(name: string | null | undefined, email: string | null | undefined): string {
+    if (name) {
+        return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+    if (email) {
+        return email[0].toUpperCase();
+    }
+    return '?';
+}
+
 export default async function DashboardPage({
     searchParams,
 }: {
@@ -83,7 +93,7 @@ export default async function DashboardPage({
         description: { not: { startsWith: BOARD_ARCHIVE_PREFIX } },
     };
 
-    const [assignedOpenTaskCount, overdueTaskCount, dueSoonTasks, unreadNotificationCount, recentActivity] = await Promise.all([
+    const [assignedOpenTaskCount, overdueTaskCount, dueSoonTasks, unreadNotificationCount, recentActivity, teamMembers] = await Promise.all([
         prisma.task.count({
             where: {
                 assigneeId: dbUser.id,
@@ -159,6 +169,7 @@ export default async function DashboardPage({
                     select: {
                         name: true,
                         email: true,
+                        image: true,
                     },
                 },
                 task: {
@@ -175,6 +186,57 @@ export default async function DashboardPage({
                             },
                         },
                     },
+                },
+            },
+        }),
+        prisma.user.findMany({
+            where: {
+                boardMemberships: {
+                    some: {
+                        board: {
+                            OR: [
+                                { userId: dbUser.id },
+                                { members: { some: { userId: dbUser.id } } },
+                            ],
+                        },
+                    },
+                },
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+                assignedTasks: {
+                    where: {
+                        column: {
+                            title: { not: { startsWith: COLUMN_ARCHIVE_PREFIX } },
+                            board: boardAccessWhere,
+                        },
+                    },
+                    select: { id: true, status: true },
+                },
+                timeEntries: {
+                    where: {
+                        task: {
+                            column: {
+                                title: { not: { startsWith: COLUMN_ARCHIVE_PREFIX } },
+                                board: boardAccessWhere,
+                            },
+                        },
+                    },
+                    select: { minutes: true },
+                },
+                taskActivities: {
+                    where: {
+                        task: {
+                            column: {
+                                title: { not: { startsWith: COLUMN_ARCHIVE_PREFIX } },
+                                board: boardAccessWhere,
+                            },
+                        },
+                    },
+                    select: { id: true },
                 },
             },
         }),
@@ -213,26 +275,26 @@ export default async function DashboardPage({
                 </div>
 
                 <section className="mb-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <div className="app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <p className="text-sm text-slate-500">Active Boards</p>
-                        <p className="text-2xl font-bold text-slate-900 mt-1">{activeBoardCount}</p>
+                    <div className="app-surface rounded-2xl border border-emerald-200/70 p-4 bg-gradient-to-br from-emerald-50/60 to-emerald-50/20">
+                        <p className="text-sm text-emerald-700 font-semibold">Active Boards</p>
+                        <p className="text-2xl font-bold text-emerald-900 mt-1">{activeBoardCount}</p>
                     </div>
-                    <div className="app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <p className="text-sm text-slate-500">My Open Tasks</p>
-                        <p className="text-2xl font-bold text-slate-900 mt-1">{assignedOpenTaskCount}</p>
+                    <div className="app-surface rounded-2xl border border-blue-200/70 p-4 bg-gradient-to-br from-blue-50/60 to-blue-50/20">
+                        <p className="text-sm text-blue-700 font-semibold">My Open Tasks</p>
+                        <p className="text-2xl font-bold text-blue-900 mt-1">{assignedOpenTaskCount}</p>
                     </div>
-                    <div className="app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <p className="text-sm text-slate-500">Overdue Tasks</p>
+                    <div className="app-surface rounded-2xl border border-rose-200/70 p-4 bg-gradient-to-br from-rose-50/60 to-rose-50/20">
+                        <p className="text-sm text-rose-700 font-semibold">Overdue Tasks</p>
                         <p className={`text-2xl font-bold mt-1 ${overdueTaskCount > 0 ? 'text-rose-700' : 'text-slate-900'}`}>{overdueTaskCount}</p>
                     </div>
-                    <div className="app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <p className="text-sm text-slate-500">Unread Notifications</p>
-                        <p className={`text-2xl font-bold mt-1 ${unreadNotificationCount > 0 ? 'text-blue-700' : 'text-slate-900'}`}>{unreadNotificationCount}</p>
+                    <div className="app-surface rounded-2xl border border-violet-200/70 p-4 bg-gradient-to-br from-violet-50/60 to-violet-50/20">
+                        <p className="text-sm text-violet-700 font-semibold">Notifications</p>
+                        <p className={`text-2xl font-bold mt-1 ${unreadNotificationCount > 0 ? 'text-violet-700' : 'text-slate-900'}`}>{unreadNotificationCount}</p>
                     </div>
                 </section>
 
                 <section className="mb-8 grid grid-cols-1 xl:grid-cols-2 gap-5">
-                    <div className="app-surface rounded-2xl border border-slate-200/70 p-5">
+                    <div className="app-surface rounded-2xl border border-emerald-200/70 p-5 bg-gradient-to-br from-emerald-50/30 to-transparent">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold text-slate-900">Due This Week</h2>
                             <span className="text-sm text-slate-500">{dueSoonTasks.length} tasks</span>
@@ -245,7 +307,7 @@ export default async function DashboardPage({
                                     <Link
                                         key={task.id}
                                         href={`/board/${task.column.board.id}`}
-                                        className="block rounded-xl border border-slate-200 bg-white/85 p-3 hover:border-blue-300 hover:bg-white transition-colors"
+                                        className="block rounded-xl border border-slate-200 bg-white/85 p-3 hover:border-emerald-300 hover:bg-white transition-colors"
                                     >
                                         <div className="flex items-center justify-between gap-2">
                                             <p className="text-sm font-semibold text-slate-800 truncate">{task.title}</p>
@@ -261,7 +323,7 @@ export default async function DashboardPage({
                         )}
                     </div>
 
-                    <div className="app-surface rounded-2xl border border-slate-200/70 p-5">
+                    <div className="app-surface rounded-2xl border border-violet-200/70 p-5 bg-gradient-to-br from-violet-50/30 to-transparent">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold text-slate-900">Recent Activity</h2>
                             <span className="text-sm text-slate-500">Live board events</span>
@@ -270,22 +332,110 @@ export default async function DashboardPage({
                             <p className="text-sm text-slate-500">No recent activity yet.</p>
                         ) : (
                             <div className="space-y-2.5">
-                                {recentActivity.map((activity) => (
-                                    <Link
-                                        key={activity.id}
-                                        href={`/board/${activity.task.column.board.id}`}
-                                        className="block rounded-xl border border-slate-200 bg-white/85 p-3 hover:border-blue-300 hover:bg-white transition-colors"
-                                    >
-                                        <p className="text-sm text-slate-800 line-clamp-2">{activity.message}</p>
-                                        <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-slate-500">
-                                            <span className="truncate">{activity.actor?.name ?? activity.actor?.email ?? 'System'} • {activity.task.column.board.title}</span>
-                                            <span>{new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(activity.createdAt)}</span>
-                                        </div>
-                                    </Link>
-                                ))}
+                                {recentActivity.map((activity) => {
+                                    const actorName = activity.actor?.name ?? activity.actor?.email ?? 'System';
+                                    const initials = getInitials(activity.actor?.name, activity.actor?.email);
+                                    return (
+                                        <Link
+                                            key={activity.id}
+                                            href={`/board/${activity.task.column.board.id}`}
+                                            className="block rounded-xl border border-slate-200 bg-white/85 p-3 hover:border-violet-300 hover:bg-white transition-colors"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                {activity.actor?.image ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img src={activity.actor.image} alt={actorName} className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5" />
+                                                ) : (
+                                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                                        {initials}
+                                                    </div>
+                                                )}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm text-slate-800 line-clamp-2">{activity.message}</p>
+                                                    <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-slate-500">
+                                                        <span className="truncate">{actorName} • {activity.task.column.board.title}</span>
+                                                        <span>{new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(activity.createdAt)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
+                </section>
+
+                <section className="mb-8">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-xl font-semibold text-slate-900">Team Analytics</h2>
+                        <p className="text-sm text-slate-500">Performance & contributions</p>
+                    </div>
+
+                    {teamMembers.length === 0 ? (
+                        <div className="app-surface rounded-2xl border border-slate-200/70 p-6 text-center">
+                            <p className="text-sm text-slate-500">No team members yet.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {teamMembers.map((member) => {
+                                const assignedCount = member.assignedTasks.length;
+                                const completedCount = member.assignedTasks.filter((t) => t.status === 'DONE').length;
+                                const totalMinutesLogged = member.timeEntries.reduce((sum, te) => sum + te.minutes, 0);
+                                const hoursLogged = (totalMinutesLogged / 60).toFixed(1);
+                                const completionRate = assignedCount > 0 ? Math.round((completedCount / assignedCount) * 100) : 0;
+                                const memberInitials = getInitials(member.name, member.email);
+
+                                return (
+                                    <div key={member.id} className="app-surface rounded-2xl border border-slate-200/70 p-4 bg-gradient-to-br from-slate-50/50 to-transparent hover:border-slate-300 transition-colors">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            {member.image ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img src={member.image} alt={member.name ?? member.email ?? 'User'} className="w-10 h-10 rounded-full object-cover" />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 text-white text-sm font-bold flex items-center justify-center">
+                                                    {memberInitials}
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold text-slate-900 truncate">{member.name ?? member.email}</p>
+                                                <p className="text-xs text-slate-500 truncate">{member.email}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div>
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Tasks</p>
+                                                    <p className="text-xs font-bold text-slate-900">{completedCount}/{assignedCount}</p>
+                                                </div>
+                                                <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                                                    <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400" style={{ width: `${Math.min(completionRate, 100)}%` }} />
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-1">{completionRate}% complete</p>
+                                            </div>
+
+                                            <div className="pt-2 border-t border-slate-200">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Time Logged</p>
+                                                    <p className="text-sm font-bold text-slate-900">{hoursLogged}h</p>
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-1">{totalMinutesLogged} minutes</p>
+                                            </div>
+
+                                            <div className="pt-2 border-t border-slate-200">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Activity</p>
+                                                    <p className="text-sm font-bold text-slate-900">{member.taskActivities.length}</p>
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-1">events logged</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </section>
 
                 <section>

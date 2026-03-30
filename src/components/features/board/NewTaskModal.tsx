@@ -208,7 +208,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                         <button
                             onClick={handleSave}
                             disabled={isPending || !title.trim()}
-                            className="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-blue-200"
+                            className="px-5 py-2 ui-btn-primary active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {isPending ? (
                                 <span className="flex items-center gap-1.5">

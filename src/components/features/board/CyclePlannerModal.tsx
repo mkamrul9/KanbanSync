@@ -57,18 +57,18 @@ export default function CyclePlannerModal({
             <div className="app-bg max-h-[85vh] overflow-hidden flex flex-col">
                 <div className="px-6 py-4 border-b border-slate-200/80 bg-white/85">
                     <h2 className="text-lg font-bold text-slate-900">Sprint / Cycle Planner</h2>
-                    <p className="text-xs text-slate-500 mt-1">Create cycles and mark one as active for board focus.</p>
+                    <p className="text-sm text-slate-500 mt-1">Create cycles and mark one as active for board focus.</p>
                     <div className="mt-2 p-3 rounded-xl border border-sky-200/70 bg-sky-50/50">
-                        <p className="text-[11px] font-semibold text-sky-800">How cycles work</p>
-                        <p className="text-[11px] text-sky-700 mt-1">1) Create a cycle with start/end dates. 2) Set one as Active. 3) Enable Current Cycle on board toolbar to focus tasks in that date window.</p>
+                        <p className="text-sm font-semibold text-sky-800">How cycles work</p>
+                        <p className="text-sm text-sky-700 mt-1">1) Create a cycle with start/end dates. 2) Set one as Active. 3) Enable Current Cycle on board toolbar to focus tasks in that date window.</p>
                     </div>
                 </div>
 
                 {activeCycleStats && (
                     <div className="px-6 pt-4">
                         <div className="rounded-xl border border-emerald-200/70 bg-emerald-50/50 px-4 py-3 flex items-center justify-between gap-3">
-                            <p className="text-xs font-semibold text-emerald-800">Active cycle progress</p>
-                            <p className="text-xs text-emerald-700 font-semibold">{activeCycleStats.done}/{activeCycleStats.total} done</p>
+                            <p className="text-sm font-semibold text-emerald-800">Active cycle progress</p>
+                            <p className="text-sm text-emerald-700 font-semibold">{activeCycleStats.done}/{activeCycleStats.total} done</p>
                         </div>
                     </div>
                 )}
@@ -98,7 +98,7 @@ export default function CyclePlannerModal({
                         type="button"
                         onClick={handleCreate}
                         disabled={!name.trim() || !startDate || !endDate}
-                        className="mt-3 px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-40"
+                        className="mt-3 ui-btn-primary disabled:opacity-40"
                     >
                         Create Cycle
                     </button>
@@ -114,7 +114,7 @@ export default function CyclePlannerModal({
                                     <div className="flex items-center gap-2">
                                         <p className="text-sm font-semibold text-slate-800 truncate">{cycle.name}</p>
                                         {cycle.isActive && (
-                                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-700 font-semibold">Active</span>
+                                            <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-700 font-semibold">Active</span>
                                         )}
                                     </div>
                                     <p className="text-xs text-slate-500 mt-0.5">{cycle.startDate} to {cycle.endDate}</p>
@@ -123,14 +123,14 @@ export default function CyclePlannerModal({
                                     <button
                                         type="button"
                                         onClick={() => onSetActiveCycle(cycle.id)}
-                                        className="px-2.5 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300"
+                                        className="px-2.5 py-1.5 text-sm rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-blue-300"
                                     >
                                         {cycle.isActive ? 'Active' : 'Set Active'}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => onDeleteCycle(cycle.id)}
-                                        className="px-2.5 py-1.5 text-[11px] rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-red-600 hover:border-red-200"
+                                        className="px-2.5 py-1.5 text-sm rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-red-600 hover:border-red-200"
                                     >
                                         Delete
                                     </button>
