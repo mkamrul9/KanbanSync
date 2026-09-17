@@ -7,6 +7,22 @@ interface PinnedBoardsProps {
     boards: { id: string; title: string; description: string | null }[];
 }
 
+/**
+ * Custom hook that manages a user's pinned boards, persisted to `localStorage`.
+ *
+ * Pins are stored per user under the key `pinned-boards-{userId}` so different
+ * users on the same device maintain independent pin lists. This is client-side only
+ * and is not synced to the database.
+ *
+ * @param {string} userId - The authenticated user's database ID (used as localStorage key).
+ * @param {Array<{id: string, title: string, description: string | null}>} boards - All boards to partition.
+ * @returns {{
+ *   pinnedBoards: typeof boards,
+ *   unpinnedBoards: typeof boards,
+ *   togglePin: (boardId: string) => void,
+ *   isPinned: (boardId: string) => boolean
+ * }}
+ */
 export function usePinnedBoards(userId: string, boards: PinnedBoardsProps['boards']) {
     const [pinned, setPinned] = useState<Set<string>>(() => {
         if (typeof window === 'undefined') return new Set();

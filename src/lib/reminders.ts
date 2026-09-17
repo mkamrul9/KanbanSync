@@ -1,6 +1,23 @@
 import { prisma } from './db';
 import { pusherServer } from './pusher-server';
 
+/**
+ * Dispatches overdue task reminders and upcoming reminder notifications for a specific user on a specific board.
+ *
+ * Two passes are performed:
+ * 1. **Overdue notifications** — Tasks past their `dueAt` date are broadcast as real-time Pusher events.
+ *    These do NOT create a DB record since they are informational, not actionable.
+ * 2. **Reminder notifications** — Tasks with a `reminderAt` in the past that have not yet been dispatched
+ *    (`reminderSentAt === null`) receive a DB notification record AND a Pusher event. `reminderSentAt` is
+ *    then set to the current time to prevent re-dispatch (idempotency guard).
+ *
+ * If the Prisma client has a stale schema (i.e. migrations ran while the dev server was running),
+ * this function will log a warning and skip gracefully instead of crashing the board page load.
+ *
+ * @param {string} userId - The authenticated user's database ID.
+ * @param {string} boardId - The board to check tasks on.
+ * @returns {Promise<void>}
+ */
 export async function dispatchPendingTaskRemindersForUser(userId: string, boardId: string) {
     if (!userId) return;
 
@@ -99,6 +116,17 @@ export async function dispatchPendingTaskRemindersForUser(userId: string, boardI
     }
 }
 
+/**
+ * Iterates across all boards a user is a member of and dispatches
+ * pending task reminders for each. Delegates to `dispatchPendingTaskRemindersForUser`
+ * per board.
+ *
+ * Intended to be called from a cron job or a periodic background task for users
+ * who are not currently viewing any specific board.
+ *
+ * @param {string} userId - The user to dispatch reminders for.
+ * @returns {Promise<void>}
+ */
 export async function dispatchPendingTaskRemindersAcrossBoards(userId: string) {
     if (!userId) return;
 

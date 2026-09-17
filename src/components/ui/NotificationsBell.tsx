@@ -40,6 +40,19 @@ function Spinner() {
     );
 }
 
+/**
+ * Bell icon button in the navbar that displays a dropdown panel of real-time notifications.
+ *
+ * Responsibilities:
+ * - Fetches recent notifications from the database on mount via `getRecentNotifications()`.
+ * - Subscribes to `user-{userId}` Pusher channel for live notification delivery.
+ * - Supports filtering by type: all, unread, invites, tasks.
+ * - Handles board invite accept/decline flows inline.
+ * - Triggers the email digest manually via `sendNotificationDigestNow()`.
+ * - Marks individual or all notifications as read.
+ *
+ * @param {{ userId: string }} props - The authenticated user's database ID for Pusher subscriptions.
+ */
 export default function NotificationsBell({ userId }: { userId: string }) {
     const router = useRouter();
     const [items, setItems] = useState<NotificationItem[]>([]);

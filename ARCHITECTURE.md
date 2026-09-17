@@ -1929,4 +1929,601 @@ npm run dev
 ---
 
 *Prepared by Antigravity AI — August 2026*
-*Document covers KanbanSync at commit HEAD as of 2026-08-05*
+*Document covers KanbanSync at commit HEAD as of 2026-09-17*
+
+---
+
+## 23. Component API Reference
+
+This section documents the public props interface for every significant React component. These act as the contract between a parent and child and are the fastest reference for new contributors.
+
+---
+
+### `KanbanBoard`
+
+**File:** `src/components/features/board/KanbanBoard.tsx`
+**Type:** Client Component (`'use client'`)
+
+```typescript
+interface KanbanBoardProps {
+  initialBoard: BoardWithColumnsAndTasks; // Full board data fetched server-side
+  userRole?: string | null;              // 'LEADER' | 'REVIEWER' | 'MEMBER' | null
+  currentUserEmail: string;             // Used to highlight self-assigned tasks
+}
+```
+
+**Key Internal State:**
+
+| State Variable | Type | Purpose |
+|---|---|---|
+| `activeTask` | `TaskType \| null` | Currently dragged task — rendered in DragOverlay |
+| `filters` | `FilterState` | Active filter configuration |
+| `savedViews` | `SavedView[]` | localStorage-persisted filter presets |
+| `cycles` | `Cycle[]` | Sprint cycles from localStorage |
+| `board` | `BoardWithColumnsAndTasks` | Local optimistic copy of board data |
+
+**Pusher Subscriptions:** Subscribes to `board-{boardId}` on mount and calls `router.refresh()` on `board-updated` events.
+
+---
+
+### `BoardColumn`
+
+**File:** `src/components/features/board/BoardColumn.tsx`
+**Type:** Client Component, wrapped in `React.memo`
+
+```typescript
+interface BoardColumnProps {
+  column: ColumnWithTasks;                         // Column and its nested tasks
+  boardId?: string;                               // Parent board ID
+  userRole?: string | null;                       // RBAC role
+  members?: MemberType[];                         // Board members list
+  templates?: TemplateType[];                     // Task templates for NewTaskModal
+  allTasks?: TaskType[];                          // All tasks (for dependency dropdowns)
+  currentUserEmail?: string | null;              // Self-assignment indicator
+  onArchiveColumn?: (columnId: string) => void;  // Archive callback
+}
+```
+
+**WIP Limit Logic:**
+- `isAtLimit` = `tasks.length >= wipLimit` (blocks new task creation)
+- `isOverLimit` = `tasks.length > wipLimit` (shows red warning stripe)
+
+---
+
+### `SortableTask`
+
+**File:** `src/components/features/board/SortableTask.tsx`
+**Type:** Client Component, wrapped in `React.memo`
+
+```typescript
+interface SortableTaskProps {
+  task: TaskType;                        // Full task object
+  boardId: string;                       // Parent board ID
+  members?: MemberType[];               // For assignment display
+  allTasks?: TaskType[];                // For dependency modal
+  currentUserEmail?: string | null;    // Self-assign highlight
+}
+```
+
+**Visual Priority Cues:**
+- Left accent border color = task priority (red → urgent, orange → high, sky → medium, green → low)
+- Overdue badge: red background if `dueAt < now` and status ≠ DONE
+- Due-soon badge: amber background if `dueAt` is within 24 hours
+
+---
+
+### `TaskDetailsModal`
+
+**File:** `src/components/features/board/TaskDetailsModal.tsx`
+**Type:** Client Component
+
+```typescript
+interface TaskDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  task: TaskType;
+  boardId: string;
+  members: MemberType[];
+  allTasks: TaskType[];
+  currentUserEmail?: string | null;
+}
+```
+
+**Sections rendered inside the modal:**
+1. Header (title editing, category badge, priority)
+2. Description (markdown-like editable textarea)
+3. Assignee selector
+4. Due date & reminder picker
+5. Tags
+6. Subtask checklist
+7. Attachments
+8. Dependencies (blocking / blocked-by)
+9. Time tracking entries
+10. Activity feed
+11. Comments
+
+---
+
+### `Modal` (Base Component)
+
+**File:** `src/components/ui/Modal.tsx`
+**Type:** Client Component (uses `createPortal`)
+
+```typescript
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  className?: string;  // Defaults to 'max-w-md' if not provided
+}
+```
+
+Uses `useSyncExternalStore` with a static snapshot to safely detect client-side mounting and avoid SSR hydration mismatches when using `createPortal`.
+
+---
+
+### `NotificationsBell`
+
+**File:** `src/components/ui/NotificationsBell.tsx`
+**Type:** Client Component
+
+```typescript
+interface NotificationsBellProps {
+  userId: string;  // The authenticated user's database ID
+}
+```
+
+**Notification types handled:**
+- `task-assigned` — Task was assigned to the user
+- `task-mentioned` — User was @-mentioned in a comment
+- `board-invite` — User received an invitation to join a board
+- `task-reminder` — A reminder set on a task has fired
+- `task-overdue` — A task past its due date assigned to this user
+
+---
+
+### `FilterPanel`
+
+**File:** `src/components/features/board/FilterPanel.tsx`
+**Type:** Client Component
+
+```typescript
+interface FilterPanelProps {
+  filters: FilterState;
+  onChange: (f: FilterState) => void;
+  members: MemberType[];
+  allTasks: TaskType[];
+  onClose: () => void;
+}
+
+// FilterState shape:
+interface FilterState {
+  search: string;
+  assignees: string[];        // userId[]
+  categories: string[];
+  priorities: string[];
+  tags: string[];
+  showArchived: boolean;
+  dueBefore: string | null;   // ISO date string
+  dueAfter: string | null;
+  hasAttachments: boolean;
+  hasSubtasks: boolean;
+  ageOlderThan: number | null; // days
+}
+```
+
+---
+
+### `usePinnedBoards` Hook
+
+**File:** `src/hooks/usePinnedBoards.ts`
+
+```typescript
+function usePinnedBoards(
+  userId: string,
+  boards: { id: string; title: string; description: string | null }[]
+): {
+  pinnedBoards: typeof boards;
+  unpinnedBoards: typeof boards;
+  togglePin: (boardId: string) => void;
+  isPinned: (boardId: string) => boolean;
+}
+```
+
+Pinned state is stored in `localStorage` under the key `pinned-boards-{userId}`. This means pins are per-user and per-device (no server-side persistence).
+
+---
+
+## 24. Data Flow Diagrams
+
+### Board Page Initial Load
+
+```
+User navigates to /board/[boardId]
+         |
+         v
+middleware.ts (Edge)
+  └─ Validates session JWT — redirects to /login if missing
+         |
+         v
+src/app/board/[boardId]/page.tsx (Server Component)
+  └─ Calls getBoardData(boardId) from dataAccessLayer.ts
+       └─ prisma.board.findFirst() with full include tree
+       └─ Returns BoardWithColumnsAndTasks | null
+  └─ Gets session via auth() for currentUserEmail + userRole
+  └─ Calls dispatchPendingTaskRemindersForUser(userId, boardId)
+         |
+         v
+Renders <KanbanBoard initialBoard={board} userRole={role} currentUserEmail={email} />
+  └─ Client Component hydrates with server-provided props
+  └─ useEffect: subscribes to Pusher board-{boardId} channel
+  └─ Renders BoardColumn → SortableTask tree
+```
+
+---
+
+### Task Creation Flow
+
+```
+User fills NewTaskModal and clicks "Create Task"
+         |
+         v
+createTask(boardId, columnId, title, ...) [Server Action]
+  1. getSession() — get actorId
+  2. getUserRole(boardId) — verify LEADER or REVIEWER
+  3. prisma.task.create({ title, columnId, order, ... })
+  4. logTaskActivity({ taskId, action: CREATED, ... })
+  5. If assigneeId provided:
+       notificationActions.createAssignmentNotification(...)
+  6. pusherServer.trigger(`board-${boardId}`, 'board-updated', {...})
+  7. revalidatePath(`/board/${boardId}`)
+  8. return { success: true, task }
+         |
+         v
+Client receives response
+  └─ Optimistically adds task to local board state
+  └─ All other clients receive Pusher 'board-updated' event
+       └─ Each subscriber calls router.refresh() to re-fetch
+```
+
+---
+
+### Archive & Restore Flow
+
+```
+ARCHIVE:
+  Leader clicks "Archive Board"
+    → archiveBoard(boardId)
+      1. Role check (LEADER only)
+      2. board.description = markBoardArchived(description, Date.now())
+      3. prisma.board.update({ description: markedString })
+      4. Pusher: board-{boardId} -> 'board-updated'
+
+RESTORE:
+  Leader visits archived boards list, clicks "Restore"
+    → restoreBoard(boardId)
+      1. Role check
+      2. const { original } = parseBoardArchive(board.description)
+      3. prisma.board.update({ description: original })
+      4. Pusher broadcast
+
+WHY STRING ENCODING?
+  The archive timestamp is encoded into the description field
+  as `__ARCHIVED_BOARD__|<ISO-timestamp>|<URL-encoded-original>`.
+  This avoids adding an `archivedAt` nullable column to every
+  board and column — a trade-off that makes the schema simpler
+  but the marker parsing logic slightly more complex.
+```
+
+---
+
+### Notification Delivery Flow
+
+```
+Server Action (e.g., addComment, assignTask) fires
+         |
+         v
+notificationActions.createMentionNotification(boardId, taskId, mentionedUserId, excerpt)
+  1. prisma.notification.create({ userId: mentionedUserId, type, data })
+  2. pusherServer.trigger(`user-${mentionedUserId}`, 'notification', payload)
+         |
+         v
+Client (NotificationsBell) — Pusher subscription active
+  └─ 'notification' event received
+  └─ setItems(prev => [newItem, ...prev])
+  └─ Badge count increments in real-time
+  └─ User clicks bell → sees new notification
+  └─ User clicks notification → navigates to board/task
+  └─ markNotificationRead(notificationId) called
+       └─ prisma.notification.update({ isRead: true })
+```
+
+---
+
+## 25. Error Handling Patterns
+
+KanbanSync uses a defensive, non-throwing pattern for Server Actions. This section documents the conventions.
+
+### Pattern 1: Structured Return Objects
+
+All Server Actions return `{ success: boolean; error?: string }` instead of throwing. This prevents unhandled exception pages reaching the user.
+
+```typescript
+// ✅ CORRECT — structured return
+export async function deleteTask(taskId: string, boardId: string) {
+  try {
+    // ... logic
+    return { success: true };
+  } catch (error) {
+    console.error('[deleteTask] Failed:', error);
+    return { success: false, error: 'Failed to delete task' };
+  }
+}
+
+// ❌ WRONG — throws reach the client as an error boundary
+export async function deleteTask(taskId: string, boardId: string) {
+  // ... if this throws, user sees a full error page
+  await prisma.task.delete({ where: { id: taskId } });
+}
+```
+
+### Pattern 2: Stale Prisma Client Tolerance
+
+The dev server can hold an old Prisma client in memory after a `prisma migrate dev`. Rather than crashing the board page, we detect this scenario and fall back gracefully:
+
+```typescript
+catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  const isStaleClient = message.includes('Unknown argument');
+  if (isStaleClient) {
+    console.warn('Stale Prisma client — restart `next dev`');
+    return null;  // or partial data
+  }
+  throw error;  // re-throw real errors
+}
+```
+
+This pattern appears in `dataAccessLayer.ts` and `reminders.ts`.
+
+### Pattern 3: Authorization Guard
+
+Every Server Action that mutates data follows this exact sequence:
+
+```typescript
+export async function exampleAction(boardId: string) {
+  const role = await getUserRole(boardId);
+  if (!canPerformBoardAction(role, 'ACTION_NAME')) {
+    return { success: false, error: 'Unauthorized' };
+  }
+  // ... proceed with mutation
+}
+```
+
+The guard runs before any `prisma.*` call, preventing unauthorized DB writes even if the client sends forged requests.
+
+---
+
+## 26. Performance Considerations
+
+### Database Query Optimization
+
+**The big board query** in `dataAccessLayer.ts` is the most expensive operation. It fetches the entire board graph in one query:
+
+```
+board → columns → tasks → (assignee, comments, activities, blocking, blockedBy, timeEntries, subtasks, attachments)
+```
+
+**Mitigations applied:**
+1. `React.cache()` wraps `getBoardData()` — the same board is fetched at most once per server render cycle even if multiple Server Components call it.
+2. `revalidatePath()` after mutations forces re-fetch, but only the changed route.
+3. Pusher events push change notifications to clients — eliminating the need for polling.
+
+**Future optimization:** Paginate `activities` (fetch latest 20) and lazy-load older history on demand.
+
+---
+
+### Bundle Size
+
+Client Components import only what they need. The most critical bundle boundary is the Pusher split:
+
+| Module | Bundle | Size Impact |
+|---|---|---|
+| `pusher-js` | Browser | ~60KB minified — acceptable for real-time |
+| `pusher` (server) | Server only | Never shipped to browser |
+| `prisma/client` | Server only | Never shipped to browser |
+
+Server Actions are code-split automatically by Next.js — they add zero bytes to the browser bundle.
+
+---
+
+### Optimistic UI
+
+`KanbanBoard.tsx` uses `useOptimistic` (React 19) to update task positions immediately on drag-end, before the server confirms. This creates a responsive feel even on slow connections.
+
+```typescript
+const [optimisticBoard, addOptimisticUpdate] = useOptimistic(
+  board,
+  (state, { taskId, targetColumnId }) => moveTaskLocally(state, taskId, targetColumnId)
+);
+
+async function handleDragEnd(event: DragEndEvent) {
+  addOptimisticUpdate({ taskId, targetColumnId });  // Immediate UI update
+  const result = await moveTask(taskId, targetColumnId, boardId);  // Server call
+  if (!result.success) router.refresh();  // Rollback on error
+}
+```
+
+---
+
+## 27. Testing Strategy
+
+KanbanSync does not currently have an automated test suite. This section describes the intended testing strategy for contributors who want to add tests.
+
+### Recommended Test Architecture
+
+#### Unit Tests — `src/lib/*.ts`
+
+Library utilities (metrics, archiveMarkers, permissionsMatrix) are pure functions with no side effects — ideal for unit testing with Vitest:
+
+```bash
+npm install -D vitest @testing-library/react
+```
+
+```typescript
+// __tests__/archiveMarkers.test.ts
+import { markBoardArchived, parseBoardArchive, isBoardArchived } from '../src/lib/archiveMarkers';
+
+describe('archiveMarkers', () => {
+  it('should mark and parse a board as archived', () => {
+    const original = 'My Board Description';
+    const marked = markBoardArchived(original);
+    const parsed = parseBoardArchive(marked);
+    expect(parsed.archived).toBe(true);
+    expect(parsed.original).toBe(original);
+  });
+
+  it('should return archived=false for a plain string', () => {
+    expect(isBoardArchived('Normal description')).toBe(false);
+  });
+});
+```
+
+#### Integration Tests — Server Actions
+
+Server Actions require a real database connection. Use a test PostgreSQL database seeded with `prisma migrate dev --name test`:
+
+```typescript
+// __tests__/boardActions.integration.ts
+import { createBoard } from '../src/actions/boardActions';
+
+// Mock auth() to return a test user session
+jest.mock('../../auth', () => ({
+  auth: () => ({ user: { id: 'test-user-id', email: 'test@test.com' } }),
+}));
+
+it('creates a board with default columns', async () => {
+  const result = await createBoard('My Test Board', '', '#3B82F6');
+  expect(result.success).toBe(true);
+  expect(result.boardId).toBeDefined();
+});
+```
+
+#### E2E Tests — Playwright
+
+For critical user journeys (board creation, task drag, invite flow):
+
+```typescript
+// e2e/board.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('drag a task to a different column', async ({ page }) => {
+  await page.goto('/board/test-board-id');
+  const task = page.getByTestId('task-card-xyz');
+  const targetColumn = page.getByTestId('column-done');
+  await task.dragTo(targetColumn);
+  await expect(targetColumn).toContainText('My Task');
+});
+```
+
+---
+
+## 28. Known Limitations & Technical Debt
+
+These are known areas of the codebase that have documented trade-offs or planned improvements:
+
+| Area | Limitation | Notes |
+|---|---|---|
+| **DAL** | Only `getBoardData()` exists | Raw Prisma queries are scattered in Server Actions for user boards, invite lookups, etc. Should centralize to `getUserBoards()`, `getTaskById()`, etc. |
+| **Email transport** | `emailDigest.ts` logs to console, no real SMTP | Requires configuring Nodemailer or a provider (Resend, SendGrid) before digests work in production |
+| **Archive strategy** | Archive metadata stored in string column encoding | Functional but fragile. A dedicated `archivedAt: DateTime?` column per model would be cleaner |
+| **Tests** | No automated test suite | Library utilities are pure functions ready to test with Vitest |
+| **Reminder scheduler** | Called on each board page load | Should be a proper background job (Vercel Cron, a separate worker) to run independently |
+| **Metrics CFD** | Approximated from current column state | A true CFD requires historical task movement records (a `TaskMovement` event log table) |
+
+---
+
+## 29. Contributor Quick Reference
+
+A rapid-access cheatsheet for the most common development tasks.
+
+### Common Tasks
+
+#### Add a new board-level permission
+
+1. Add the new action to the `BoardAction` union type in `permissionsMatrix.ts`
+2. Add it to `ACTION_MATRIX` with the allowed roles
+3. Call `canPerformBoardAction(role, 'YOUR_NEW_ACTION')` in the relevant Server Action
+
+#### Add a new Server Action
+
+1. Create the function in the appropriate file in `src/actions/`
+2. Add `'use server';` at the top of the file
+3. Add `getUserRole()` + `canPerformBoardAction()` guard
+4. Make database changes with Prisma
+5. Trigger a Pusher event: `pusherServer.trigger(\`board-\${boardId}\`, 'board-updated', {})`
+6. Call `revalidatePath(\`/board/\${boardId}\`)`
+7. Return `{ success: true }` or `{ success: false, error: '...' }`
+
+#### Add a new Prisma model
+
+1. Edit `prisma/schema.prisma` — add the model
+2. Run `npx prisma migrate dev --name add-your-model`
+3. Run `npx prisma generate` to refresh the TypeScript client
+4. Add the new relation to the `include` tree in `dataAccessLayer.ts` if it should be part of the board payload
+5. Update the `BoardWithColumnsAndTasks` type in `src/types/board.ts` if needed
+
+#### Add a new real-time event
+
+1. Trigger from Server Action: `pusherServer.trigger(\`board-\${boardId}\`, 'your-event-name', payload)`
+2. Subscribe in `KanbanBoard.tsx` inside the existing `useEffect` Pusher block:
+   ```typescript
+   channel.bind('your-event-name', (data: YourPayloadType) => {
+     // update local state or call router.refresh()
+   });
+   ```
+
+#### Add a new notification type
+
+1. Create the notification record in `notificationActions.ts`
+2. Trigger the Pusher event on `user-{userId}` channel
+3. Handle the new `type` in `NotificationsBell.tsx`'s `renderNotificationContent()` function
+
+---
+
+### Environment Setup Checklist
+
+```bash
+# Minimum required for local dev:
+✅ DATABASE_URL            # PostgreSQL connection string
+✅ NEXTAUTH_SECRET         # Random 32+ char string
+✅ NEXT_PUBLIC_PUSHER_KEY  # Pusher dashboard -> App Keys -> key
+✅ NEXT_PUBLIC_PUSHER_CLUSTER # e.g., "ap2"
+✅ PUSHER_APP_ID           # Pusher dashboard -> App Keys -> app_id
+✅ PUSHER_SECRET           # Pusher dashboard -> App Keys -> secret
+
+# Optional (for full feature parity):
+⬜ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET  # For Google OAuth
+⬜ EMAIL_HOST / EMAIL_USER / EMAIL_PASS     # For digest emails
+```
+
+### File Location Guide
+
+| If you want to... | Look in... |
+|---|---|
+| Change what a role can do | `src/lib/permissionsMatrix.ts` — `ACTION_MATRIX` |
+| Add business logic for a DB write | `src/actions/*.ts` |
+| Change how boards are read from DB | `src/lib/dataAccessLayer.ts` |
+| Change the board UI | `src/components/features/board/KanbanBoard.tsx` |
+| Change a task card | `src/components/features/board/SortableTask.tsx` |
+| Change the task detail modal | `src/components/features/board/TaskDetailsModal.tsx` |
+| Add a new column action | `src/components/features/board/BoardColumn.tsx` |
+| Change notification display | `src/components/ui/NotificationsBell.tsx` |
+| Change the DB schema | `prisma/schema.prisma` |
+| Add a new TypeScript type | `src/types/board.ts` |
+| Change auth providers | `auth.config.ts` |
+| Change route protection rules | `middleware.ts` |
+
+---
+
+*End of KanbanSync Architecture Documentation.*
+*For questions, open an issue or contact [@mkamrul9](https://github.com/mkamrul9).*

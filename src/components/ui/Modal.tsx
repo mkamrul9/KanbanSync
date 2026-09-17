@@ -10,10 +10,26 @@ interface ModalProps {
     className?: string;
 }
 
-// useSyncExternalStore returns the server snapshot (false) on SSR
-// and the client snapshot (true) after hydration — no useEffect needed.
+/**
+ * A stable subscribe function that never triggers re-renders from the external store.
+ * Used by `useSyncExternalStore` to detect client-side hydration without `useEffect`.
+ */
 const subscribe = () => () => { };
 
+/**
+ * A generic, accessible modal dialog rendered via a React portal into `document.body`.
+ *
+ * Uses `useSyncExternalStore` to detect client-side mounting, avoiding the SSR/hydration
+ * mismatch that occurs when calling `createPortal` during server rendering. No `useEffect`
+ * is required — the component safely returns `null` on the server and re-renders with the
+ * portal after hydration.
+ *
+ * @param {ModalProps} props
+ * @param {boolean} props.isOpen - Controls modal visibility.
+ * @param {() => void} props.onClose - Callback when the close button is clicked.
+ * @param {React.ReactNode} props.children - Modal content.
+ * @param {string} [props.className] - Override the modal panel width/sizing class.
+ */
 export default function Modal({ isOpen, onClose, children, className }: ModalProps) {
     const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
