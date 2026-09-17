@@ -97,6 +97,22 @@ function AssigneeAvatar({ name, image }: { name?: string | null; image?: string 
     );
 }
 
+/**
+ * Renders an individual task card that can be dragged between columns.
+ * Integrates with `@dnd-kit/sortable` for drag-and-drop interactions.
+ * 
+ * Responsibilities:
+ * - Displays high-level task info (title, category, priority, assignee, due date).
+ * - Highlights overdue tasks and tasks approaching their due date.
+ * - Triggers the TaskDetailsModal upon click.
+ * - Handles optimistic updates during deletion.
+ * 
+ * @param {object} props
+ * @param {TaskType} props.task - The task data to display.
+ * @param {string} props.boardId - The ID of the board containing the task.
+ * @param {MemberType[]} props.members - List of board members (used for permissions/assignment display).
+ * @param {string | null} [props.currentUserEmail] - Identifies if the current user is assigned.
+ */
 export default memo(function SortableTask({ task, boardId, members, currentUserEmail
     , allTasks
 }: { task: TaskType; boardId: string; members?: MemberType[]; allTasks?: TaskType[]; currentUserEmail?: string | null }) {

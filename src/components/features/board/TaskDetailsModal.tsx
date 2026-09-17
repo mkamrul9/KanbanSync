@@ -44,6 +44,20 @@ interface TaskDetailsModalProps {
     currentUserEmail?: string | null;
 }
 
+/**
+ * Interactive modal for viewing and editing a specific task's details.
+ * 
+ * Features:
+ * - Real-time activity feed & comments.
+ * - Subtask checklists.
+ * - Time tracking entries.
+ * - Dependency graph (blocked by / blocking).
+ * - Attachment management.
+ * - In-place editing of title, description, category, and priority (gated by role).
+ * 
+ * @param {TaskDetailsModalProps} props - The modal props.
+ */
+
 const categoryConfig: Record<string, { label: string; color: string }> = {
     NEW_FEATURE: { label: 'Feature', color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
     EPIC: { label: 'Epic', color: 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' },

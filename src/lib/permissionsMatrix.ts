@@ -37,11 +37,26 @@ const ACTION_MATRIX: Record<BoardAction, BoardRole[]> = {
     TEMPLATE_MANAGE: [BoardRole.LEADER],
 };
 
+/**
+ * Checks if a specific board role is authorized to perform a given action.
+ * Evaluates against the predefined ACTION_MATRIX.
+ * 
+ * @param {BoardRole | null} role - The user's role on the board.
+ * @param {BoardAction} action - The action being attempted.
+ * @returns {boolean} True if authorized, false otherwise.
+ */
 export function canPerformBoardAction(role: BoardRole | null, action: BoardAction) {
     if (!role) return false;
     return ACTION_MATRIX[action].includes(role);
 }
 
+/**
+ * Returns a list of all actions permitted for a specific board role.
+ * Useful for UI state (e.g. conditionally rendering buttons).
+ * 
+ * @param {BoardRole | null} role - The user's role on the board.
+ * @returns {BoardAction[]} An array of allowed actions.
+ */
 export function listAllowedActions(role: BoardRole | null): BoardAction[] {
     if (!role) return [];
     return (Object.keys(ACTION_MATRIX) as BoardAction[]).filter((action) => ACTION_MATRIX[action].includes(role));

@@ -10,6 +10,16 @@ import { logTaskActivity } from '../lib/activity';
 import { getUserRole } from '../lib/permission';
 import { canPerformBoardAction } from '../lib/permissionsMatrix';
 
+/**
+ * Adds a comment to a specific task and parses the text for user mentions (e.g. @alice).
+ * Broadcasts a real-time Pusher event to the board, logs an activity, and notifies mentioned users.
+ * Requires COMMENT_ADD permission.
+ * 
+ * @param {string} taskId - The ID of the task to comment on.
+ * @param {string} boardId - The ID of the board containing the task.
+ * @param {string} text - The content of the comment.
+ * @returns {Promise<{success: boolean, comment?: any, error?: string}>} The created comment or an error.
+ */
 export async function addComment(taskId: string, boardId: string, text: string) {
     const role = await getUserRole(boardId);
     if (!canPerformBoardAction(role, 'COMMENT_ADD')) {
@@ -92,6 +102,15 @@ export async function addComment(taskId: string, boardId: string, text: string) 
     }
 }
 
+/**
+ * Updates the description text of a task and logs the activity.
+ * Requires TASK_EDIT permission.
+ * 
+ * @param {string} taskId - The ID of the task.
+ * @param {string} boardId - The ID of the board containing the task.
+ * @param {string} description - The new description text.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the update operation.
+ */
 export async function updateTaskDescription(taskId: string, boardId: string, description: string) {
     try {
         const role = await getUserRole(boardId);
@@ -118,6 +137,16 @@ export async function updateTaskDescription(taskId: string, boardId: string, des
     }
 }
 
+/**
+ * Assigns a user to a task.
+ * Logs the assignment activity, triggers a board update event, and dispatches a notification to the assigned user.
+ * Requires ASSIGN_TASK permission.
+ * 
+ * @param {string} taskId - The ID of the task.
+ * @param {string} boardId - The ID of the board.
+ * @param {string} assigneeId - The database ID of the user being assigned.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the assignment.
+ */
 export async function assignTask(taskId: string, boardId: string, assigneeId: string) {
     try {
         const role = await getUserRole(boardId);
@@ -163,6 +192,16 @@ export async function assignTask(taskId: string, boardId: string, assigneeId: st
     }
 }
 
+/**
+ * Adds a new subtask (checklist item) to a task.
+ * Automatically orders the new subtask at the bottom of the list.
+ * Requires SUBTASK_MANAGE permission.
+ * 
+ * @param {string} taskId - The ID of the parent task.
+ * @param {string} boardId - The ID of the board.
+ * @param {string} title - The text of the new subtask.
+ * @returns {Promise<{success: boolean, subtask?: any, error?: string}>} The created subtask.
+ */
 export async function addSubtask(taskId: string, boardId: string, title: string) {
     if (!title.trim()) return { success: false, error: 'Title is required' };
     try {
@@ -201,6 +240,15 @@ export async function addSubtask(taskId: string, boardId: string, title: string)
     }
 }
 
+/**
+ * Toggles the completion status of a subtask.
+ * Requires SUBTASK_TOGGLE permission.
+ * 
+ * @param {string} subtaskId - The ID of the subtask.
+ * @param {string} boardId - The ID of the board.
+ * @param {boolean} done - The new completion status.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the toggle.
+ */
 export async function toggleSubtask(subtaskId: string, boardId: string, done: boolean) {
     try {
         const role = await getUserRole(boardId);
@@ -231,6 +279,15 @@ export async function toggleSubtask(subtaskId: string, boardId: string, done: bo
     }
 }
 
+/**
+ * Deletes a subtask (checklist item).
+ * Logs the deletion activity and broadcasts an update.
+ * Requires SUBTASK_MANAGE permission.
+ * 
+ * @param {string} subtaskId - The ID of the subtask to delete.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the deletion.
+ */
 export async function deleteSubtask(subtaskId: string, boardId: string) {
     try {
         const role = await getUserRole(boardId);
@@ -259,6 +316,16 @@ export async function deleteSubtask(subtaskId: string, boardId: string) {
     }
 }
 
+/**
+ * Attaches an external link or uploaded file URL to a task.
+ * Requires ATTACHMENT_MANAGE permission.
+ * 
+ * @param {string} taskId - The ID of the task.
+ * @param {string} boardId - The ID of the board.
+ * @param {string} name - The human-readable name of the attachment.
+ * @param {string} url - The URL pointing to the resource.
+ * @returns {Promise<{success: boolean, attachment?: any, error?: string}>} The created attachment record.
+ */
 export async function addTaskAttachment(taskId: string, boardId: string, name: string, url: string) {
     if (!name.trim() || !url.trim()) return { success: false, error: 'Name and URL are required' };
     try {
@@ -292,6 +359,14 @@ export async function addTaskAttachment(taskId: string, boardId: string, name: s
     }
 }
 
+/**
+ * Removes an attachment from a task.
+ * Requires ATTACHMENT_MANAGE permission.
+ * 
+ * @param {string} attachmentId - The ID of the attachment to remove.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the deletion.
+ */
 export async function deleteTaskAttachment(attachmentId: string, boardId: string) {
     try {
         const role = await getUserRole(boardId);
@@ -320,6 +395,15 @@ export async function deleteTaskAttachment(attachmentId: string, boardId: string
     }
 }
 
+/**
+ * Clones the properties of an existing task and saves it as a reusable template on the board.
+ * Requires TEMPLATE_MANAGE permission.
+ * 
+ * @param {string} taskId - The ID of the task to use as a blueprint.
+ * @param {string} boardId - The ID of the board.
+ * @param {string} name - The unique name for this template.
+ * @returns {Promise<{success: boolean, template?: any, error?: string}>} The saved template record.
+ */
 export async function saveTaskAsTemplate(taskId: string, boardId: string, name: string) {
     const session = await auth();
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
@@ -369,6 +453,15 @@ export async function saveTaskAsTemplate(taskId: string, boardId: string, name: 
     }
 }
 
+/**
+ * Adds a dependency stating that one task is blocked by another.
+ * Requires DEPENDENCY_MANAGE permission.
+ * 
+ * @param {string} taskId - The ID of the task that is blocked.
+ * @param {string} dependsOnTaskId - The ID of the task it depends on.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, dependency?: any, error?: string}>} The created dependency record.
+ */
 export async function addTaskDependency(taskId: string, dependsOnTaskId: string, boardId: string) {
     const role = await getUserRole(boardId);
     if (!canPerformBoardAction(role, 'DEPENDENCY_MANAGE')) {
@@ -414,6 +507,14 @@ export async function addTaskDependency(taskId: string, dependsOnTaskId: string,
     }
 }
 
+/**
+ * Removes a task dependency.
+ * Requires DEPENDENCY_MANAGE permission.
+ * 
+ * @param {string} dependencyId - The ID of the dependency record.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the deletion.
+ */
 export async function removeTaskDependency(dependencyId: string, boardId: string) {
     const role = await getUserRole(boardId);
     if (!canPerformBoardAction(role, 'DEPENDENCY_MANAGE')) {
@@ -449,6 +550,16 @@ export async function removeTaskDependency(dependencyId: string, boardId: string
     }
 }
 
+/**
+ * Logs time spent on a task.
+ * Requires TIME_ENTRY_MANAGE permission.
+ * 
+ * @param {string} taskId - The ID of the task.
+ * @param {string} boardId - The ID of the board.
+ * @param {number} minutes - The number of minutes to log.
+ * @param {string} [note] - Optional note explaining the time entry.
+ * @returns {Promise<{success: boolean, timeEntry?: any, error?: string}>} The created time entry.
+ */
 export async function addTaskTimeEntry(taskId: string, boardId: string, minutes: number, note?: string) {
     const session = await auth();
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
@@ -488,6 +599,14 @@ export async function addTaskTimeEntry(taskId: string, boardId: string, minutes:
     }
 }
 
+/**
+ * Deletes a time entry from a task.
+ * Users can delete their own time entries. LEADER roles can delete any entry.
+ * 
+ * @param {string} timeEntryId - The ID of the time entry.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the deletion.
+ */
 export async function deleteTaskTimeEntry(timeEntryId: string, boardId: string) {
     const session = await auth();
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' };

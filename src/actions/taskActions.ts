@@ -25,6 +25,20 @@ function addRecurringOffset(base: Date, recurrence: string) {
     return next;
 }
 
+/**
+ * Moves a task to a new column and position (order).
+ * Handles workflow rules (moving into Done), dependency validations, automated timestamps, and recurring task generation.
+ * Requires appropriate board permissions.
+ * 
+ * @param {string} taskId - The ID of the task to move.
+ * @param {string} newColumnId - The target column ID.
+ * @param {number} newOrder - The target vertical position (index) in the column.
+ * @param {string} boardId - The ID of the board.
+ * @param {Object} [options] - Optional override parameters for dependency blockers.
+ * @param {boolean} [options.overrideBlockedDependency] - Set to true to override blocker checks.
+ * @param {string} [options.overrideReason] - The justification for overriding blockers.
+ * @returns {Promise<{success: boolean, code?: string, blockers?: string[], canOverride?: boolean, error?: string}>}
+ */
 export async function moveTask(
     taskId: string,
     newColumnId: string,
@@ -254,6 +268,25 @@ export async function moveTask(
     }
 }
 
+/**
+ * Creates a new task on the board in a specific column.
+ * Enforces column WIP limits.
+ * Requires CREATE_TASK permission.
+ * 
+ * @param {string} boardId - The ID of the board.
+ * @param {string} columnId - The target column ID.
+ * @param {string} title - The title of the task.
+ * @param {string} status - The initial status/column title.
+ * @param {string} category - The category/type of the task.
+ * @param {string} [description] - The task description.
+ * @param {string} [assigneeId] - The user ID assigned to the task.
+ * @param {string} [priority] - The task priority.
+ * @param {string[]} [tags] - List of tag IDs.
+ * @param {string} [dueAt] - ISO date string for due date.
+ * @param {string} [reminderAt] - ISO date string for reminder.
+ * @param {string} [recurrence] - Recurrence interval (e.g. DAILY).
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
 export async function createTask(
     boardId: string,
     columnId: string,
@@ -346,10 +379,26 @@ export async function createTask(
 }
 
 
+/**
+ * Deletes a task by archiving it (soft delete).
+ * Aliases `archiveTask`.
+ * 
+ * @param {string} taskId - The ID of the task to delete.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
 export async function deleteTask(taskId: string, boardId: string) {
     return archiveTask(taskId, boardId);
 }
 
+/**
+ * Archives a task by changing its status to ARCHIVED.
+ * Requires ARCHIVE_TASK permission.
+ * 
+ * @param {string} taskId - The ID of the task.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
 export async function archiveTask(taskId: string, boardId: string) {
     try {
         const role = await getUserRole(boardId);
@@ -394,6 +443,15 @@ export async function archiveTask(taskId: string, boardId: string) {
     }
 }
 
+/**
+ * Restores a previously archived task back to its original status based on its column.
+ * Fails if the task has exceeded the retention cutoff.
+ * Requires LEADER or REVIEWER roles.
+ * 
+ * @param {string} taskId - The ID of the archived task.
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
 export async function restoreTask(taskId: string, boardId: string) {
     try {
         const role = await getUserRole(boardId);
@@ -453,6 +511,22 @@ export async function restoreTask(taskId: string, boardId: string) {
     }
 }
 
+/**
+ * Updates a task's properties (title, category, priority, tags, dates, recurrence).
+ * Note: priority updates require the PRIORITY_EDIT permission.
+ * Requires LEADER or REVIEWER roles.
+ * 
+ * @param {string} taskId - The ID of the task to update.
+ * @param {string} boardId - The ID of the board.
+ * @param {string} title - The new title.
+ * @param {string} category - The new category.
+ * @param {string} [priority] - The new priority level.
+ * @param {string[]} [tags] - The new list of tag IDs.
+ * @param {string|null} [dueAt] - The new due date (ISO string) or null to clear.
+ * @param {string|null} [reminderAt] - The new reminder date (ISO string) or null to clear.
+ * @param {string} [recurrence] - The new recurrence pattern.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
 export async function updateTask(
     taskId: string,
     boardId: string,
@@ -509,6 +583,15 @@ export async function updateTask(
     }
 }
 
+/**
+ * Bulk restores multiple archived tasks on a board.
+ * Enforces the retention cutoff window.
+ * Requires LEADER or REVIEWER roles.
+ * 
+ * @param {string} boardId - The ID of the board.
+ * @param {string[]} [taskIds] - Optional array of specific task IDs to restore. If omitted, restores all eligible archived tasks.
+ * @returns {Promise<{success: boolean, restoredCount?: number, expiredCount?: number, retentionDays?: number, error?: string}>}
+ */
 export async function restoreArchivedTasks(boardId: string, taskIds?: string[]) {
     try {
         const role = await getUserRole(boardId);
@@ -590,6 +673,14 @@ export async function restoreArchivedTasks(boardId: string, taskIds?: string[]) 
     }
 }
 
+/**
+ * Permanently deletes archived tasks that have exceeded the retention limit.
+ * Hard deletes tasks and all cascading relations (comments, attachments).
+ * Requires LEADER role.
+ * 
+ * @param {string} boardId - The ID of the board.
+ * @returns {Promise<{success: boolean, deletedCount?: number, retentionDays?: number, error?: string}>}
+ */
 export async function purgeExpiredArchivedTasks(boardId: string) {
     try {
         const role = await getUserRole(boardId);

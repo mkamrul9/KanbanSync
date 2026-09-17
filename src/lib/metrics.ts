@@ -23,6 +23,14 @@ function classifyColumn(title = ''): 'backlog' | 'inProgress' | 'done' {
     return 'inProgress';
 }
 
+/**
+ * Computes comprehensive analytics for a board based on its current tasks.
+ * Calculates lead time, cycle time, WIP limits, throughput, and builds an approximate Cumulative Flow Diagram.
+ * 
+ * @param {BoardWithColumnsAndTasks} board - The populated board object from the database.
+ * @param {MetricsOptions} [opts] - Optional parameters (e.g. throughput timeframe).
+ * @returns {BoardMetrics} The aggregated analytics data.
+ */
 export function computeBoardMetrics(board: BoardWithColumnsAndTasks, opts?: MetricsOptions) {
     const throughputDays = opts?.throughputDays ?? 7;
     const cfdDays = opts?.cfdDays ?? 14;

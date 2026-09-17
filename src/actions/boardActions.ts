@@ -16,6 +16,10 @@ import {
 
 const ARCHIVE_RETENTION_DAYS = 30;
 
+/**
+ * Pre-defined column layouts for different types of Kanban boards.
+ * Maps a template key to an array of column configurations.
+ */
 const BOARD_TEMPLATE_COLUMNS: Record<string, Array<{ title: string; order: number; wipLimit?: number }>> = {
     DEFAULT: [
         { title: 'Backlog', order: 0 },
@@ -54,6 +58,16 @@ const BOARD_TEMPLATE_COLUMNS: Record<string, Array<{ title: string; order: numbe
     ],
 };
 
+/**
+ * Creates a new Kanban board from form data.
+ * Validates the user session, parses custom columns or template selections,
+ * creates the board with its columns, and automatically sets the creator as LEADER.
+ * Optionally invites other members by email.
+ * 
+ * @param {FormData} formData - Form data containing 'title', 'description', 'template', 'columns', and 'members'.
+ * @throws {Error} Will redirect on validation failures or server errors.
+ * @returns {Promise<void>} Redirects to the newly created board on success.
+ */
 export async function createBoard(formData: FormData) {
     try {
         // Verify Authentication
@@ -144,6 +158,12 @@ export async function createBoard(formData: FormData) {
     }
 }
 
+/**
+ * Retrieves the current authenticated user session and resolves their database ID.
+ * Returns null if the user is unauthenticated or not found in the database.
+ * 
+ * @returns {Promise<{session: any, userId: string} | null>} The session and corresponding database user ID.
+ */
 async function getSessionUser() {
     const session = await auth();
     if (!session?.user?.email) {
@@ -159,6 +179,13 @@ async function getSessionUser() {
     return { session, userId: dbUser.id };
 }
 
+/**
+ * Looks up the specific role (LEADER, REVIEWER, MEMBER) a user has on a given board.
+ * 
+ * @param {string} boardId - The ID of the board.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<BoardRole | null>} The role of the user, or null if they are not a member.
+ */
 async function getBoardRoleForUser(boardId: string, userId: string) {
     const membership = await prisma.boardMember.findUnique({
         where: { boardId_userId: { boardId, userId } },
@@ -167,6 +194,13 @@ async function getBoardRoleForUser(boardId: string, userId: string) {
     return membership?.role ?? null;
 }
 
+/**
+ * Archives a board by appending an archival marker to its description.
+ * Only board leaders or the original creator can archive the board.
+ * 
+ * @param {string} boardId - The ID of the board to archive.
+ * @returns {Promise<{success: boolean, error?: string, alreadyArchived?: boolean}>} Result of the archive operation.
+ */
 export async function archiveBoard(boardId: string) {
     try {
         const sessionUser = await getSessionUser();
@@ -201,6 +235,13 @@ export async function archiveBoard(boardId: string) {
     }
 }
 
+/**
+ * Restores a previously archived board by removing the archival marker.
+ * Fails if the archive retention period has expired.
+ * 
+ * @param {string} boardId - The ID of the board to restore.
+ * @returns {Promise<{success: boolean, error?: string, alreadyActive?: boolean}>} Result of the restore operation.
+ */
 export async function restoreBoard(boardId: string) {
     try {
         const sessionUser = await getSessionUser();
@@ -237,6 +278,12 @@ export async function restoreBoard(boardId: string) {
     }
 }
 
+/**
+ * Hard deletes any archived boards that have exceeded the retention period (ARCHIVE_RETENTION_DAYS).
+ * Scans all boards owned or led by the current user.
+ * 
+ * @returns {Promise<{success: boolean, deletedCount?: number, error?: string}>} The number of deleted boards or an error.
+ */
 export async function purgeExpiredArchivedBoards() {
     try {
         const sessionUser = await getSessionUser();
@@ -278,6 +325,15 @@ export async function purgeExpiredArchivedBoards() {
     }
 }
 
+/**
+ * Archives a specific column on a board by appending a marker to its title.
+ * All non-archived tasks within this column are also marked as ARCHIVED.
+ * Requires LEADER role.
+ * 
+ * @param {string} boardId - The ID of the board containing the column.
+ * @param {string} columnId - The ID of the column to archive.
+ * @returns {Promise<{success: boolean, error?: string, alreadyArchived?: boolean}>} Result of the archive operation.
+ */
 export async function archiveColumn(boardId: string, columnId: string) {
     try {
         const sessionUser = await getSessionUser();
@@ -317,6 +373,15 @@ export async function archiveColumn(boardId: string, columnId: string) {
     }
 }
 
+/**
+ * Restores a previously archived column by removing the archival marker from its title.
+ * Fails if the archive retention period has expired. Note: does not automatically restore tasks inside.
+ * Requires LEADER role.
+ * 
+ * @param {string} boardId - The ID of the board containing the column.
+ * @param {string} columnId - The ID of the column to restore.
+ * @returns {Promise<{success: boolean, error?: string, alreadyActive?: boolean}>} Result of the restore operation.
+ */
 export async function restoreColumn(boardId: string, columnId: string) {
     try {
         const sessionUser = await getSessionUser();
@@ -393,6 +458,19 @@ type BoardColumnInput = {
     wipLimit?: number | null;
 };
 
+/**
+ * Updates the settings of an existing board including its title, description, and columns.
+ * Supports adding, updating, and deleting columns, but blocks deletion of non-empty columns.
+ * Validates against duplicate column titles.
+ * Requires LEADER role.
+ * 
+ * @param {string} boardId - The ID of the board to update.
+ * @param {Object} payload - The new settings payload.
+ * @param {string} payload.title - The new board title.
+ * @param {string|null} payload.description - The new board description.
+ * @param {BoardColumnInput[]} payload.columns - The complete list of active columns.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the update operation.
+ */
 export async function updateBoardSettings(
     boardId: string,
     payload: {

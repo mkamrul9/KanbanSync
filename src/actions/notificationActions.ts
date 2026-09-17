@@ -19,9 +19,15 @@ async function getSessionUserId() {
 }
 
 /**
- * Create a mention notification for a list of userIds.
- * This inserts an optional Notification row (if you add the model) and triggers
- * a Pusher event on each user's channel.
+ * Dispatches a mention notification to a list of users.
+ * Triggers a real-time Pusher event on each user's private channel.
+ * 
+ * @param {string} boardId - The ID of the board.
+ * @param {string} taskId - The ID of the task where the mention occurred.
+ * @param {string[]} mentionUserIds - The array of user IDs to notify.
+ * @param {string} authorId - The ID of the user who made the mention.
+ * @param {string} [excerpt] - A short snippet of the text containing the mention.
+ * @returns {Promise<void>}
  */
 export async function notifyMentionedUsers(boardId: string, taskId: string, mentionUserIds: string[], authorId: string, excerpt?: string) {
     // If you have a Notification table, you can create rows here. For now we just trigger Pusher events.
@@ -33,7 +39,11 @@ export async function notifyMentionedUsers(boardId: string, taskId: string, ment
 }
 
 /**
- * Accept a pending invite: create BoardMember, delete invite, notify board and invitee
+ * Accepts a pending board invite.
+ * Creates a BoardMember record, deletes the pending invite, and notifies both the board and the invitee.
+ * 
+ * @param {string} inviteId - The ID of the pending invite.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the acceptance operation.
  */
 export async function acceptInvite(inviteId: string) {
     // Requires Prisma models: BoardInvite and BoardMember
@@ -60,7 +70,15 @@ export async function acceptInvite(inviteId: string) {
 }
 
 /**
- * Notify a user that they have been assigned to a task.
+ * Dispatches a real-time notification to a user alerting them that they were assigned to a task.
+ * 
+ * @param {string} assigneeId - The user ID of the assignee.
+ * @param {string|null} assignedById - The user ID of the person making the assignment.
+ * @param {string} taskId - The ID of the task.
+ * @param {string} taskTitle - The title of the task.
+ * @param {string} boardId - The ID of the board.
+ * @param {string|null} boardTitle - The title of the board.
+ * @returns {Promise<void>}
  */
 export async function notifyAssignedUser(
     assigneeId: string,
@@ -87,6 +105,13 @@ export async function notifyAssignedUser(
     });
 }
 
+/**
+ * Declines a pending board invite.
+ * Deletes the pending invite record and notifies the original inviter.
+ * 
+ * @param {string} inviteId - The ID of the pending invite.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the decline operation.
+ */
 export async function declineInvite(inviteId: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const invite = await (prisma as any).boardInvite.findUnique({ where: { id: inviteId } });
@@ -114,6 +139,13 @@ export async function declineInvite(inviteId: string) {
     }
 }
 
+/**
+ * Retrieves the most recent notifications for a user (up to 20).
+ * Validates that the requesting session matches the target user ID.
+ * 
+ * @param {string} userId - The user ID to fetch notifications for.
+ * @returns {Promise<Array<any>>} The formatted array of recent notifications.
+ */
 export async function getRecentNotifications(userId: string) {
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId || sessionUserId !== userId) return [];
@@ -152,6 +184,13 @@ export async function getRecentNotifications(userId: string) {
     });
 }
 
+/**
+ * Marks a specific notification as read.
+ * Validates that the notification belongs to the requesting user.
+ * 
+ * @param {string} notificationId - The ID of the notification.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the operation.
+ */
 export async function markNotificationRead(notificationId: string) {
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId) return { success: false, error: 'Unauthorized' };
@@ -173,6 +212,12 @@ export async function markNotificationRead(notificationId: string) {
     return { success: true };
 }
 
+/**
+ * Marks all unread notifications for a user as read.
+ * 
+ * @param {string} userId - The user ID.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the operation.
+ */
 export async function markAllNotificationsRead(userId: string) {
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId || sessionUserId !== userId) {
@@ -187,6 +232,13 @@ export async function markAllNotificationsRead(userId: string) {
     return { success: true };
 }
 
+/**
+ * Aggregates all unread notifications within a time window and sends an email digest.
+ * Calculates unread items based on the provided window hours (default: 24h).
+ * 
+ * @param {number} [windowHours=24] - The lookback window in hours.
+ * @returns {Promise<{success: boolean, message?: string, error?: string}>} Result of the digest dispatch.
+ */
 export async function sendNotificationDigestNow(windowHours = 24) {
     const session = await auth();
     if (!session?.user?.email) {

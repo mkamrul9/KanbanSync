@@ -4,7 +4,15 @@ import { auth } from '../../auth';
 import { BoardWithColumnsAndTasks } from '../types/board';
 
 
-// 'cache' memoizes the result for the duration of the server request
+/**
+ * Fetches a board by its ID along with all its nested relations (columns, tasks, members, etc).
+ * Implements security checks to ensure only the owner or a member can retrieve the board.
+ * Memoized using React's `cache` to avoid duplicate database queries per request lifecycle.
+ * Falls back to a partial fetch if the Prisma client is stale (i.e. migrations haven't run).
+ * 
+ * @param {string} boardId - The ID of the board to fetch.
+ * @returns {Promise<BoardWithColumnsAndTasks | null>} The populated board object, or null if unauthorized/not found.
+ */
 export const getBoardData = cache(async (boardId: string): Promise<BoardWithColumnsAndTasks | null> => {
     if (!boardId) return null; // guard before any DB call
 

@@ -10,6 +10,14 @@ type ActivityInput = {
     meta?: Prisma.InputJsonValue;
 };
 
+/**
+ * Asynchronously logs a task-related activity event into the database.
+ * If the database insertion fails, it logs a warning instead of throwing an error,
+ * ensuring that activity tracking does not break core application flows.
+ * 
+ * @param {ActivityInput} input - The activity details.
+ * @returns {Promise<void>}
+ */
 export async function logTaskActivity(input: ActivityInput) {
     try {
         await prisma.taskActivity.create({

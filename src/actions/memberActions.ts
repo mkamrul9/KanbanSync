@@ -10,10 +10,15 @@ import { auth } from '../../auth';
 import { canPerformBoardAction } from '../lib/permissionsMatrix';
 
 /**
- * NOTE: This function was updated to create a pending invite and notify the user
- * instead of instantly adding them as a member. It expects a `BoardInvite` DB
- * model (and optionally a `Notification` model) to exist in Prisma schema. You
- * must run a Prisma migration after adding those models.
+ * Invites a user to a board.
+ * It creates a pending invite record in the database and triggers a real-time notification to the user.
+ * If the BoardInvite table does not exist, it gracefully falls back to directly adding the member.
+ * Requires INVITE_MEMBER permission.
+ * 
+ * @param {string} boardId - The ID of the board.
+ * @param {string} email - The email address of the user to invite.
+ * @param {BoardRole} role - The role to assign (LEADER, REVIEWER, MEMBER).
+ * @returns {Promise<{success: boolean, inviteId?: string, addedDirectly?: boolean, error?: string}>}
  */
 export async function inviteMember(boardId: string, email: string, role: BoardRole) {
     // 1. GUARD: Only Leaders can invite people

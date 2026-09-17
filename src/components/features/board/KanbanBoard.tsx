@@ -48,6 +48,22 @@ type Cycle = {
     isActive: boolean;
 };
 
+/**
+ * Primary client component for rendering the interactive Kanban board.
+ * 
+ * Responsibilities:
+ * - Manages drag-and-drop state via `@dnd-kit`.
+ * - Maintains optimistic UI updates during server actions.
+ * - Subscribes to real-time events via Pusher for live collaboration.
+ * - Orchestrates sub-components (columns, modals, filters, and metrics).
+ * 
+ * State encompasses filtering, open modals, current active cycle, and archive visibility.
+ * 
+ * @param {KanbanBoardProps} props
+ * @param {BoardWithColumnsAndTasks} props.initialBoard - The hydrated board data from the server.
+ * @param {string | null} [props.userRole] - The active user's authorization role on this board.
+ * @param {string} props.currentUserEmail - Used to identify self-assigned tasks.
+ */
 export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }: KanbanBoardProps) {
     const router = useRouter();
     const canManageArchive = userRole === 'LEADER' || userRole === 'REVIEWER';

@@ -8,14 +8,33 @@ import { signIn, signOut } from '../../auth'; // Adjust path to root auth.ts
 import { prisma } from '../lib/db';
 import { DEMO_ACCOUNT } from '../lib/demoAccount';
 
+/**
+ * Initiates the GitHub OAuth login flow.
+ * Redirects the user to the root page upon successful authentication.
+ * 
+ * @returns {Promise<void>} Does not return; it performs a redirect.
+ */
 export async function loginWithGithub() {
     await signIn('github', { redirectTo: '/' });
 }
 
+/**
+ * Initiates the Google OAuth login flow.
+ * Redirects the user to the root page upon successful authentication.
+ * 
+ * @returns {Promise<void>} Does not return; it performs a redirect.
+ */
 export async function loginWithGoogle() {
     await signIn('google', { redirectTo: '/' });
 }
 
+/**
+ * Ensures that the demo account exists in the database if the user attempts to log in with the demo email.
+ * This automatically seeds the database with the demo credentials if they are missing.
+ * 
+ * @param {string} email - The email address attempting to log in.
+ * @returns {Promise<void>}
+ */
 async function ensureDemoUserExistsIfRequested(email: string) {
     if (email !== DEMO_ACCOUNT.email.toLowerCase()) return;
 
@@ -34,6 +53,14 @@ async function ensureDemoUserExistsIfRequested(email: string) {
     });
 }
 
+/**
+ * Authenticates a user using traditional email/password credentials.
+ * Performs validation, checks for demo account seeding, and manages NextAuth sign-in.
+ * 
+ * @param {FormData} formData - The submitted login form data containing 'email' and 'password'.
+ * @throws {Error} Will redirect to login page with an error query string on failure.
+ * @returns {Promise<void>} Redirects to the dashboard on success.
+ */
 export async function loginWithCredentials(formData: FormData) {
     const email = String(formData.get('email') ?? '').trim().toLowerCase();
     const password = String(formData.get('password') ?? '');
@@ -64,6 +91,15 @@ export async function loginWithCredentials(formData: FormData) {
     }
 }
 
+/**
+ * Registers a new user with email and password credentials.
+ * Validates inputs, hashes the password, and updates/creates the database record.
+ * Automatically logs the user in after successful registration.
+ * 
+ * @param {FormData} formData - The submitted sign-up form data containing 'name', 'email', and 'password'.
+ * @throws {Error} Will redirect to signup page with an error query string on validation or conflict failure.
+ * @returns {Promise<void>} Redirects to the dashboard on success.
+ */
 export async function signupWithCredentials(formData: FormData) {
     const name = String(formData.get('name') ?? '').trim();
     const email = String(formData.get('email') ?? '').trim().toLowerCase();
@@ -122,6 +158,11 @@ export async function signupWithCredentials(formData: FormData) {
     }
 }
 
+/**
+ * Logs out the current authenticated user and clears their session.
+ * 
+ * @returns {Promise<void>} Redirects to the login page.
+ */
 export async function logout() {
     await signOut({ redirectTo: '/login' });
 }

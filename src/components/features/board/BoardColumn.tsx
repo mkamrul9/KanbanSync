@@ -25,6 +25,26 @@ function getColumnAccent(title: string): { dot: string; header: string; panel: s
     return { dot: 'bg-cyan-500', header: 'text-cyan-800', panel: 'bg-cyan-50/70', badge: 'bg-cyan-100 text-cyan-800 ring-1 ring-cyan-200', border: 'ring-cyan-200/70' };
 }
 
+/**
+ * Renders a single column (swimlane) on the Kanban board.
+ * Acts as a droppable container for tasks using `@dnd-kit/core`.
+ * 
+ * Responsibilities:
+ * - Displays the column title and task count.
+ * - Enforces and warns about Work-In-Progress (WIP) limits.
+ * - Renders the list of tasks (SortableTask) within a SortableContext.
+ * - Provides the UI to add a new task to this specific column.
+ * 
+ * @param {object} props
+ * @param {ColumnWithTasks} props.column - The column data and its nested tasks.
+ * @param {string} [props.boardId] - The ID of the parent board.
+ * @param {string | null} [props.userRole] - The current user's role on the board.
+ * @param {MemberType[]} [props.members] - List of board members.
+ * @param {TemplateType[]} [props.templates] - Available task templates for new tasks.
+ * @param {TaskType[]} [props.allTasks] - All tasks on the board (used for dependencies).
+ * @param {string | null} [props.currentUserEmail] - Used to highlight self-assigned tasks.
+ * @param {(columnId: string) => void} [props.onArchiveColumn] - Callback when the archive button is clicked.
+ */
 export default memo(function BoardColumn({ column, boardId, userRole, members, templates, allTasks, currentUserEmail, onArchiveColumn }: { column: ColumnWithTasks; boardId?: string; userRole?: string | null; members?: MemberType[]; templates?: TemplateType[]; allTasks?: TaskType[]; currentUserEmail?: string | null; onArchiveColumn?: (columnId: string) => void }) {
     const effectiveBoardId = boardId ?? column.boardId;
 
