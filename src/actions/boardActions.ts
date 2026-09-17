@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { BoardRole } from '../generated/prisma/client';
 import {
+    ARCHIVE_RETENTION_DAYS,
     isArchiveExpired,
     isColumnArchived,
     markBoardArchived,
@@ -13,8 +14,6 @@ import {
     parseBoardArchive,
     parseColumnArchive,
 } from '../lib/archiveMarkers';
-
-const ARCHIVE_RETENTION_DAYS = 30;
 
 /**
  * Pre-defined column layouts for different types of Kanban boards.
@@ -289,20 +288,13 @@ export async function purgeExpiredArchivedBoards() {
         const sessionUser = await getSessionUser();
         if (!sessionUser) return { success: false, error: 'Unauthorized' };
 
-        const membershipBoards = await prisma.boardMember.findMany({
-            where: { userId: sessionUser.userId, role: BoardRole.LEADER },
-            select: { boardId: true },
-        });
-
-        const boardIds = new Set<string>(membershipBoards.map((m) => m.boardId));
-        const ownedBoards = await prisma.board.findMany({
-            where: { userId: sessionUser.userId },
-            select: { id: true },
-        });
-        for (const board of ownedBoards) boardIds.add(board.id);
-
         const candidates = await prisma.board.findMany({
-            where: { id: { in: Array.from(boardIds) } },
+            where: {
+                OR: [
+                    { userId: sessionUser.userId },
+                    { members: { some: { userId: sessionUser.userId, role: BoardRole.LEADER } } },
+                ]
+            },
             select: { id: true, description: true },
         });
 
@@ -418,6 +410,13 @@ export async function restoreColumn(boardId: string, columnId: string) {
     }
 }
 
+/**
+ * Permanently deletes any archived columns on a board whose archive retention period has expired.
+ * Requires LEADER role.
+ * 
+ * @param {string} boardId - The ID of the board to purge columns from.
+ * @returns {Promise<{success: boolean, deletedCount?: number, error?: string}>} Result containing the number of deleted columns.
+ */
 export async function purgeExpiredArchivedColumns(boardId: string) {
     try {
         const sessionUser = await getSessionUser();
@@ -534,16 +533,20 @@ export async function updateBoardSettings(
 
         const columnsToDelete = activeColumns.filter((column) => !incomingIds.has(column.id));
         if (columnsToDelete.length > 0) {
-            const nonEmptyColumns = await Promise.all(columnsToDelete.map(async (column) => {
-                const taskCount = await prisma.task.count({ where: { columnId: column.id } });
-                return { column, taskCount };
-            }));
+            const colIdsToDelete = columnsToDelete.map((c) => c.id);
+            const taskCounts = await prisma.task.groupBy({
+                by: ['columnId'],
+                where: { columnId: { in: colIdsToDelete } },
+                _count: { id: true },
+            });
 
-            const blocked = nonEmptyColumns.filter((entry) => entry.taskCount > 0);
+            const countsMap = new Map(taskCounts.map((t) => [t.columnId, t._count.id]));
+            const blocked = columnsToDelete.filter((col) => (countsMap.get(col.id) ?? 0) > 0);
+
             if (blocked.length > 0) {
                 return {
                     success: false,
-                    error: `Cannot delete non-empty columns: ${blocked.map((entry) => entry.column.title).join(', ')}`,
+                    error: `Cannot delete non-empty columns: ${blocked.map((col) => col.title).join(', ')}`,
                 };
             }
         }

@@ -1,4 +1,5 @@
 import type { BoardWithColumnsAndTasks } from '../types/board';
+import { classifyColumn } from './columnUtils';
 
 type MetricsOptions = {
     throughputDays?: number;
@@ -13,14 +14,6 @@ function toDate(d: string | Date | null | undefined): Date | null {
 function daysBetween(a: Date, b: Date) {
     const ms = Math.max(0, b.getTime() - a.getTime());
     return ms / (1000 * 60 * 60 * 24);
-}
-
-function classifyColumn(title = ''): 'backlog' | 'inProgress' | 'done' {
-    const t = title.toLowerCase();
-    if (t.includes('done') || t.includes('complete') || t.includes('completed')) return 'done';
-    if (t.includes('in progress') || t.includes('in_progress') || t.includes('progress') || t.includes('doing')) return 'inProgress';
-    if (t.includes('todo') || t.includes('backlog')) return 'backlog';
-    return 'inProgress';
 }
 
 /**

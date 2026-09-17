@@ -1,3 +1,5 @@
+export const ARCHIVE_RETENTION_DAYS = 30;
+
 const BOARD_ARCHIVE_PREFIX = '__ARCHIVED_BOARD__|';
 const COLUMN_ARCHIVE_PREFIX = '__ARCHIVED_COLUMN__|';
 
@@ -117,7 +119,14 @@ export function isColumnArchived(title: string): boolean {
  * @returns {boolean} True if expired or if archivedAt is invalid.
  */
 export function isArchiveExpired(archivedAt: Date | null, retentionDays: number): boolean {
-    if (!archivedAt) return true;
+    if (!archivedAt) {
+        // Treat a missing/unparseable archive timestamp as NOT expired.
+        // Returning true here would cause items with broken markers to be permanently deleted —
+        // a silent data-loss bug that is very hard to diagnose. Logging a warning makes it
+        // discoverable without causing destructive side-effects.
+        console.warn('[isArchiveExpired] archivedAt is null — treating as not expired to prevent accidental data loss. Inspect the archive marker string.');
+        return false;
+    }
     const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
     return archivedAt.getTime() < cutoff;
 }

@@ -10,8 +10,8 @@ import { auth } from '../../auth';
 import { notifyAssignedUser } from './notificationActions';
 import { logTaskActivity } from '../lib/activity';
 import { canPerformBoardAction } from '../lib/permissionsMatrix';
-
-const ARCHIVE_RETENTION_DAYS = 30;
+import { ARCHIVE_RETENTION_DAYS } from '../lib/archiveMarkers';
+import { classifyColumn } from '../lib/columnUtils';
 
 function archiveRetentionCutoff() {
     return new Date(Date.now() - ARCHIVE_RETENTION_DAYS * 86_400_000);
@@ -49,34 +49,37 @@ export async function moveTask(
         overrideReason?: string;
     }
 ) {
-    const session = await auth();
     const role = await getUserRole(boardId);
     if (!role) return { success: false, error: 'Unauthorized' };
     try {
         if (!taskId || !newColumnId || newOrder < 0) {
             return { success: false, error: 'Invalid input' };
         }
-        // // Update the database
-        // await prisma.$transaction([
-        //     // Shift other tasks up
-        //     prisma.task.updateMany({
-        //         where: { columnId: newColumnId, order: { gte: newOrder }, id: { not: taskId } },
-        //         data: { order: { increment: 1 } },
-        //     }),
 
-        // Find out which column they are dragging into
-        const targetColumn = await prisma.column.findUnique({ where: { id: newColumnId } });
-        if (!targetColumn) throw new Error("Column not found");
+        // Batch the initial DB reads to minimize round-trips
+        const [targetColumn, existingTask] = await Promise.all([
+            prisma.column.findUnique({ where: { id: newColumnId } }),
+            prisma.task.findUnique({
+                where: { id: taskId },
+                include: { column: { select: { title: true } } },
+            }),
+        ]);
 
-        // Load current task so we can check the source column and set timestamps
-        const existingTask = await prisma.task.findUnique({ where: { id: taskId } });
+        if (!targetColumn) throw new Error('Column not found');
         if (!existingTask) throw new Error('Task not found');
 
-        // Fetch source column to know if the task is currently in Done
-        const sourceColumn = await prisma.column.findUnique({ where: { id: existingTask.columnId } });
-        const sourceIsDone = /done|complete/i.test(sourceColumn?.title ?? '');
-        const targetType = targetColumn.title.toLowerCase();
-        const movingIntoDone = !sourceIsDone && (targetType.includes('done') || targetType.includes('complete') || targetType.includes('completed'));
+        // Alias the source column from the included relation
+        const sourceColumn = existingTask.column;
+        const sourceClass = classifyColumn(sourceColumn?.title);
+        const targetClass = classifyColumn(targetColumn.title);
+        const sourceIsDone = sourceClass === 'done';
+        const movingIntoDone = !sourceIsDone && targetClass === 'done';
+
+        // Authorization guard: check MOVE_TO_DONE permission BEFORE revealing blocker details.
+        // This prevents unauthorized users from seeing internal task dependency information.
+        if (movingIntoDone && !canPerformBoardAction(role, 'MOVE_TO_DONE')) {
+            return { success: false, error: 'Unauthorized: insufficient role to move tasks to Done.' };
+        }
 
         if (movingIntoDone) {
             const dependencies = await prisma.taskDependency.findMany({
@@ -84,23 +87,22 @@ export async function moveTask(
                 include: {
                     dependsOn: {
                         include: {
-                            column: {
-                                select: { title: true },
-                            },
+                            column: { select: { title: true } },
                         },
                     },
                 },
             });
 
             const openBlockers = dependencies.filter((dep) => {
-                const blockerStatus = (dep.dependsOn.status ?? '').toLowerCase();
-                const blockerColumn = (dep.dependsOn.column?.title ?? '').toLowerCase();
-                const blockerCompleted = blockerStatus.includes('done') || blockerStatus.includes('complete') || blockerColumn.includes('done') || blockerColumn.includes('complete');
+                const blockerStatusClass = classifyColumn(dep.dependsOn.status);
+                const blockerColumnClass = classifyColumn(dep.dependsOn.column?.title);
+                const blockerCompleted = blockerStatusClass === 'done' || blockerColumnClass === 'done';
                 return !blockerCompleted;
             });
 
             if (openBlockers.length > 0) {
-                const canOverride = role === BoardRole.LEADER || role === BoardRole.REVIEWER;
+                // Only LEADER and REVIEWER may override blocked dependencies
+                const canOverride = canPerformBoardAction(role, 'MOVE_TO_DONE');
                 const requestedOverride = !!options?.overrideBlockedDependency;
 
                 if (!requestedOverride || !canOverride) {
@@ -123,20 +125,6 @@ export async function moveTask(
             }
         }
 
-        if (movingIntoDone && !canPerformBoardAction(role, 'MOVE_TO_DONE')) {
-            return { success: false, error: 'Unauthorized: insufficient role to move tasks to Done.' };
-        }
-
-        // GUARD: MEMBERs can't move tasks INTO Done, and can't move tasks OUT of Done
-        if (role === BoardRole.MEMBER) {
-            if (/done|complete/i.test(targetColumn.title) && !sourceIsDone) {
-                return { success: false, error: 'Unauthorized: Only Reviewers and Leaders can approve tasks to Done.' };
-            }
-            if (sourceIsDone && !/done|complete/i.test(targetColumn.title)) {
-                return { success: false, error: 'Unauthorized: Only Reviewers and Leaders can move tasks out of Done.' };
-            }
-        }
-
         // Prepare update payload and set workflow timestamps
         const updateData: {
             columnId: string;
@@ -155,27 +143,27 @@ export async function moveTask(
         const wasDone = sourceIsDone;
 
         // If moving into a 'In Progress' column and we don't have startedAt, set it
-        if (targetType.includes('in progress') || targetType.includes('in_progress') || targetType.includes('progress') || targetType.includes('doing')) {
+        if (targetClass === 'inProgress') {
             if (!existingTask.startedAt) updateData.startedAt = new Date();
             // moving out of Done -> always clear completedAt
             if (wasDone) updateData.completedAt = null;
         }
 
         // If moving into Done, set completedAt (and ensure startedAt exists)
-        if (targetType.includes('done') || targetType.includes('complete') || targetType.includes('completed')) {
+        if (targetClass === 'done') {
             if (!existingTask.startedAt) updateData.startedAt = existingTask.createdAt ?? new Date();
             updateData.completedAt = new Date();
         }
 
         // If moving back to backlog/todo, clear ALL timestamps
-        if (targetType.includes('todo') || targetType.includes('backlog')) {
+        if (targetClass === 'backlog') {
             updateData.startedAt = null;
             updateData.completedAt = null;
         }
 
         // Catch-all: if the task was in Done and is moving to ANY non-Done column,
         // always clear completedAt (handles Review, QA, or any custom column name)
-        if (wasDone && !targetType.includes('done') && !targetType.includes('complete')) {
+        if (wasDone && targetClass !== 'done') {
             updateData.completedAt = null;
         }
 
@@ -192,6 +180,9 @@ export async function moveTask(
                 data: { columnId: newColumnId, order: newOrder, status: targetColumn.title },
             });
         }
+
+        // Fetch session now — only after all guards have passed — to avoid unnecessary auth() calls
+        const session = await auth();
 
         await logTaskActivity({
             taskId,
@@ -252,13 +243,8 @@ export async function moveTask(
             }
         }
 
-        // Broadcast the change to the specific board's channel
-        // Fire Pusher
+        // Broadcast the change to all board subscribers via Pusher
         await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Task moved' });
-        revalidatePath(`/board/${boardId}`);
-
-        // Revalidate the cache
-        // This tells Next.js: "The data changed, throw away the cached HTML for the board page"
         revalidatePath(`/board/${boardId}`);
         return { success: true };
 
@@ -485,7 +471,20 @@ export async function restoreTask(taskId: string, boardId: string) {
             };
         }
 
-        const restoredStatus = task.column?.title ?? 'To Do';
+        /**
+         * Map the column title to a valid TaskStatus enum value.
+         * Using the raw column title (e.g. "Review", "Backlog") directly as a status
+         * would cause a Prisma validation error since `status` is a typed enum.
+         */
+        const colClass = classifyColumn(task.column?.title);
+        let restoredStatus: TaskStatus;
+        if (colClass === 'done') {
+            restoredStatus = TaskStatus.DONE;
+        } else if (colClass === 'inProgress') {
+            restoredStatus = TaskStatus.IN_PROGRESS;
+        } else {
+            restoredStatus = TaskStatus.TODO;
+        }
 
         await prisma.task.update({
             where: { id: taskId },

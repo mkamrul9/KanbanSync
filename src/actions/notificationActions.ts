@@ -6,21 +6,10 @@ import { pusherServer } from '../lib/pusher-server';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../../auth';
 import { sendDigestEmail } from '../lib/emailDigest';
-
-async function getSessionUserId() {
-    const session = await auth();
-    if (!session?.user?.email) return null;
-
-    const dbUser = await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true },
-    });
-    return dbUser?.id ?? null;
-}
-
+import { getSessionUserId } from '../lib/session';
 /**
  * Dispatches a mention notification to a list of users.
- * Triggers a real-time Pusher event on each user's private channel.
+ * Persists the notification to the DB and triggers a real-time Pusher event on each user's private channel.
  * 
  * @param {string} boardId - The ID of the board.
  * @param {string} taskId - The ID of the task where the mention occurred.
@@ -30,12 +19,25 @@ async function getSessionUserId() {
  * @returns {Promise<void>}
  */
 export async function notifyMentionedUsers(boardId: string, taskId: string, mentionUserIds: string[], authorId: string, excerpt?: string) {
-    // If you have a Notification table, you can create rows here. For now we just trigger Pusher events.
-    for (const userId of mentionUserIds) {
-        await pusherServer.trigger(`user-${userId}`, 'notification', {
+    if (mentionUserIds.length === 0) return;
+
+    // 1. Persist notifications to the DB
+    await Promise.all(mentionUserIds.map(userId =>
+        prisma.notification.create({
+            data: {
+                userId,
+                type: 'mention',
+                data: { boardId, taskId, from: authorId, excerpt },
+            }
+        })
+    ));
+
+    // 2. Trigger real-time push events concurrently
+    await Promise.all(mentionUserIds.map(userId =>
+        pusherServer.trigger(`user-${userId}`, 'notification', {
             type: 'mention', boardId, taskId, from: authorId, excerpt,
-        });
-    }
+        })
+    ));
 }
 
 /**
@@ -46,15 +48,14 @@ export async function notifyMentionedUsers(boardId: string, taskId: string, ment
  * @returns {Promise<{success: boolean, error?: string}>} Result of the acceptance operation.
  */
 export async function acceptInvite(inviteId: string) {
-    // Requires Prisma models: BoardInvite and BoardMember
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const invite = await (prisma as any).boardInvite.findUnique({ where: { id: inviteId } });
+    const invite = await prisma.boardInvite.findUnique({ where: { id: inviteId } });
     if (!invite) return { success: false, error: 'Invite not found' };
 
     try {
+        if (!invite.userId) return { success: false, error: 'User ID missing on invite' };
+
         await prisma.boardMember.create({ data: { boardId: invite.boardId, userId: invite.userId, role: invite.role } });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (prisma as any).boardInvite.delete({ where: { id: inviteId } });
+        await prisma.boardInvite.delete({ where: { id: inviteId } });
 
         // Notify the board channel that membership changed
         await pusherServer.trigger(`board-${invite.boardId}`, 'board-updated', { message: 'Member accepted invite' });
@@ -71,6 +72,7 @@ export async function acceptInvite(inviteId: string) {
 
 /**
  * Dispatches a real-time notification to a user alerting them that they were assigned to a task.
+ * Also persists this notification to the DB.
  * 
  * @param {string} assigneeId - The user ID of the assignee.
  * @param {string|null} assignedById - The user ID of the person making the assignment.
@@ -95,13 +97,27 @@ export async function notifyAssignedUser(
         ? await prisma.user.findUnique({ where: { id: assignedById }, select: { name: true } })
         : null;
 
-    await pusherServer.trigger(`user-${assigneeId}`, 'notification', {
-        type: 'task-assigned',
+    const dataPayload = {
         taskId,
         boardId,
         boardTitle,
         taskTitle,
         fromName: assigner?.name ?? null,
+    };
+
+    // 1. Persist notification
+    await prisma.notification.create({
+        data: {
+            userId: assigneeId,
+            type: 'task-assigned',
+            data: dataPayload,
+        }
+    });
+
+    // 2. Trigger real-time event
+    await pusherServer.trigger(`user-${assigneeId}`, 'notification', {
+        type: 'task-assigned',
+        ...dataPayload
     });
 }
 
@@ -113,14 +129,12 @@ export async function notifyAssignedUser(
  * @returns {Promise<{success: boolean, error?: string}>} Result of the decline operation.
  */
 export async function declineInvite(inviteId: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const invite = await (prisma as any).boardInvite.findUnique({ where: { id: inviteId } });
+    const invite = await prisma.boardInvite.findUnique({ where: { id: inviteId } });
     if (!invite) return { success: false, error: 'Invite not found' };
 
     try {
         // delete the pending invite
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (prisma as any).boardInvite.delete({ where: { id: inviteId } });
+        await prisma.boardInvite.delete({ where: { id: inviteId } });
 
         // notify the inviter that the invite was declined
         if (invite.inviterId) {
