@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useEffect, useState, useTransition } from 'react';
 import type { TaskCategory } from '../../../generated/prisma/browser';
-import { deleteTask } from '@/src/actions/taskActions';
+import { deleteTask, updateTask } from '@/src/actions/taskActions';
 // EditTaskModal replaced by TaskDetailsModal for unified edit flow
 import TaskDetailsModal from './TaskDetailsModal';
 import Modal from '../../ui/Modal';
@@ -117,6 +117,9 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
     , allTasks
 }: { task: TaskType; boardId: string; members?: MemberType[]; allTasks?: TaskType[]; currentUserEmail?: string | null }) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [editTitle, setEditTitle] = useState(task.title);
+    const [isUpdatingTitle, startUpdatingTitle] = useTransition();
     const [nowTs, setNowTs] = useState<number>(0);
 
     useEffect(() => {
@@ -260,9 +263,45 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                     </div>
 
                     {/* ── Row 2: Title ── */}
-                    <h3 className="text-sm font-semibold text-gray-800 leading-snug wrap-anywhere line-clamp-3 mb-2.5">
-                        {task.title}
-                    </h3>
+                    {isEditingTitle ? (
+                        <input
+                            autoFocus
+                            className="text-sm font-semibold text-gray-800 leading-snug w-full mb-2.5 p-1 border-b-2 border-blue-500 focus:outline-none bg-transparent"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            onBlur={() => {
+                                setIsEditingTitle(false);
+                                if (editTitle.trim() !== task.title) {
+                                    startUpdatingTitle(async () => {
+                                        await updateTask(task.id, boardId, editTitle.trim(), task.category, task.priority ?? undefined, task.tags, task.dueAt ? task.dueAt.toISOString() : null);
+                                    });
+                                }
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    e.currentTarget.blur();
+                                }
+                                if (e.key === 'Escape') {
+                                    setEditTitle(task.title);
+                                    setIsEditingTitle(false);
+                                }
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                        />
+                    ) : (
+                        <h3 
+                            className="text-sm font-semibold text-gray-800 leading-snug wrap-anywhere line-clamp-3 mb-2.5 hover:bg-gray-100 rounded px-1 -mx-1 cursor-text"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsEditingTitle(true);
+                            }}
+                            title="Click to edit title"
+                        >
+                            {task.title}
+                            {isUpdatingTitle && <span className="ml-2 text-xs text-blue-500 font-normal">Saving...</span>}
+                        </h3>
+                    )}
 
                     {/* ── Row 3: Tags only ── */}
                     {hasTags && (

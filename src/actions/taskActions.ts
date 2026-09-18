@@ -385,21 +385,29 @@ export async function deleteTask(taskId: string, boardId: string) {
  * @param {string} boardId - The ID of the board.
  * @returns {Promise<{success: boolean, error?: string}>}
  */
-export async function archiveTask(taskId: string, boardId: string) {
+export async function archiveTask(taskId: string, requestedBoardId: string) {
     try {
-        const role = await getUserRole(boardId);
-        if (!canPerformBoardAction(role, 'ARCHIVE_TASK')) {
-            return { success: false, error: 'Unauthorized: Only Leaders and Reviewers can archive tasks.' };
-        }
         const session = await auth();
+        if (!session?.user?.id) return { success: false, error: 'Not authenticated' };
+
+        // Fetch task AND its actual boardId to prevent IDOR
         const task = await prisma.task.findUnique({
             where: { id: taskId },
-            select: { title: true, status: true },
+            include: { column: { select: { boardId: true } } }
         });
 
         if (!task) {
-            return { success: false, error: 'Task not found' };
+            return { success: false, error: 'Task not found.' };
         }
+
+        const actualBoardId = task.column.boardId;
+        
+        // Use the actual boardId for permission checks
+        const role = await getUserRole(actualBoardId);
+        if (!canPerformBoardAction(role, 'ARCHIVE_TASK')) {
+            return { success: false, error: 'Unauthorized: Only Leaders and Reviewers can archive tasks.' };
+        }
+
 
         if (task.status === 'ARCHIVED') {
             return { success: true };
@@ -420,8 +428,8 @@ export async function archiveTask(taskId: string, boardId: string) {
             },
         });
 
-        await pusherServer.trigger(`board-${boardId}`, 'board-updated', { message: 'Task archived' });
-        revalidatePath(`/board/${boardId}`);
+        await pusherServer.trigger(`board-${actualBoardId}`, 'board-updated', { message: 'Task archived' });
+        revalidatePath(`/board/${actualBoardId}`);
         return { success: true };
     } catch (error) {
         console.error("Failed to archive task:", error);

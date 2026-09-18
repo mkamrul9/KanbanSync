@@ -33,6 +33,9 @@ KanbanSync is a full-stack, real-time Kanban board application that lets teams c
 | 📝 **Task Templates** | Save and reuse task configurations across the board |
 | 👤 **Demo Account** | One-click login for exploring the app without registration |
 | 🎓 **Guided Onboarding** | Step-by-step tour for new users with a pre-populated example board |
+| 📱 **Progressive Web App (PWA)** | Installable on desktop and mobile for a native app-like experience |
+| ⌨️ **Command Palette** | Hit `Cmd+K` to quickly navigate and execute actions globally |
+| ✏️ **Inline Editing** | Click task titles directly on the board to edit them instantly without modals |
 
 ---
 
@@ -46,6 +49,8 @@ KanbanSync is a full-stack, real-time Kanban board application that lets teams c
 | **ORM** | Prisma 7 (with `@prisma/adapter-pg`) | Type-safe queries, migrations |
 | **Auth** | NextAuth v5 | Credentials + Google OAuth |
 | **Real-time** | Pusher Channels | Managed WebSockets with fallback |
+| **Rate Limiting**| Upstash Redis | Distributed sliding-window limits for serverless environments |
+| **Local Dev** | Docker Compose | Instant local PostgreSQL database provisioning |
 | **Styling** | Tailwind CSS v4 | Utility-first, JIT compilation |
 | **DnD** | @dnd-kit | Accessible, modular drag-and-drop |
 | **Deployment** | Vercel | Global edge CDN, serverless functions |
@@ -158,11 +163,23 @@ NEXT_PUBLIC_PUSHER_KEY="..."
 NEXT_PUBLIC_PUSHER_CLUSTER="..."
 PUSHER_APP_ID="..."
 PUSHER_SECRET="..."
+
+# Upstash Redis (required for rate limiting)
+UPSTASH_REDIS_REST_URL="..."
+UPSTASH_REDIS_REST_TOKEN="..."
 ```
 
 > **Getting Pusher credentials:** Sign up for free at [pusher.com](https://pusher.com), create a Channels app, and copy the credentials from the app dashboard.
 
 ### 4. Database Setup
+
+We provide a `docker-compose.yml` for instant local database setup:
+
+```bash
+docker-compose up -d
+```
+
+Once the database is running, initialize the schema:
 
 ```bash
 # Generate Prisma client
