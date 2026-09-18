@@ -2,12 +2,14 @@
 
 > **A production-grade, real-time collaborative Kanban board application** built for teams who need visibility, flexibility, and accountability in their task management workflow.
 
+**Live Demo:** [https://kanbansync-pc3d.onrender.com/](https://kanbansync-pc3d.onrender.com/)
+
 [![Next.js](https://img.shields.io/badge/Next.js-15+-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-blue?logo=postgresql)](https://www.postgresql.org/)
 [![Pusher](https://img.shields.io/badge/Pusher-Real--time-300D4F?logo=pusher)](https://pusher.com/)
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://vercel.com/)
+[![Deployed on Render](https://img.shields.io/badge/Deployed%20on-Render-success?logo=render)](https://kanbansync-pc3d.onrender.com/)
 
 ---
 
