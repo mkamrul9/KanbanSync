@@ -191,27 +191,27 @@ Only these values exist in the system:
 
 ### Target Board UI — Dark Mode
 
-![Kanban board target design — dark mode with Indigo column accents, compact task cards, and a clean navbar](docs/images/kanban_board_mockup.jpg)
+![Kanban board target design — dark mode with Indigo column accents, compact task cards, and a clean navbar](assets/kanban_board_mockup.jpg)
 
 ### Target Board UI — Light Mode
 
-![Kanban board light mode — white cards, slate text, indigo accents, consistent with dark layout](docs/images/light_mode_board_mockup.jpg)
+![Kanban board light mode — white cards, slate text, indigo accents, consistent with dark layout](assets/light_mode_board_mockup.jpg)
 
 ### Dark vs Light Theme Toggle
 
-![Side-by-side comparison: dark mode on left with moon toggle, light mode on right with sun toggle](docs/images/theme_toggle_comparison.jpg)
+![Side-by-side comparison: dark mode on left with moon toggle, light mode on right with sun toggle](assets/theme_toggle_comparison.jpg)
 
 ### Target Dashboard UI
 
-![Dashboard with sidebar navigation, board grid cards with colored accent stripes, and New Board button in indigo](docs/images/dashboard_mockup.jpg)
+![Dashboard with sidebar navigation, board grid cards with colored accent stripes, and New Board button in indigo](assets/dashboard_mockup.jpg)
 
 ### Target Task Detail Modal
 
-![Task detail modal — two-column layout: left for content/subtasks/activity, right sidebar for metadata fields](docs/images/task_modal_mockup.jpg)
+![Task detail modal — two-column layout: left for content/subtasks/activity, right sidebar for metadata fields](assets/task_modal_mockup.jpg)
 
 ### Design System Color Palette
 
-![Full design system: Indigo primary scale, semantic colors, slate neutrals, and background layer tokens](docs/images/design_system_colors.jpg)
+![Full design system: Indigo primary scale, semantic colors, slate neutrals, and background layer tokens](assets/design_system_colors.jpg)
 
 ---
 
