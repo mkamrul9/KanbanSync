@@ -4,23 +4,23 @@ import { useRef, useEffect, ReactNode, useState } from 'react';
 
 // ─── Category meta ─────────────────────────────────────────────────────────────
 export const TASK_CATEGORIES = [
-    { value: 'BUG', label: 'Bug', color: 'bg-red-100 text-red-700 border-red-200' },
-    { value: 'NEW_FEATURE', label: 'Feature', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-    { value: 'EPIC', label: 'Epic', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-    { value: 'STORY', label: 'Story', color: 'bg-green-100 text-green-700 border-green-200' },
-    { value: 'TASK', label: 'Task', color: 'bg-gray-100 text-gray-700 border-gray-200' },
-    { value: 'SUB_TASK', label: 'Sub-Task', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-    { value: 'ENHANCEMENT', label: 'Enhancement', color: 'bg-cyan-100 text-cyan-700 border-cyan-200' },
-    { value: 'PATCH', label: 'Patch', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-    { value: 'HOTFIX', label: 'Hotfix', color: 'bg-rose-100 text-rose-700 border-rose-200' },
+    { value: 'BUG', label: 'Bug', color: 'bg-red-500/15 text-red-600 dark:text-red-300 border-red-500/30' },
+    { value: 'NEW_FEATURE', label: 'Feature', color: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border-indigo-500/30' },
+    { value: 'EPIC', label: 'Epic', color: 'bg-purple-500/15 text-purple-600 dark:text-purple-300 border-purple-500/30' },
+    { value: 'STORY', label: 'Story', color: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30' },
+    { value: 'TASK', label: 'Task', color: 'bg-[--ks-bg-card] text-[--ks-text-secondary] border-[--ks-border]' },
+    { value: 'SUB_TASK', label: 'Sub-Task', color: 'bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/30' },
+    { value: 'ENHANCEMENT', label: 'Enhancement', color: 'bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30' },
+    { value: 'PATCH', label: 'Patch', color: 'bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30' },
+    { value: 'HOTFIX', label: 'Hotfix', color: 'bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30' },
 ] as const;
 
 // ─── Priority meta ─────────────────────────────────────────────────────────────
 export const PRIORITY_OPTIONS = [
-    { value: 'URGENT', label: 'Urgent', icon: 'M5 11l7-7 7 7M5 19l7-7 7 7', color: 'bg-red-50 text-red-700 border-red-300', active: 'bg-red-600 text-white border-red-600' },
-    { value: 'HIGH', label: 'High', icon: 'M5 15l7-7 7 7', color: 'bg-orange-50 text-orange-700 border-orange-300', active: 'bg-orange-500 text-white border-orange-500' },
-    { value: 'MEDIUM', label: 'Medium', icon: 'M20 12H4', color: 'bg-sky-50 text-sky-700 border-sky-300', active: 'bg-sky-500 text-white border-sky-500' },
-    { value: 'LOW', label: 'Low', icon: 'M19 9l-7 7-7-7', color: 'bg-green-50 text-green-700 border-green-300', active: 'bg-green-500 text-white border-green-500' },
+    { value: 'URGENT', label: 'Urgent', icon: 'M5 11l7-7 7 7M5 19l7-7 7 7', color: 'bg-red-500/15 text-red-600 dark:text-red-300 border-red-500/30', active: 'bg-red-600 text-white border-red-600' },
+    { value: 'HIGH', label: 'High', icon: 'M5 15l7-7 7 7', color: 'bg-orange-500/15 text-orange-600 dark:text-orange-300 border-orange-500/30', active: 'bg-orange-500 text-white border-orange-500' },
+    { value: 'MEDIUM', label: 'Medium', icon: 'M20 12H4', color: 'bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30', active: 'bg-sky-500 text-white border-sky-500' },
+    { value: 'LOW', label: 'Low', icon: 'M19 9l-7 7-7-7', color: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30', active: 'bg-emerald-500 text-white border-emerald-500' },
 ] as const;
 
 // ─── Filter types ───────────────────────────────────────────────────────────────
@@ -95,14 +95,14 @@ function toggle<T>(arr: T[], val: T): T[] {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
     return (
-        <p className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2">
+        <p className="text-sm font-semibold uppercase tracking-wider text-[--ks-text-muted] mb-2">
             {children}
         </p>
     );
 }
 
 function Divider() {
-    return <hr className="border-gray-100 my-4" />;
+    return <hr className="border-[--ks-border] my-4" />;
 }
 
 // ─── Main component ─────────────────────────────────────────────────────────────
@@ -170,7 +170,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
 
     // ── Age options ──────────────────────────────────────────────────────────────
     const ageOptions: { value: AgeOption; label: string; desc: string; dot: string }[] = [
-        { value: 'all', label: 'Any age', desc: '', dot: 'bg-gray-300' },
+        { value: 'all', label: 'Any age', desc: '', dot: 'bg-gray-400' },
         { value: 'fresh', label: 'Fresh', desc: '< 3 days', dot: 'bg-green-400' },
         { value: 'aging', label: 'Aging', desc: '3 – 7 days', dot: 'bg-amber-400' },
         { value: 'stale', label: 'Stale', desc: '> 7 days', dot: 'bg-rose-400' },
@@ -195,24 +195,24 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
     return (
         <div
             ref={panelRef}
-            className="absolute top-full right-0 mt-2 z-40 w-84 app-bg rounded-2xl shadow-2xl border border-slate-200/80 flex flex-col overflow-hidden"
+            className="absolute top-full right-0 mt-2 z-40 w-84 bg-[--ks-bg-elevated] text-[--ks-text-primary] rounded-2xl shadow-[--ks-shadow-lg] border border-[--ks-border] flex flex-col overflow-hidden animate-ks-dropdown"
             style={{ maxHeight: '80vh' }}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/80 bg-white/85 backdrop-blur-sm">
-                <span className="font-semibold text-slate-800 text-base">Filters & Sort</span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[--ks-border] bg-[--ks-bg-card]/80 backdrop-blur-sm">
+                <span className="font-semibold text-[--ks-text-primary] text-base">Filters & Sort</span>
                 <div className="flex items-center gap-2">
                     {countActiveFilters(filters) > 0 && (
                         <button
                             onClick={() => onChange({ ...DEFAULT_FILTERS })}
-                            className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                            className="text-sm text-[--ks-primary] hover:text-[--ks-primary-hover] font-medium transition-colors"
                         >
                             Clear all
                         </button>
                     )}
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 flex items-center justify-center rounded-full text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 shadow-sm transition-colors"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-[--ks-text-muted] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] border border-[--ks-border] transition-colors"
                         aria-label="Close"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -252,18 +252,18 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                     {savedViews.length > 0 && (
                         <div className="flex flex-col gap-1.5">
                             {savedViews.map((view) => (
-                                <div key={view.id} className="flex items-center justify-between gap-2 bg-white/85 border border-slate-200 rounded-xl px-2.5 py-1.5">
+                                <div key={view.id} className="flex items-center justify-between gap-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-xl px-2.5 py-1.5">
                                     <button
                                         type="button"
                                         onClick={() => onApplyView(view.id)}
-                                        className="text-sm font-medium text-slate-700 hover:text-cyan-700 truncate text-left"
+                                        className="text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-primary] truncate text-left"
                                     >
                                         {view.name}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => onDeleteView(view.id)}
-                                        className="text-xs text-slate-400 hover:text-red-600"
+                                        className="text-xs text-[--ks-text-muted] hover:text-red-500"
                                         aria-label={`Delete ${view.name} view`}
                                     >
                                         Delete
@@ -284,8 +284,8 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             key={opt.value}
                             onClick={() => set({ sortBy: opt.value })}
                             className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-sm font-medium border transition-all text-left ${filters.sortBy === opt.value
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                : 'bg-white/90 text-gray-600 border-slate-200 hover:border-slate-300 hover:bg-white'
+                                ? 'bg-[--ks-primary] text-white border-[--ks-primary] shadow-sm'
+                                : 'bg-[--ks-bg-card] text-[--ks-text-secondary] border-[--ks-border] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary]'
                                 }`}
                         >
                             {opt.icon}
@@ -303,14 +303,14 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                     <button
                         onClick={() => set({ assignees: toggle(filters.assignees, 'unassigned') })}
                         className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-medium border transition-all ${filters.assignees.includes('unassigned')
-                            ? 'bg-blue-50 border-blue-300 text-blue-700'
-                            : 'bg-white/90 border-slate-200 text-gray-600 hover:bg-white'
+                            ? 'bg-[--ks-primary-subtle] border-[--ks-primary] text-[--ks-primary]'
+                            : 'bg-[--ks-bg-card] border-[--ks-border] text-[--ks-text-secondary] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary]'
                             }`}
                     >
-                        <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs shrink-0">?</span>
+                        <span className="w-6 h-6 rounded-full bg-[--ks-bg-overlay] border border-[--ks-border] flex items-center justify-center text-[--ks-text-muted] text-xs shrink-0">?</span>
                         <span>Unassigned</span>
                         {filters.assignees.includes('unassigned') && (
-                            <svg className="w-3.5 h-3.5 ml-auto shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3.5 h-3.5 ml-auto shrink-0 text-[--ks-primary]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                             </svg>
                         )}
@@ -322,22 +322,22 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             key={m.user.id}
                             onClick={() => set({ assignees: toggle(filters.assignees, m.user.id) })}
                             className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-medium border transition-all ${filters.assignees.includes(m.user.id)
-                                ? 'bg-blue-50 border-blue-300 text-blue-700'
-                                : 'bg-white/90 border-slate-200 text-gray-600 hover:bg-white'
+                                ? 'bg-[--ks-primary-subtle] border-[--ks-primary] text-[--ks-primary]'
+                                : 'bg-[--ks-bg-card] border-[--ks-border] text-[--ks-text-secondary] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary]'
                                 }`}
                         >
                             {m.user.image
                                 // eslint-disable-next-line @next/next/no-img-element
                                 ? <img src={m.user.image} alt="" className="w-6 h-6 rounded-full shrink-0 object-cover" />
                                 : (
-                                    <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
+                                    <span className="w-6 h-6 rounded-full bg-[--ks-primary-subtle] text-[--ks-primary] flex items-center justify-center text-xs font-bold shrink-0">
                                         {(m.user.name ?? m.user.email ?? '?')[0].toUpperCase()}
                                     </span>
                                 )
                             }
                             <span className="truncate">{m.user.name ?? m.user.email ?? 'Unknown'}</span>
                             {filters.assignees.includes(m.user.id) && (
-                                <svg className="w-3.5 h-3.5 ml-auto shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3.5 h-3.5 ml-auto shrink-0 text-[--ks-primary]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                 </svg>
                             )}
@@ -392,7 +392,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                 {/* ── Tags ── */}
                 <SectionLabel>Tag</SectionLabel>
                 <div className="relative">
-                    <svg className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-3.5 h-3.5 text-[--ks-text-muted] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                     </svg>
                     <input
@@ -400,12 +400,12 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                         value={filters.tagSearch}
                         onChange={e => set({ tagSearch: e.target.value })}
                         placeholder="Filter by tag…"
-                        className="w-full pl-8 pr-8 py-2 text-sm border border-slate-200 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full pl-8 pr-8 py-2 text-sm border border-[--ks-border] bg-[--ks-bg-card] rounded-xl text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent"
                     />
                     {filters.tagSearch && (
                         <button
                             onClick={() => set({ tagSearch: '' })}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[--ks-text-muted] hover:text-[--ks-text-primary]"
                             aria-label="Clear tag filter"
                         >
                             <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -421,31 +421,31 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                 <SectionLabel>Created Date</SectionLabel>
                 <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-500 w-10 shrink-0">From</label>
+                        <label className="text-sm text-[--ks-text-muted] w-10 shrink-0">From</label>
                         <input
                             type="date"
                             value={filters.dateFrom}
                             max={filters.dateTo || undefined}
                             onChange={e => set({ dateFrom: e.target.value })}
-                            className="flex-1 text-sm border border-slate-200 rounded-xl px-2 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                            className="flex-1 text-sm border border-[--ks-border] bg-[--ks-bg-card] rounded-xl px-2 py-2 text-[--ks-text-primary] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent"
                         />
                         {filters.dateFrom && (
-                            <button onClick={() => set({ dateFrom: '' })} className="text-gray-400 hover:text-gray-600" aria-label="Clear">
+                            <button onClick={() => set({ dateFrom: '' })} className="text-[--ks-text-muted] hover:text-[--ks-text-primary]" aria-label="Clear">
                                 <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                             </button>
                         )}
                     </div>
                     <div className="flex items-center gap-2">
-                        <label className="text-sm text-gray-500 w-10 shrink-0">To</label>
+                        <label className="text-sm text-[--ks-text-muted] w-10 shrink-0">To</label>
                         <input
                             type="date"
                             value={filters.dateTo}
                             min={filters.dateFrom || undefined}
                             onChange={e => set({ dateTo: e.target.value })}
-                            className="flex-1 text-sm border border-slate-200 rounded-xl px-2 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                            className="flex-1 text-sm border border-[--ks-border] bg-[--ks-bg-card] rounded-xl px-2 py-2 text-[--ks-text-primary] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent"
                         />
                         {filters.dateTo && (
-                            <button onClick={() => set({ dateTo: '' })} className="text-gray-400 hover:text-gray-600" aria-label="Clear">
+                            <button onClick={() => set({ dateTo: '' })} className="text-[--ks-text-muted] hover:text-[--ks-text-primary]" aria-label="Clear">
                                 <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                             </button>
                         )}
@@ -462,14 +462,14 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             key={opt.value}
                             onClick={() => set({ ageFilter: opt.value })}
                             className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm font-medium border transition-all ${filters.ageFilter === opt.value
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                ? 'bg-[--ks-primary] text-white border-[--ks-primary] shadow-sm'
+                                : 'bg-[--ks-bg-card] text-[--ks-text-secondary] border-[--ks-border] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary]'
                                 }`}
                         >
                             <span className={`w-2 h-2 rounded-full shrink-0 ${opt.dot}`} />
                             <span className="flex flex-col leading-tight">
                                 <span>{opt.label}</span>
-                                {opt.desc && <span className={`text-xs ${filters.ageFilter === opt.value ? 'text-blue-200' : 'text-gray-400'}`}>{opt.desc}</span>}
+                                {opt.desc && <span className={`text-xs ${filters.ageFilter === opt.value ? 'text-white/80' : 'text-[--ks-text-muted]'}`}>{opt.desc}</span>}
                             </span>
                         </button>
                     ))}
@@ -485,8 +485,8 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                             key={opt.value}
                             onClick={() => set({ commentFilter: opt.value })}
                             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium border transition-all ${filters.commentFilter === opt.value
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                ? 'bg-[--ks-primary] text-white border-[--ks-primary] shadow-sm'
+                                : 'bg-[--ks-bg-card] text-[--ks-text-secondary] border-[--ks-border] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary]'
                                 }`}
                         >
                             {opt.icon}

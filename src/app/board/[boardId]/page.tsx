@@ -71,11 +71,11 @@ export default async function BoardPage({
             />
 
             {/* Subheader: back button */}
-            <div className="app-surface border-b border-gray-100">
+            <div className="app-surface border-b border-[--ks-border]">
                 <div className="px-6 py-3 flex items-center gap-3">
                     <Link
                         href="/dashboard"
-                        className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors shrink-0 group"
+                        className="flex items-center gap-1.5 text-sm font-medium text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors shrink-0 group"
                     >
                         <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -86,7 +86,7 @@ export default async function BoardPage({
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-5">
-                <div className="app-surface rounded-2xl border border-slate-200/70 p-4 sm:p-5">
+                <div className="app-surface rounded-2xl border border-[--ks-border] p-4 sm:p-5">
                     <KanbanBoard initialBoard={board} userRole={userRole} currentUserEmail={session?.user?.email ?? ''} />
                 </div>
             </div>

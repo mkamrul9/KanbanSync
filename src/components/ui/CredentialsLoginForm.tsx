@@ -27,7 +27,7 @@ export default function CredentialsLoginForm({
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full rounded-xl border border-[--ks-border] bg-[--ks-bg-card] px-3 py-3 text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent"
                 />
                 <input
                     type="password"
@@ -36,11 +36,11 @@ export default function CredentialsLoginForm({
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full rounded-xl border border-[--ks-border] bg-[--ks-bg-card] px-3 py-3 text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent"
                 />
                 <button
                     type="submit"
-                    className="w-full flex justify-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-cyan-700 hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-600 transition-colors"
+                    className="w-full flex justify-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-[--ks-primary] hover:bg-[--ks-primary-hover] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--ks-primary] transition-colors shadow-sm"
                 >
                     Sign in with Email
                 </button>
@@ -52,14 +52,14 @@ export default function CredentialsLoginForm({
                     setEmail(demoEmail);
                     setPassword(demoPassword);
                 }}
-                className="w-full mb-5 flex justify-center py-2.5 px-4 rounded-xl text-sm font-semibold text-cyan-800 bg-cyan-100 border border-cyan-300 hover:bg-cyan-200 transition-colors"
+                className="w-full mb-5 flex justify-center py-2.5 px-4 rounded-xl text-sm font-semibold text-[--ks-primary] bg-[--ks-primary-subtle] border border-[--ks-primary]/25 hover:opacity-90 transition-colors"
             >
                 Use demo credentials
             </button>
 
-            <p className="mb-6 text-center text-sm text-slate-600">
+            <p className="mb-6 text-center text-sm text-[--ks-text-secondary]">
                 New here?{' '}
-                <Link href="/signup" className="font-semibold text-cyan-700 hover:text-cyan-800">
+                <Link href="/signup" className="font-semibold text-[--ks-primary] hover:underline">
                     Create an account
                 </Link>
             </p>

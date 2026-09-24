@@ -109,6 +109,8 @@ export default function NotificationsBell({ userId }: { userId: string }) {
             });
 
         const pusher = getPusherClient();
+        if (!pusher) return;
+
         const channel = pusher.subscribe(`user-${userId}`);
         const handleNotification = (data: NotificationItem) => {
             setItems((s) => [{ ...data, read: false }, ...s].slice(0, 20));
@@ -252,10 +254,10 @@ export default function NotificationsBell({ userId }: { userId: string }) {
             {/* Bell button */}
             <button
                 onClick={() => setOpen((o) => !o)}
-                className="relative inline-flex items-center p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                className="relative inline-flex items-center p-1.5 rounded-lg text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-card] transition-colors"
                 aria-label="Notifications"
             >
-                <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <svg className="w-5 h-5 text-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                     <path d="M15 17H9a3 3 0 006 0z" fill="currentColor" opacity="0.9" />
                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" fill="currentColor" />
                 </svg>
@@ -267,16 +269,16 @@ export default function NotificationsBell({ userId }: { userId: string }) {
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-84 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-84 bg-[--ks-bg-elevated] border border-[--ks-border] rounded-xl shadow-[--ks-shadow-lg] z-50 overflow-hidden animate-ks-dropdown">
                     {/* Header */}
-                    <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-900">Notifications</span>
+                    <div className="px-4 py-3 border-b border-[--ks-border] flex items-center justify-between">
+                        <span className="text-sm font-semibold text-[--ks-text-primary]">Notifications</span>
                         {items.length > 0 && (
-                            <span className="text-xs text-gray-400">{unreadCount} unread</span>
+                            <span className="text-xs text-[--ks-text-muted]">{unreadCount} unread</span>
                         )}
                     </div>
 
-                    <div className="px-3 py-2 border-b border-gray-100 flex items-center gap-1.5 overflow-x-auto">
+                    <div className="px-3 py-2 border-b border-[--ks-border] flex items-center gap-1.5 overflow-x-auto">
                         {([
                             { key: 'all', label: 'All' },
                             { key: 'unread', label: 'Unread' },
@@ -287,9 +289,9 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                 key={f.key}
                                 type="button"
                                 onClick={() => setFilterMode(f.key)}
-                                className={`px-2.5 py-1 text-[11px] font-semibold rounded-full border whitespace-nowrap ${filterMode === f.key
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+                                className={`px-2.5 py-1 text-[11px] font-semibold rounded-full border whitespace-nowrap transition-colors ${filterMode === f.key
+                                    ? 'bg-[--ks-primary] text-white border-[--ks-primary]'
+                                    : 'bg-[--ks-bg-card] text-[--ks-text-secondary] border-[--ks-border] hover:border-[--ks-primary]'
                                     }`}
                             >
                                 {f.label}
@@ -298,14 +300,14 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                     </div>
 
                     {/* List */}
-                    <div className="max-h-90 overflow-y-auto divide-y divide-gray-50">
+                    <div className="max-h-90 overflow-y-auto divide-y divide-[--ks-border]">
                         {visibleItems.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-10 px-4 text-center gap-2">
-                                <svg className="w-8 h-8 text-gray-200" viewBox="0 0 24 24" fill="currentColor">
+                                <svg className="w-8 h-8 text-[--ks-text-muted]" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M15 17H9a3 3 0 006 0z" opacity="0.9" />
                                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" />
                                 </svg>
-                                <p className="text-sm text-gray-400">You&apos;re all caught up!</p>
+                                <p className="text-sm text-[--ks-text-muted]">You&apos;re all caught up!</p>
                             </div>
                         )}
 
@@ -317,49 +319,49 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                             const href = getNotificationHref(it);
 
                             return (
-                                <div key={it.id ?? idx} className={`px-4 py-3.5 transition-colors ${it.read ? 'opacity-70 hover:bg-gray-50' : 'hover:bg-blue-50/40'}`}>
+                                <div key={it.id ?? idx} className={`px-4 py-3.5 transition-colors ${it.read ? 'opacity-70 hover:bg-[--ks-bg-overlay]' : 'hover:bg-[--ks-primary-subtle]'}`}>
                                     {/* Icon + title row */}
                                     <div className="flex items-start gap-3">
                                         {/* Icon badge */}
-                                        <div className={`mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${it.type === 'mention' ? 'bg-indigo-100' :
-                                            it.type === 'board-invite' ? 'bg-blue-100' :
-                                                it.type === 'task-assigned' ? 'bg-emerald-100' : 'bg-gray-100'
+                                        <div className={`mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${it.type === 'mention' ? 'bg-[--ks-primary-subtle] text-[--ks-primary]' :
+                                            it.type === 'board-invite' ? 'bg-[--ks-accent-subtle] text-[--ks-accent]' :
+                                                it.type === 'task-assigned' ? 'bg-[--ks-success-subtle] text-[--ks-success]' : 'bg-[--ks-bg-overlay] text-[--ks-text-muted]'
                                             }`}>
                                             {it.type === 'mention' && (
-                                                <svg className="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-[--ks-primary]" viewBox="0 0 24 24" fill="none">
                                                     <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )}
                                             {it.type === 'board-invite' && (
-                                                <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-[--ks-accent]" viewBox="0 0 24 24" fill="none">
                                                     <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )}
                                             {it.type === 'task-assigned' && (
-                                                <svg className="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none">
                                                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )}
                                             {it.type === 'task-reminder' && (
-                                                <svg className="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="none">
                                                     <path d="M12 8v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                                                 </svg>
                                             )}
                                             {it.type === 'task-overdue' && (
-                                                <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none">
                                                     <path d="M12 9v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                     <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                 </svg>
                                             )}
                                             {it.type === 'digest-sent' && (
-                                                <svg className="w-4 h-4 text-cyan-600" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-[--ks-accent]" viewBox="0 0 24 24" fill="none">
                                                     <path d="M3 8l9 6 9-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                     <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="2" />
                                                 </svg>
                                             )}
                                             {it.type !== 'mention' && it.type !== 'board-invite' && it.type !== 'task-assigned' && it.type !== 'task-reminder' && it.type !== 'task-overdue' && it.type !== 'digest-sent' && (
-                                                <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none">
+                                                <svg className="w-4 h-4 text-[--ks-text-muted]" viewBox="0 0 24 24" fill="none">
                                                     <path d="M15 17H9a3 3 0 006 0z" fill="currentColor" opacity="0.9" />
                                                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" fill="currentColor" />
                                                 </svg>
@@ -367,7 +369,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                         </div>
 
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-semibold text-gray-900 leading-tight">
+                                            <p className="text-sm font-semibold text-[--ks-text-primary] leading-tight">
                                                 {it.type === 'mention'
                                                     ? `${it.fromName ?? 'Someone'} mentioned you`
                                                     : it.type === 'board-invite'
@@ -385,48 +387,48 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                                             : 'Notification'}
                                             </p>
                                             {(it.type === 'task-reminder' || it.type === 'task-overdue') && it.taskTitle && (
-                                                <p className="text-xs text-gray-700 font-medium mt-0.5 truncate">&ldquo;{it.taskTitle}&rdquo;</p>
+                                                <p className="text-xs text-[--ks-text-secondary] font-medium mt-0.5 truncate">&ldquo;{it.taskTitle}&rdquo;</p>
                                             )}
                                             {it.type === 'task-assigned' && (
                                                 <>
                                                     {it.taskTitle && (
-                                                        <p className="text-xs text-gray-700 font-medium mt-0.5 truncate">&ldquo;{it.taskTitle}&rdquo;</p>
+                                                        <p className="text-xs text-[--ks-text-secondary] font-medium mt-0.5 truncate">&ldquo;{it.taskTitle}&rdquo;</p>
                                                     )}
                                                     {it.boardTitle && (
-                                                        <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                                        <p className="text-xs text-[--ks-text-muted] mt-0.5 truncate">
                                                             {it.fromName ? `Assigned by ${it.fromName} in ` : 'In '}
-                                                            <span className="font-medium text-gray-700">{it.boardTitle}</span>
+                                                            <span className="font-medium text-[--ks-text-secondary]">{it.boardTitle}</span>
                                                         </p>
                                                     )}
                                                 </>
                                             )}
                                             {it.type !== 'task-assigned' && it.boardTitle && (
-                                                <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                                <p className="text-xs text-[--ks-text-muted] mt-0.5 truncate">
                                                     {it.type === 'board-invite'
                                                         ? `${it.inviterName ?? 'Someone'} invited you to `
                                                         : 'Board: '}
-                                                    <span className="font-medium text-gray-700">{it.boardTitle}</span>
+                                                    <span className="font-medium text-[--ks-text-secondary]">{it.boardTitle}</span>
                                                 </p>
                                             )}
                                             {it.role && it.type === 'board-invite' && (
-                                                <span className="inline-block mt-1 text-[11px] font-medium bg-blue-50 text-blue-700 rounded-full px-2 py-0.5">
+                                                <span className="inline-block mt-1 text-[11px] font-medium bg-[--ks-primary-subtle] text-[--ks-primary] rounded-full px-2 py-0.5">
                                                     {it.role}
                                                 </span>
                                             )}
                                             {it.excerpt && (
-                                                <p className="text-xs text-gray-400 mt-1 line-clamp-2 italic">&ldquo;{it.excerpt}&rdquo;</p>
+                                                <p className="text-xs text-[--ks-text-muted] mt-1 line-clamp-2 italic">&ldquo;{it.excerpt}&rdquo;</p>
                                             )}
                                             {it.read && (
-                                                <p className="text-[11px] text-gray-400 mt-1">Read</p>
+                                                <p className="text-[11px] text-[--ks-text-muted] mt-1">Read</p>
                                             )}
                                         </div>
                                     </div>
 
                                     {/* Result feedback */}
                                     {result && (
-                                        <div className={`mt-3 flex items-center gap-2 text-xs font-semibold rounded-lg px-3 py-2 ${result === 'accepted' ? 'bg-green-50 text-green-700 border border-green-200' :
-                                            result === 'declined' ? 'bg-gray-50 text-gray-600 border border-gray-200' :
-                                                'bg-red-50 text-red-600 border border-red-200'
+                                        <div className={`mt-3 flex items-center gap-2 text-xs font-semibold rounded-lg px-3 py-2 ${result === 'accepted' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                                            result === 'declined' ? 'bg-[--ks-bg-card] text-[--ks-text-muted] border border-[--ks-border]' :
+                                                'bg-red-500/10 text-red-500 border border-red-500/20'
                                             }`}>
                                             {result === 'accepted' && (
                                                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
@@ -453,7 +455,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                     <button
                                                         onClick={() => handleAccept(inviteId)}
                                                         disabled={isProcessing}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[--ks-primary] hover:bg-[--ks-primary-hover] active:scale-95 text-white text-xs font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                                     >
                                                         {isProcessing ? <Spinner /> : (
                                                             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
@@ -465,7 +467,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                                     <button
                                                         onClick={() => handleDecline(inviteId)}
                                                         disabled={isProcessing}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 hover:bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 border border-[--ks-border] hover:bg-[--ks-bg-overlay] text-[--ks-text-secondary] text-xs font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                                     >
                                                         {isProcessing ? <Spinner /> : (
                                                             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
@@ -479,7 +481,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                             {!isInvite && !it.read && (
                                                 <button
                                                     onClick={() => handleMarkRead(it, idx)}
-                                                    className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 hover:bg-gray-100 text-gray-500 text-xs font-medium rounded-lg transition-colors"
+                                                    className="flex items-center gap-1 px-3 py-1.5 border border-[--ks-border] hover:bg-[--ks-bg-overlay] text-[--ks-text-muted] hover:text-[--ks-text-primary] text-xs font-medium rounded-lg transition-colors"
                                                 >
                                                     Mark read
                                                 </button>
@@ -487,7 +489,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                             {!isInvite && (
                                                 <button
                                                     onClick={() => handleSnooze(it, idx)}
-                                                    className="flex items-center gap-1 px-3 py-1.5 border border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-medium rounded-lg transition-colors"
+                                                    className="flex items-center gap-1 px-3 py-1.5 border border-violet-500/20 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 text-xs font-medium rounded-lg transition-colors"
                                                 >
                                                     Snooze 2h
                                                 </button>
@@ -495,7 +497,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                                             {!isInvite && href && (
                                                 <button
                                                     onClick={() => handleOpenNotification(it, idx)}
-                                                    className="flex items-center gap-1 px-3 py-1.5 border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition-colors"
+                                                    className="flex items-center gap-1 px-3 py-1.5 border border-[--ks-primary]/30 bg-[--ks-primary-subtle] hover:bg-[--ks-primary-subtle]/80 text-[--ks-primary] text-xs font-semibold rounded-lg transition-colors"
                                                 >
                                                     Open
                                                 </button>
@@ -509,19 +511,19 @@ export default function NotificationsBell({ userId }: { userId: string }) {
 
                     {/* Footer — mark all read */}
                     {items.length > 0 && (
-                        <div className="border-t border-gray-100 px-4 py-2.5 flex items-center justify-between gap-2">
+                        <div className="border-t border-[--ks-border] px-4 py-2.5 flex items-center justify-between gap-2">
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={handleMarkAllRead}
                                     disabled={unreadCount === 0 || isMarkingAllRead}
-                                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="text-xs text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
                                 >
                                     {isMarkingAllRead ? 'Marking all read...' : 'Mark all as read'}
                                 </button>
                                 <button
                                     onClick={handleSendDigest}
                                     disabled={isSendingDigest}
-                                    className="text-xs text-cyan-600 hover:text-cyan-700 transition-colors disabled:opacity-60"
+                                    className="text-xs text-[--ks-primary] hover:text-[--ks-primary-hover] transition-colors disabled:opacity-60"
                                 >
                                     {isSendingDigest ? 'Sending digest...' : 'Send digest'}
                                 </button>
@@ -529,7 +531,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                             <button
                                 onClick={handleClearVisible}
                                 disabled={visibleItems.length === 0}
-                                className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-xs text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
                             >
                                 Clear visible
                             </button>

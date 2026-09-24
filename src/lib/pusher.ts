@@ -7,13 +7,19 @@ import PusherClient from 'pusher-js';
  * @throws {Error} If Pusher environmental variables are missing.
  * @returns {PusherClient} The initialized Pusher client instance.
  */
-export const getPusherClient = () => {
+let clientInstance: PusherClient | null = null;
+
+export const getPusherClient = (): PusherClient | null => {
     if (!process.env.NEXT_PUBLIC_PUSHER_KEY || !process.env.NEXT_PUBLIC_PUSHER_CLUSTER) {
-        throw new Error('Missing Pusher public keys. Set NEXT_PUBLIC_PUSHER_KEY and NEXT_PUBLIC_PUSHER_CLUSTER.');
+        return null;
     }
 
-    return new PusherClient(
-        process.env.NEXT_PUBLIC_PUSHER_KEY,
-        { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER }
-    );
+    if (!clientInstance) {
+        clientInstance = new PusherClient(
+            process.env.NEXT_PUBLIC_PUSHER_KEY,
+            { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER }
+        );
+    }
+
+    return clientInstance;
 };

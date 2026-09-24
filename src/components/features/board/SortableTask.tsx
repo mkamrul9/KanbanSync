@@ -14,66 +14,64 @@ import { BoardRole } from '../../../generated/prisma/enums';
 type TaskType = BoardWithColumnsAndTasks['columns'][number]['tasks'][number];
 type MemberType = BoardWithColumnsAndTasks['members'][number];
 
-// Priority icon — clearly distinct colors per level
-// URGENT=red  HIGH=orange  MEDIUM=sky-blue  LOW=green  NONE=nothing
+// Priority dot + label helper
 function PriorityIcon({ priority, className = '' }: { priority: string; className?: string }) {
-    const base = `w-3.5 h-3.5 shrink-0 ${className}`;
     if (priority === 'URGENT') return (
-        <svg className={`${base} text-red-600`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Urgent priority">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 11l7-7 7 7M5 19l7-7 7 7" />
-        </svg>
+        <span className={`flex items-center gap-1 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+            <span className="text-[10px] font-medium text-red-500">Urgent</span>
+        </span>
     );
     if (priority === 'HIGH') return (
-        <svg className={`${base} text-orange-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="High priority">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
-        </svg>
+        <span className={`flex items-center gap-1 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
+            <span className="text-[10px] font-medium text-orange-500">High</span>
+        </span>
     );
     if (priority === 'MEDIUM') return (
-        <svg className={`${base} text-sky-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Medium priority">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
-        </svg>
+        <span className={`flex items-center gap-1 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+            <span className="text-[10px] font-medium text-sky-500">Med</span>
+        </span>
     );
     if (priority === 'LOW') return (
-        <svg className={`${base} text-green-500`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-label="Low priority">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-        </svg>
+        <span className={`flex items-center gap-1 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
+            <span className="text-[10px] font-medium text-slate-400">Low</span>
+        </span>
     );
-    return null; // NONE — show nothing
+    return null;
 }
 
-// Left accent border color by priority
-const getPriorityAccent = (priority: string) => {
-    switch (priority) {
-        case 'URGENT': return 'border-l-red-600';
-        case 'HIGH': return 'border-l-orange-500';
-        case 'MEDIUM': return 'border-l-sky-500';
-        case 'LOW': return 'border-l-green-500';
-        default: return 'border-l-gray-200';
-    }
-};
-
-// Helper function to color-code categories
+// Category badge styles using subtle opacity variants
 const getCategoryColor = (category: TaskCategory) => {
     switch (category) {
-        case 'NEW_FEATURE': return 'bg-blue-100 text-blue-800 border-blue-300';
-        case 'EPIC': return 'bg-purple-100 text-purple-800 border-purple-300';
-        case 'STORY': return 'bg-indigo-100 text-indigo-800 border-indigo-300';
-        case 'TASK': return 'bg-gray-200 text-gray-800 border-gray-300';
-        case 'SUB_TASK': return 'bg-slate-200 text-slate-800 border-slate-300';
-        case 'BUG': return 'bg-red-100 text-red-800 border-red-300';
-        case 'ENHANCEMENT': return 'bg-amber-100 text-amber-800 border-amber-300';
-        case 'PATCH': return 'bg-orange-100 text-orange-800 border-orange-300';
-        case 'HOTFIX': return 'bg-rose-100 text-rose-800 border-rose-300';
-        default: return 'bg-gray-100 text-gray-600 border-gray-200';
+        case 'BUG':
+        case 'HOTFIX':
+            return 'bg-red-500/10 text-red-500 border-red-500/20';
+        case 'NEW_FEATURE':
+            return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
+        case 'EPIC':
+            return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+        case 'ENHANCEMENT':
+            return 'bg-violet-500/10 text-violet-400 border-violet-500/20';
+        case 'PATCH':
+            return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+        case 'STORY':
+            return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        case 'SUB_TASK':
+            return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        default:
+            return 'bg-[--ks-bg-overlay] text-[--ks-text-secondary] border-[--ks-border]';
     }
 };
 
 const tagPalettes = [
-    'bg-cyan-100 text-cyan-800 border-cyan-300',
-    'bg-emerald-100 text-emerald-800 border-emerald-300',
-    'bg-violet-100 text-violet-800 border-violet-300',
-    'bg-amber-100 text-amber-800 border-amber-300',
-    'bg-pink-100 text-pink-800 border-pink-300',
+    'bg-[--ks-primary-subtle] text-[--ks-primary] border-[--ks-primary]/25',
+    'bg-[--ks-success-subtle] text-[--ks-success] border-[--ks-success]/25',
+    'bg-[--ks-accent-subtle] text-[--ks-accent] border-[--ks-accent]/25',
+    'bg-[--ks-warning-subtle] text-[--ks-warning] border-[--ks-warning]/25',
+    'bg-pink-500/15 text-pink-600 dark:text-pink-300 border-pink-500/30',
 ];
 
 const tagColorFor = (tag: string) => {
@@ -86,7 +84,7 @@ function AssigneeAvatar({ name, image }: { name?: string | null; image?: string 
     const initial = name?.[0]?.toUpperCase() ?? '?';
     return (
         <div
-            className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white shrink-0 overflow-hidden"
+            className="w-6 h-6 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-[--ks-bg-card] shrink-0 overflow-hidden"
             title={name ?? 'Assigned'}
         >
             {image
@@ -188,52 +186,40 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                 {...attributes}
                 {...listeners}
                 data-tour="task-card"
-                className={`group bg-white rounded-xl border border-l-[3px] transition-all duration-150 cursor-grab active:cursor-grabbing select-none
-                    ${getPriorityAccent(task.priority)}
-                    ${isOverdue ? 'ring-1 ring-red-300 bg-red-50/40' : ''}
-                    ${isDragging
-                        ? 'border-blue-400 shadow-xl ring-2 ring-blue-100 scale-[1.02]'
-                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md shadow-sm'
-                    }
+                className={`group rounded-[10px] bg-[--ks-bg-elevated] text-[--ks-text-primary] border border-[--ks-border]
+                    hover:border-[--ks-primary]/40 hover:shadow-[0_0_0_1px_rgba(99,102,241,0.25)]
+                    transition-all duration-[150ms] cursor-grab active:cursor-grabbing select-none shadow-[--ks-shadow]
+                    ${isOverdue ? 'ring-1 ring-red-500/30' : ''}
+                    ${isDragging ? 'opacity-50 scale-[0.98] ring-2 ring-[--ks-primary]/40' : ''}
                 `}
                 onClick={() => setIsDetailsOpen(true)}
             >
-                <div className="p-3.5">
+                <div className="p-3">
 
                     {/* ── Row 1: Category badge · priority icon · assignee · action buttons ── */}
-                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center justify-between gap-2 mb-2">
                         {/* Left cluster: badge + priority + avatar */}
                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wide border shrink-0 ${getCategoryColor(task.category)}`}>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide border shrink-0 ${getCategoryColor(task.category)}`}>
                                 {task.category.replace(/_/g, ' ')}
                             </span>
-                            {task.assignee
-                                ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100/90 border border-slate-200 px-1.5 py-0.5">
-                                        <AssigneeAvatar name={task.assignee.name} image={task.assignee.image} />
-                                        {hasPriority && <PriorityIcon priority={task.priority} className="w-3 h-3" />}
-                                    </span>
-                                )
-                                : (
-                                    <div className="inline-flex items-center gap-1 rounded-full bg-slate-100/90 border border-slate-200 px-1.5 py-0.5">
-                                        <div className="w-5 h-5 rounded-full border border-dashed border-gray-300 flex items-center justify-center shrink-0" title="Unassigned">
-                                            <svg className="w-2.5 h-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                        </div>
-                                        {hasPriority && <PriorityIcon priority={task.priority} className="w-3 h-3" />}
-                                    </div>
-                                )
-                            }
+                            {hasPriority && (
+                                <span className="inline-flex items-center rounded-full bg-[--ks-bg-overlay] border border-[--ks-border] px-1.5 py-0.5">
+                                    <PriorityIcon priority={task.priority} />
+                                </span>
+                            )}
+                            {task.assignee && (
+                                <AssigneeAvatar name={task.assignee.name} image={task.assignee.image} />
+                            )}
                         </div>
 
-                        {/* Right cluster: action buttons — always visible */}
-                        <div data-tour="task-inline-actions" className="flex items-center gap-0.5 shrink-0">
+                        {/* Right cluster: action buttons — always visible on hover */}
+                        <div data-tour="task-inline-actions" className="flex items-center gap-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
                             <button
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onClick={(e) => { e.stopPropagation(); setIsDetailsOpen(true); }}
                                 data-tour="task-edit-button"
-                                className="p-1 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                className="p-1 rounded-md text-[--ks-text-muted] hover:text-[--ks-primary] hover:bg-[--ks-bg-overlay] transition-colors"
                                 aria-label="Edit task"
                             >
                                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -247,7 +233,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                                     onClick={(e) => { e.stopPropagation(); setIsDeleteModalOpen(true); }}
                                     disabled={isPendingDelete}
                                     data-tour="task-delete-button"
-                                    className="p-1 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
+                                    className="p-1 rounded-md text-[--ks-text-muted] hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-40"
                                     aria-label="Delete task"
                                 >
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -260,7 +246,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                     </div>
 
                     {/* ── Row 2: Title ── */}
-                    <h3 className="text-sm font-semibold text-gray-800 leading-snug wrap-anywhere line-clamp-3 mb-2.5">
+                    <h3 className="text-sm font-medium text-[--ks-text-primary] leading-snug wrap-anywhere line-clamp-2 mb-2">
                         {task.title}
                     </h3>
 
@@ -273,7 +259,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                                 </span>
                             ))}
                             {task.tags.length > 3 && (
-                                <span className="px-1.5 py-0.5 bg-slate-100 text-slate-400 text-[10px] rounded-md border border-slate-200">
+                                <span className="px-1.5 py-0.5 bg-[--ks-bg-card] text-[--ks-text-muted] text-[10px] rounded-md border border-[--ks-border]">
                                     +{task.tags.length - 3}
                                 </span>
                             )}
@@ -282,11 +268,11 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     {dueAt && (
                         <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                            <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-100 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+                            <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'}`}>
                                 {isOverdue ? 'Overdue' : 'Due'} {dueAt.toLocaleDateString()}
                             </span>
                             {hasGitLink && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-violet-100 text-violet-800 border-violet-300 shadow-sm">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30 shadow-sm">
                                     <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                         <path d="M8 17l-5 5V2h20v20l-5-5" />
                                     </svg>
@@ -298,7 +284,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     {!dueAt && hasGitLink && (
                         <div className="mt-2">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-violet-100 text-violet-800 border-violet-300 shadow-sm">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30 shadow-sm">
                                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                     <path d="M8 17l-5 5V2h20v20l-5-5" />
                                 </svg>
@@ -309,13 +295,13 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     {subtaskTotal > 0 && (
                         <div className="mt-2.5">
-                            <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                            <div className="flex items-center justify-between text-[10px] text-[--ks-text-muted] mb-1">
                                 <span>Checklist</span>
                                 <span>{subtaskDone}/{subtaskTotal}</span>
                             </div>
-                            <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="w-full h-1.5 bg-[--ks-border] rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-blue-500 transition-all"
+                                    className="h-full bg-[--ks-primary] transition-all duration-200"
                                     style={{ width: `${subtaskProgress}%` }}
                                 />
                             </div>
@@ -335,34 +321,34 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
             />
             {/* 3. The Custom Delete Confirmation Modal */}
             <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} className="max-w-md">
-                <div className="app-bg">
-                    <div className="px-6 pt-6 pb-5 border-b border-white/70 bg-linear-to-r from-red-50/85 to-orange-50/70">
+                <div className="bg-[--ks-bg-elevated] text-[--ks-text-primary]">
+                    <div className="px-6 pt-6 pb-5 border-b border-[--ks-border] bg-red-500/10">
                         <div className="flex items-start gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-red-100/90 border border-red-200/80 flex items-center justify-center shadow-sm shrink-0">
-                                <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="w-11 h-11 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shadow-sm shrink-0">
+                                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </div>
                             <div className="min-w-0">
-                                <h2 className="text-lg font-semibold text-gray-900">Archive Task</h2>
-                                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                <h2 className="text-lg font-semibold text-[--ks-text-primary]">Archive Task</h2>
+                                <p className="text-sm text-[--ks-text-muted] mt-1 leading-relaxed">
                                     You are about to archive
-                                    <span className="font-semibold text-gray-800"> &ldquo;{task.title}&rdquo;</span>.
+                                    <span className="font-semibold text-[--ks-text-primary]"> &ldquo;{task.title}&rdquo;</span>.
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <div className="px-6 py-5">
-                        <div className="app-surface border border-red-100/80 rounded-xl px-4 py-3 mb-5">
-                            <p className="text-xs text-red-700 font-medium">You can restore this task anytime from the Archived menu.</p>
+                        <div className="app-surface border border-red-500/20 bg-red-500/10 rounded-xl px-4 py-3 mb-5">
+                            <p className="text-xs text-red-400 font-medium">You can restore this task anytime from the Archived menu.</p>
                         </div>
 
                         <div className="flex items-center justify-end gap-2.5">
                             <button
                                 onClick={() => setIsDeleteModalOpen(false)}
                                 disabled={isPendingDelete}
-                                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors disabled:opacity-50"
+                                className="px-4 py-2 text-sm font-medium text-[--ks-text-secondary] bg-[--ks-bg-card] border border-[--ks-border] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary] rounded-xl transition-colors disabled:opacity-50"
                             >
                                 Keep Task
                             </button>

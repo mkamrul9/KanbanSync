@@ -22,24 +22,24 @@ export default function CreateBoardModal() {
             </button>
 
             <Modal isOpen={open} onClose={() => setOpen(false)} className="max-w-4xl">
-                <div className="app-bg anim-panel-in">
-                    <div className="ui-modal-header">
-                        <h3 className="text-xl font-semibold text-gray-900 tracking-tight">Create New Board</h3>
-                        <p className="text-sm text-gray-600 mt-1">Define board basics, workflow columns, and optional teammates.</p>
+                <div className="bg-[--ks-bg-elevated] text-[--ks-text-primary] anim-panel-in">
+                    <div className="ui-modal-header border-b border-[--ks-border] px-6 py-4">
+                        <h3 className="text-xl font-semibold text-[--ks-text-primary] tracking-tight">Create New Board</h3>
+                        <p className="text-sm text-[--ks-text-muted] mt-1">Define board basics, workflow columns, and optional teammates.</p>
                     </div>
 
                     <form action={createBoard} onSubmit={() => setLoading(true)} aria-busy={loading} className="grid grid-cols-1 md:grid-cols-3 gap-5 p-6">
-                        <div className="md:col-span-2 flex flex-col gap-3 app-surface border border-slate-200/70 rounded-2xl p-4">
+                        <div className="md:col-span-2 flex flex-col gap-3 app-surface border border-[--ks-border] rounded-2xl p-4">
                             <div>
-                                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Title <span className="text-red-500">*</span></label>
+                                <label className="text-xs font-medium text-[--ks-text-secondary] uppercase tracking-wide">Title <span className="text-red-500">*</span></label>
                                 <input name="title" type="text" placeholder="e.g. Product Roadmap" required disabled={loading} className="ui-field mt-1" />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Description</label>
+                                <label className="text-xs font-medium text-[--ks-text-secondary] uppercase tracking-wide">Description</label>
                                 <textarea name="description" placeholder="What is this board for? (optional)" disabled={loading} className="ui-field mt-1 h-24 resize-none" />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Template</label>
+                                <label className="text-xs font-medium text-[--ks-text-secondary] uppercase tracking-wide">Template</label>
                                 <select name="template" disabled={loading} className="ui-field mt-1">
                                     <option value="DEFAULT">Default Workflow</option>
                                     <option value="SPRINT">Sprint Planning</option>
@@ -47,18 +47,18 @@ export default function CreateBoardModal() {
                                     <option value="CONTENT">Content Pipeline</option>
                                     <option value="HIRING">Hiring Pipeline</option>
                                 </select>
-                                <p className="mt-1 text-[11px] text-gray-500">Choose a preset workflow for one-click board setup.</p>
+                                <p className="mt-1 text-[11px] text-[--ks-text-muted]">Choose a preset workflow for one-click board setup.</p>
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Columns <span className="text-gray-400 font-normal normal-case">(comma-separated)</span></label>
+                                <label className="text-xs font-medium text-[--ks-text-secondary] uppercase tracking-wide">Columns <span className="text-[--ks-text-muted] font-normal normal-case">(comma-separated)</span></label>
                                 <input name="columns" type="text" placeholder="Backlog, To Do, In Progress, Review, Done" disabled={loading} className="ui-field mt-1" />
-                                <p className="mt-1 text-[11px] text-gray-500">Leave blank to use the selected template columns. Any custom columns here override the template.</p>
+                                <p className="mt-1 text-[11px] text-[--ks-text-muted]">Leave blank to use the selected template columns. Any custom columns here override the template.</p>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 app-surface border border-slate-200/70 rounded-2xl p-4">
+                        <div className="flex flex-col gap-3 app-surface border border-[--ks-border] rounded-2xl p-4">
                             <div className="flex-1">
-                                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Invite members <span className="text-gray-400 font-normal normal-case">(emails, comma-separated)</span></label>
+                                <label className="text-xs font-medium text-[--ks-text-secondary] uppercase tracking-wide">Invite members <span className="text-[--ks-text-muted] font-normal normal-case">(emails, comma-separated)</span></label>
                                 <textarea name="members" placeholder="alice@example.com, bob@example.com" disabled={loading} className="ui-field mt-1 h-32 resize-none" />
                             </div>
 

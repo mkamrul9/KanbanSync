@@ -54,52 +54,52 @@ export default function ContactPage() {
         <main className="min-h-screen app-bg px-3 py-7 sm:px-6 sm:py-10">
             <div className="mx-auto max-w-3xl">
                 <section className="app-surface rounded-2xl p-5 sm:p-8">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">Contact Us</p>
-                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Send us a message</h1>
-                    <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[--ks-primary]">Contact Us</p>
+                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[--ks-text-primary] sm:text-4xl">Send us a message</h1>
+                    <p className="mt-3 text-sm text-[--ks-text-secondary] sm:text-base">
                         Tell us what you need help with, what feature you want, or what is not working.
                     </p>
 
                     <form onSubmit={onSubmit} className="mt-6 space-y-4">
                         <div>
-                            <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-700">Full name</label>
+                            <label htmlFor="name" className="mb-1 block text-sm font-medium text-[--ks-text-primary]">Full name</label>
                             <input
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 required
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded-xl border border-[--ks-border] bg-[--ks-bg-card] px-3 py-2.5 text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:border-[--ks-primary] focus:outline-none focus:ring-1 focus:ring-[--ks-primary]"
                                 placeholder="John Doe"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">Email</label>
+                            <label htmlFor="email" className="mb-1 block text-sm font-medium text-[--ks-text-primary]">Email</label>
                             <input
                                 id="email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded-xl border border-[--ks-border] bg-[--ks-bg-card] px-3 py-2.5 text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:border-[--ks-primary] focus:outline-none focus:ring-1 focus:ring-[--ks-primary]"
                                 placeholder="you@company.com"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="subject" className="mb-1 block text-sm font-medium text-slate-700">Subject</label>
+                            <label htmlFor="subject" className="mb-1 block text-sm font-medium text-[--ks-text-primary]">Subject</label>
                             <input
                                 id="subject"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                                 required
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded-xl border border-[--ks-border] bg-[--ks-bg-card] px-3 py-2.5 text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:border-[--ks-primary] focus:outline-none focus:ring-1 focus:ring-[--ks-primary]"
                                 placeholder="Need help with board permissions"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="message" className="mb-1 block text-sm font-medium text-slate-700">Message</label>
+                            <label htmlFor="message" className="mb-1 block text-sm font-medium text-[--ks-text-primary]">Message</label>
                             <textarea
                                 id="message"
                                 value={message}
@@ -107,7 +107,7 @@ export default function ContactPage() {
                                 required
                                 minLength={15}
                                 rows={6}
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none"
+                                className="w-full rounded-xl border border-[--ks-border] bg-[--ks-bg-card] px-3 py-2.5 text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:border-[--ks-primary] focus:outline-none focus:ring-1 focus:ring-[--ks-primary]"
                                 placeholder="Share details so we can help quickly..."
                             />
                         </div>
@@ -118,7 +118,7 @@ export default function ContactPage() {
                     </form>
 
                     {status && (
-                        <p className={`mt-4 rounded-xl border px-3 py-2 text-sm ${status.success ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'}`}>
+                        <p className={`mt-4 rounded-xl border px-3 py-2 text-sm ${status.success ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' : 'border-rose-500/30 bg-rose-500/10 text-rose-400'}`}>
                             {status.message}
                         </p>
                     )}
