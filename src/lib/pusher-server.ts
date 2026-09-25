@@ -7,10 +7,28 @@ import PusherServer from 'pusher';
  * specific dependencies into the browser build and cause Vercel build failures.
  * For client subscriptions, import `getPusherClient` from `pusher.ts`.
  */
-export const pusherServer = new PusherServer({
-    appId: process.env.PUSHER_APP_ID!,
-    key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
-    secret: process.env.PUSHER_SECRET!,
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-    useTLS: true,
-});
+const appId = process.env.PUSHER_APP_ID?.trim();
+const key = process.env.NEXT_PUBLIC_PUSHER_KEY?.trim();
+const secret = process.env.PUSHER_SECRET?.trim();
+const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER?.trim();
+
+const realPusher = (appId && key && secret && cluster)
+    ? new PusherServer({
+        appId,
+        key,
+        secret,
+        cluster,
+        useTLS: true,
+    })
+    : null;
+
+export const pusherServer = {
+    trigger: async (channel: string | string[], event: string, data: any) => {
+        if (!realPusher) return;
+        try {
+            return await realPusher.trigger(channel, event, data);
+        } catch (error) {
+            console.warn('[Pusher] Trigger skipped/failed:', error);
+        }
+    },
+};
