@@ -13,9 +13,9 @@ export default async function LoginPage({
 
     return (
         <div className="min-h-screen app-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full app-surface border border-slate-200/70 p-10 rounded-3xl shadow-xl anim-panel-in">
+            <div className="max-w-md w-full app-surface border border-[--ks-border] p-10 rounded-3xl shadow-xl anim-panel-in">
                 <div className="text-center mb-8">
-                    <div className="w-14 h-14 mx-auto rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-cyan-700 mb-4">
+                    <div className="w-14 h-14 mx-auto rounded-2xl bg-[--ks-bg-card] border border-[--ks-border] shadow-sm flex items-center justify-center text-[--ks-primary] mb-4">
                         <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="3" y="3" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
                             <rect x="14" y="3" width="7" height="5" rx="1.5" fill="currentColor" />
@@ -23,16 +23,16 @@ export default async function LoginPage({
                             <rect x="3" y="16" width="7" height="5" rx="1.5" fill="currentColor" />
                         </svg>
                     </div>
-                    <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    <h2 className="text-3xl font-extrabold text-[--ks-text-primary] tracking-tight">
                         Welcome to KanbanSync
                     </h2>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="mt-2 text-sm text-[--ks-text-muted]">
                         Sign in to access boards, tasks, timelines, and team collaboration.
                     </p>
                 </div>
 
                 {errorMessage ? (
-                    <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                    <div className="mb-4 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
                         {errorMessage}
                     </div>
                 ) : null}
@@ -43,17 +43,17 @@ export default async function LoginPage({
                     demoPassword={DEMO_ACCOUNT.password}
                 />
 
-                <div className="mb-5 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-3 text-xs text-cyan-900">
-                    <p className="font-semibold mb-1">Demo account</p>
-                    <p>Email: {DEMO_ACCOUNT.email}</p>
-                    <p>Password: {DEMO_ACCOUNT.password}</p>
+                <div className="mb-5 rounded-xl border border-[--ks-primary]/25 bg-[--ks-primary-subtle] px-3 py-3 text-xs text-[--ks-text-primary]">
+                    <p className="font-semibold mb-1 text-[--ks-primary]">Demo account</p>
+                    <p className="text-[--ks-text-secondary]">Email: {DEMO_ACCOUNT.email}</p>
+                    <p className="text-[--ks-text-secondary]">Password: {DEMO_ACCOUNT.password}</p>
                 </div>
 
                 <div className="space-y-3.5">
                     <form action={loginWithGithub}>
                         <button
                             type="submit"
-                            className="w-full flex justify-center py-3 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
+                            className="w-full flex justify-center py-3 px-4 border border-[--ks-border] rounded-xl shadow-sm text-sm font-semibold text-[--ks-text-primary] bg-[--ks-bg-card] hover:bg-[--ks-bg-overlay] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] transition-colors"
                         >
                             {/* Simple GitHub SVG */}
                             <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@ export default async function LoginPage({
                     <form action={loginWithGoogle}>
                         <button
                             type="submit"
-                            className="w-full flex justify-center py-3 px-4 border border-slate-300 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                            className="w-full flex justify-center py-3 px-4 border border-[--ks-border] rounded-xl shadow-sm text-sm font-semibold text-[--ks-text-primary] bg-[--ks-bg-card] hover:bg-[--ks-bg-overlay] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] transition-colors"
                         >
                             {/* Simple Google SVG */}
                             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@ export default async function LoginPage({
                     </form>
                 </div>
 
-                <p className="text-center text-xs text-slate-400 mt-6">OAuth and email/password login are both supported.</p>
+                <p className="text-center text-xs text-[--ks-text-muted] mt-6">OAuth and email/password login are both supported.</p>
             </div>
         </div>
     );

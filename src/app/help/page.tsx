@@ -32,11 +32,11 @@ export default function HelpPage() {
         <main className="min-h-screen app-bg px-3 py-7 sm:px-6 sm:py-10">
             <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
                 <section className="app-surface rounded-2xl p-5 sm:p-8 anim-panel-in">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Help Center</p>
-                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[--ks-primary]">Help Center</p>
+                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[--ks-text-primary] sm:text-4xl">
                         Everything you need to use KanbanSync
                     </h1>
-                    <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                    <p className="mt-3 text-sm text-[--ks-text-secondary] sm:text-base">
                         Start quickly, organize work clearly, and collaborate smoothly with your team.
                     </p>
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -47,26 +47,26 @@ export default function HelpPage() {
 
                 <section className="grid gap-4 md:grid-cols-3">
                     <article className="app-surface rounded-2xl p-5">
-                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">1. Set up</h2>
-                        <p className="mt-2 text-sm text-slate-600">Create a board, define columns, and set WIP limits for healthier flow.</p>
+                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[--ks-text-primary]">1. Set up</h2>
+                        <p className="mt-2 text-sm text-[--ks-text-secondary]">Create a board, define columns, and set WIP limits for healthier flow.</p>
                     </article>
                     <article className="app-surface rounded-2xl p-5">
-                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">2. Execute</h2>
-                        <p className="mt-2 text-sm text-slate-600">Create tasks with assignees, due dates, priorities, tags, and categories.</p>
+                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[--ks-text-primary]">2. Execute</h2>
+                        <p className="mt-2 text-sm text-[--ks-text-secondary]">Create tasks with assignees, due dates, priorities, tags, and categories.</p>
                     </article>
                     <article className="app-surface rounded-2xl p-5">
-                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">3. Improve</h2>
-                        <p className="mt-2 text-sm text-slate-600">Use analytics, audit logs, and cycle planning to improve delivery cadence.</p>
+                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[--ks-text-primary]">3. Improve</h2>
+                        <p className="mt-2 text-sm text-[--ks-text-secondary]">Use analytics, audit logs, and cycle planning to improve delivery cadence.</p>
                     </article>
                 </section>
 
                 <section className="app-surface rounded-2xl p-5 sm:p-8">
-                    <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">FAQ</h2>
+                    <h2 className="text-xl font-bold tracking-tight text-[--ks-text-primary] sm:text-2xl">FAQ</h2>
                     <div className="mt-4 space-y-3">
                         {faqs.map((item) => (
-                            <details key={item.q} className="rounded-xl border border-slate-200 bg-white p-4">
-                                <summary className="cursor-pointer pr-4 text-sm font-semibold text-slate-800">{item.q}</summary>
-                                <p className="mt-2 text-sm text-slate-600">{item.a}</p>
+                            <details key={item.q} className="rounded-xl border border-[--ks-border] bg-[--ks-bg-card] p-4 text-[--ks-text-primary] transition-colors">
+                                <summary className="cursor-pointer pr-4 text-sm font-semibold text-[--ks-text-primary]">{item.q}</summary>
+                                <p className="mt-2 text-sm text-[--ks-text-secondary]">{item.a}</p>
                             </details>
                         ))}
                     </div>

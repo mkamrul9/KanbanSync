@@ -15,7 +15,7 @@ export default function BoardHeader({ board, userRole, userId }: BoardHeaderProp
     const [isInviteOpen, setIsInviteOpen] = useState(false);
 
     return (
-        <header className="flex justify-between items-center p-6 bg-white border-b">
+        <header className="flex justify-between items-center p-6 bg-[--ks-bg-elevated] text-[--ks-text-primary] border-b border-[--ks-border]">
             <h1 className="text-2xl font-bold">{board.title}</h1>
 
             <div className="flex items-center gap-4">
@@ -27,7 +27,7 @@ export default function BoardHeader({ board, userRole, userId }: BoardHeaderProp
                 {userRole === 'LEADER' && (
                     <button
                         onClick={() => setIsInviteOpen(true)}
-                        className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                        className="px-4 py-2 bg-[--ks-primary] text-white text-sm font-medium rounded-md hover:bg-[--ks-primary-hover] transition-colors"
                     >
                         + Invite Team
                     </button>

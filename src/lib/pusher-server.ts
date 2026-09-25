@@ -22,13 +22,15 @@ const realPusher = (appId && key && secret && cluster)
     })
     : null;
 
-export const pusherServer = {
-    trigger: async (channel: string | string[], event: string, data: any) => {
-        if (!realPusher) return;
-        try {
-            return await realPusher.trigger(channel, event, data);
-        } catch (error) {
-            console.warn('[Pusher] Trigger skipped/failed:', error);
+export const pusherServer: PusherServer = new Proxy({} as PusherServer, {
+    get(_target, prop) {
+        if (realPusher) {
+            const val = Reflect.get(realPusher, prop);
+            return typeof val === 'function' ? val.bind(realPusher) : val;
         }
+        if (prop === 'trigger') {
+            return async () => ({ status: 200 });
+        }
+        return () => Promise.resolve();
     },
-};
+});

@@ -101,17 +101,17 @@ const iconMap = {
 };
 
 const styleMap = {
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-900',
-    error: 'bg-rose-50 border-rose-200 text-rose-900',
-    warning: 'bg-amber-50 border-amber-200 text-amber-900',
-    info: 'bg-blue-50 border-blue-200 text-blue-900',
+    success: 'bg-[--ks-bg-elevated] border border-emerald-500/30 text-[--ks-text-primary] shadow-[--ks-shadow-lg]',
+    error: 'bg-[--ks-bg-elevated] border border-red-500/30 text-[--ks-text-primary] shadow-[--ks-shadow-lg]',
+    warning: 'bg-[--ks-bg-elevated] border border-amber-500/30 text-[--ks-text-primary] shadow-[--ks-shadow-lg]',
+    info: 'bg-[--ks-bg-elevated] border border-[--ks-primary]/30 text-[--ks-text-primary] shadow-[--ks-shadow-lg]',
 };
 
 const iconColorMap = {
-    success: 'text-emerald-600',
-    error: 'text-rose-600',
-    warning: 'text-amber-600',
-    info: 'text-blue-600',
+    success: 'text-emerald-500',
+    error: 'text-red-500',
+    warning: 'text-amber-500',
+    info: 'text-[--ks-primary]',
 };
 
 export default function ToastContainer() {
@@ -122,13 +122,13 @@ export default function ToastContainer() {
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
-                    className={`${styleMap[toast.type]} border rounded-xl px-4 py-3 shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-right-4 pointer-events-auto max-w-sm`}
+                    className={`${styleMap[toast.type]} rounded-xl px-4 py-3 flex items-center gap-3 animate-in fade-in slide-in-from-right-4 pointer-events-auto max-w-sm`}
                 >
                     <div className={iconColorMap[toast.type]}>{iconMap[toast.type]}</div>
                     <p className="text-sm font-medium flex-1">{toast.message}</p>
                     <button
                         onClick={() => remove(toast.id)}
-                        className="p-1 hover:opacity-70 transition-opacity"
+                        className="p-1 text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
                         aria-label="Close toast"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

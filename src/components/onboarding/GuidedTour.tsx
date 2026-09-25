@@ -214,7 +214,7 @@ export default function GuidedTour({
 
             {targetRect && (
                 <div
-                    className="absolute rounded-2xl border-2 border-cyan-300 bg-transparent animate-tour-spotlight"
+                    className="absolute rounded-2xl border-2 border-[--ks-primary] bg-transparent animate-tour-spotlight"
                     style={{
                         top: Math.max(8, targetRect.top - 8),
                         left: Math.max(8, targetRect.left - 8),
@@ -225,17 +225,17 @@ export default function GuidedTour({
             )}
 
             <div className="pointer-events-auto absolute left-1/2 bottom-5 -translate-x-1/2 w-[min(92vw,680px)] animate-tour-card">
-                <div className="rounded-2xl app-bg ring-1 ring-slate-200/80 text-slate-900 shadow-2xl overflow-hidden">
+                <div className="rounded-2xl bg-[--ks-bg-elevated] border border-[--ks-border] text-[--ks-text-primary] shadow-2xl overflow-hidden">
                     <div className="ui-modal-header flex items-center justify-between gap-3">
                         <div>
-                            <p className="text-[11px] uppercase tracking-[0.16em] text-cyan-700 font-semibold">{tourName}</p>
-                            <h3 className="text-base font-semibold text-slate-900">{step.title}</h3>
+                            <p className="text-[11px] uppercase tracking-[0.16em] text-[--ks-primary] font-semibold">{tourName}</p>
+                            <h3 className="text-base font-semibold text-[--ks-text-primary]">{step.title}</h3>
                         </div>
-                        <span className="text-xs text-slate-600 bg-white px-2 py-1 rounded-full border border-slate-200">{stepIndex + 1}/{steps.length}</span>
+                        <span className="text-xs text-[--ks-text-secondary] bg-[--ks-bg-card] px-2 py-1 rounded-full border border-[--ks-border]">{stepIndex + 1}/{steps.length}</span>
                     </div>
 
                     <div className="ui-modal-body">
-                        <p className="text-sm leading-relaxed text-slate-700">{step.description}</p>
+                        <p className="text-sm leading-relaxed text-[--ks-text-secondary]">{step.description}</p>
 
                         {step.selector && !targetRect && step.missingHint && (
                             <p className="mt-3 text-xs text-amber-200 bg-amber-600/20 border border-amber-300/30 rounded-lg px-3 py-2">
@@ -248,7 +248,7 @@ export default function GuidedTour({
                                 {steps.map((_, idx) => (
                                     <span
                                         key={idx}
-                                        className={`h-1.5 rounded-full transition-all ${idx === stepIndex ? 'w-6 bg-cyan-300' : 'w-1.5 bg-slate-600'}`}
+                                        className={`h-1.5 rounded-full transition-all ${idx === stepIndex ? 'w-6 bg-[--ks-primary]' : 'w-1.5 bg-[--ks-border]'}`}
                                     />
                                 ))}
                             </div>

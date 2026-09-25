@@ -43,30 +43,30 @@ export default function EditTaskModal({ isOpen, onClose, task, boardId }: EditTa
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg">
             {/* Header */}
             <div className="px-7 pt-7 pb-4">
-                <h2 className="text-lg font-bold text-gray-900 leading-tight">Edit Task</h2>
-                <p className="text-sm text-gray-400 mt-0.5">Update title, category, priority and tags.</p>
+                <h2 className="text-lg font-bold text-[--ks-text-primary] leading-tight">Edit Task</h2>
+                <p className="text-sm text-[--ks-text-muted] mt-0.5">Update title, category, priority and tags.</p>
             </div>
 
             <div className="px-7 pb-7 flex flex-col gap-5">
                 {/* Title */}
                 <div>
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1.5">Task Title <span className="text-red-500">*</span></label>
+                    <label className="text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide block mb-1.5">Task Title <span className="text-red-500">*</span></label>
                     <input
                         ref={inputRef}
                         type="text"
                         defaultValue={task.title}
                         onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className="w-full px-3 py-2.5 border border-[--ks-border] bg-[--ks-bg-card] rounded-lg text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent transition-all"
                     />
                 </div>
 
                 {/* Category */}
                 <div>
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1.5">Category</label>
+                    <label className="text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide block mb-1.5">Category</label>
                     <select
                         ref={categoryRef}
                         defaultValue={task.category}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-all"
+                        className="w-full px-3 py-2.5 border border-[--ks-border] bg-[--ks-bg-card] rounded-lg text-sm text-[--ks-text-primary] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent cursor-pointer transition-all"
                     >
                         <option value={TaskCategory.NEW_FEATURE}>Feature</option>
                         <option value={TaskCategory.EPIC}>Epic</option>
@@ -82,11 +82,11 @@ export default function EditTaskModal({ isOpen, onClose, task, boardId }: EditTa
 
                 {/* Priority */}
                 <div>
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1.5">Priority</label>
+                    <label className="text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide block mb-1.5">Priority</label>
                     <select
                         ref={priorityRef}
                         defaultValue={task.priority}
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer transition-all"
+                        className="w-full px-3 py-2.5 border border-[--ks-border] bg-[--ks-bg-card] rounded-lg text-sm text-[--ks-text-primary] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent cursor-pointer transition-all"
                     >
                         <option value="URGENT">Urgent</option>
                         <option value="HIGH">High</option>
@@ -98,22 +98,22 @@ export default function EditTaskModal({ isOpen, onClose, task, boardId }: EditTa
 
                 {/* Tags */}
                 <div>
-                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1.5">Tags</label>
+                    <label className="text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide block mb-1.5">Tags</label>
                     <input
                         ref={tagsRef}
                         type="text"
                         defaultValue={task.tags?.join(', ') ?? ''}
                         placeholder="Frontend, UI, Backend…"
-                        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className="w-full px-3 py-2.5 border border-[--ks-border] bg-[--ks-bg-card] rounded-lg text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent transition-all"
                     />
-                    <p className="text-[11px] text-gray-400 mt-1">Comma separated</p>
+                    <p className="text-[11px] text-[--ks-text-muted] mt-1">Comma separated</p>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[--ks-border]">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                        className="px-4 py-2 text-sm text-[--ks-text-secondary] font-medium hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary] rounded-lg transition-colors"
                     >
                         Cancel
                     </button>

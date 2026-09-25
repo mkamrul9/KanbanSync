@@ -97,13 +97,13 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-5xl">
             <div className="app-bg">
                 <div className="ui-modal-header">
-                    <h3 className="text-xl font-semibold text-gray-900 tracking-tight">Daily Timesheet</h3>
-                    <p className="text-sm text-gray-600 mt-1">Review logged time by member and task for the selected day.</p>
+                    <h3 className="text-xl font-semibold text-[--ks-text-primary] tracking-tight">Daily Timesheet</h3>
+                    <p className="text-sm text-[--ks-text-muted] mt-1">Review logged time by member and task for the selected day.</p>
                 </div>
 
                 <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div className="lg:col-span-1 app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">Date</label>
+                    <div className="lg:col-span-1 app-surface rounded-2xl border border-[--ks-border] p-4">
+                        <label className="text-xs font-medium text-[--ks-text-muted] uppercase tracking-wide">Date</label>
                         <input
                             type="date"
                             value={selectedDate}
@@ -111,65 +111,65 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
                             className="ui-field mt-1"
                         />
 
-                        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                            <p className="text-sm uppercase tracking-wide font-semibold text-emerald-700">Total Logged</p>
-                            <p className="text-2xl font-bold text-emerald-800 mt-1">{Math.round((totalMinutes / 60) * 10) / 10}h</p>
-                            <p className="text-xs text-emerald-700 mt-1">{totalMinutes} minutes</p>
+                        <div className="mt-4 rounded-xl border border-[--ks-success]/25 bg-[--ks-success-subtle] p-3">
+                            <p className="text-sm uppercase tracking-wide font-semibold text-[--ks-success]">Total Logged</p>
+                            <p className="text-2xl font-bold text-[--ks-success] mt-1">{Math.round((totalMinutes / 60) * 10) / 10}h</p>
+                            <p className="text-xs text-[--ks-text-muted] mt-1">{totalMinutes} minutes</p>
                         </div>
 
-                        <div className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 p-3">
-                            <p className="text-sm uppercase tracking-wide font-semibold text-cyan-700 mb-2">By Member</p>
+                        <div className="mt-3 rounded-xl border border-[--ks-primary]/25 bg-[--ks-primary-subtle] p-3">
+                            <p className="text-sm uppercase tracking-wide font-semibold text-[--ks-primary] mb-2">By Member</p>
                             <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                                {byMember.length === 0 && <p className="text-xs text-cyan-700">No entries.</p>}
+                                {byMember.length === 0 && <p className="text-xs text-[--ks-text-muted]">No entries.</p>}
                                 {byMember.map(([member, minutes]) => (
-                                    <div key={member} className="flex items-center justify-between text-xs text-cyan-900">
+                                    <div key={member} className="flex items-center justify-between text-xs text-[--ks-text-secondary]">
                                         <span className="truncate pr-2">{member}</span>
-                                        <span className="font-semibold">{minutes}m</span>
+                                        <span className="font-semibold text-[--ks-text-primary]">{minutes}m</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="mt-3 rounded-xl border border-violet-200 bg-violet-50 p-3">
-                            <p className="text-sm uppercase tracking-wide font-semibold text-violet-700 mb-2">Top Tasks</p>
+                        <div className="mt-3 rounded-xl border border-[--ks-accent]/25 bg-[--ks-accent-subtle] p-3">
+                            <p className="text-sm uppercase tracking-wide font-semibold text-[--ks-accent] mb-2">Top Tasks</p>
                             <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
-                                {byTask.length === 0 && <p className="text-xs text-violet-700">No entries.</p>}
+                                {byTask.length === 0 && <p className="text-xs text-[--ks-text-muted]">No entries.</p>}
                                 {byTask.map(([task, minutes]) => (
-                                    <div key={task} className="flex items-center justify-between gap-2 text-xs text-violet-900">
+                                    <div key={task} className="flex items-center justify-between gap-2 text-xs text-[--ks-text-secondary]">
                                         <span className="truncate">{task}</span>
-                                        <span className="font-semibold">{minutes}m</span>
+                                        <span className="font-semibold text-[--ks-text-primary]">{minutes}m</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    <div className="lg:col-span-2 app-surface rounded-2xl border border-slate-200/70 p-4">
+                    <div className="lg:col-span-2 app-surface rounded-2xl border border-[--ks-border] p-4">
                         <div className="flex items-center justify-between gap-2 mb-3">
-                            <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">Entries</p>
+                            <p className="text-sm font-medium text-[--ks-text-muted] uppercase tracking-wide">Entries</p>
                             <button
                                 type="button"
                                 onClick={handleExportCsv}
                                 disabled={rows.length === 0}
-                                className="px-2.5 py-1.5 text-sm font-semibold rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-blue-300 disabled:opacity-40"
+                                className="px-2.5 py-1.5 text-sm font-semibold rounded-lg border border-[--ks-border] bg-[--ks-bg-card] text-[--ks-text-secondary] hover:bg-[--ks-bg-overlay] hover:text-[--ks-text-primary] disabled:opacity-40"
                             >
                                 Export CSV
                             </button>
                         </div>
                         <div className="space-y-2 max-h-104 overflow-y-auto pr-1">
                             {rows.length === 0 && (
-                                <div className="border border-dashed border-slate-200 rounded-xl p-6 text-center text-sm text-slate-500">
+                                <div className="border border-dashed border-[--ks-border] rounded-xl p-6 text-center text-sm text-[--ks-text-muted]">
                                     No time entries for this date.
                                 </div>
                             )}
                             {rows.map((row) => (
-                                <div key={row.id} className="bg-white border border-slate-200 rounded-xl p-3">
+                                <div key={row.id} className="bg-[--ks-bg-card] border border-[--ks-border] rounded-xl p-3">
                                     <div className="flex items-center justify-between gap-2 mb-1">
-                                        <p className="text-sm font-semibold text-slate-800 truncate">{row.taskTitle}</p>
-                                        <span className="text-xs font-semibold text-slate-700">{row.minutes}m</span>
+                                        <p className="text-sm font-semibold text-[--ks-text-primary] truncate">{row.taskTitle}</p>
+                                        <span className="text-xs font-semibold text-[--ks-text-primary]">{row.minutes}m</span>
                                     </div>
-                                    <p className="text-xs text-slate-500">{row.memberName} • {new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                    {row.note && <p className="text-xs text-slate-600 mt-1 line-clamp-2">{row.note}</p>}
+                                    <p className="text-xs text-[--ks-text-muted]">{row.memberName} • {new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                    {row.note && <p className="text-xs text-[--ks-text-secondary] mt-1 line-clamp-2">{row.note}</p>}
                                 </div>
                             ))}
                         </div>

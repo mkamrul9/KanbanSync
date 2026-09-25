@@ -2,7 +2,67 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
+/* ==========================================================================
+   KanbanSync Design System — Dual-Theme Tokens
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  --ks-bg-base:        #F8FAFC;
+  --ks-bg-elevated:    #FFFFFF;
+  --ks-bg-card:        #FFFFFF;
+  --ks-bg-overlay:     #F1F5F9;
+  --ks-border:         #E2E8F0;
+  --ks-text-primary:   #0F172A;
+  --ks-text-secondary: #475569;
+  --ks-text-muted:     #94A3B8;
+  --ks-primary:        #4F46E5;
+  --ks-primary-hover:  #4338CA;
+  --ks-primary-subtle: #EEF2FF;
+  --ks-accent:         #7C3AED;
+  --ks-accent-hover:   #6D28D9;
+  --ks-accent-subtle:  #F5F3FF;
+  --ks-success:        #059669;
+  --ks-success-subtle: #ECFDF5;
+  --ks-warning:        #D97706;
+  --ks-warning-subtle: #FFFBEB;
+  --ks-danger:         #DC2626;
+  --ks-danger-subtle:  #FEF2F2;
+  --ks-info:           #3B82F6;
+  --ks-info-subtle:    #EFF6FF;
+  --ks-shadow:         0 1px 3px rgba(0,0,0,0.08);
+  --ks-shadow-lg:      0 4px 16px rgba(0,0,0,0.10);
+}
+
+.dark,
+[data-theme="dark"] {
+  --ks-bg-base:        #0F1117;
+  --ks-bg-elevated:    #161B27;
+  --ks-bg-card:        #1E2333;
+  --ks-bg-overlay:     #1A2030;
+  --ks-border:         rgba(255,255,255,0.08);
+  --ks-text-primary:   #F1F5F9;
+  --ks-text-secondary: #94A3B8;
+  --ks-text-muted:     #475569;
+  --ks-primary:        #6366F1;
+  --ks-primary-hover:  #818CF8;
+  --ks-primary-subtle: rgba(99,102,241,0.12);
+  --ks-accent:         #8B5CF6;
+  --ks-accent-hover:   #A78BFA;
+  --ks-accent-subtle:  rgba(139,92,246,0.12);
+  --ks-success:        #10B981;
+  --ks-success-subtle: rgba(16,185,129,0.12);
+  --ks-warning:        #F59E0B;
+  --ks-warning-subtle: rgba(245,158,11,0.12);
+  --ks-danger:         #EF4444;
+  --ks-danger-subtle:  rgba(239,68,68,0.12);
+  --ks-info:           #3B82F6;
+  --ks-info-subtle:    rgba(59,130,246,0.12);
+  --ks-shadow:         0 1px 3px rgba(0,0,0,0.4);
+  --ks-shadow-lg:      0 4px 16px rgba(0,0,0,0.5);
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -82,7 +142,8 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
+.dark,
+[data-theme="dark"] {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -121,9 +182,49 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--ks-bg-base);
+    color: var(--ks-text-primary);
+    min-height: 100vh;
+  }
+
+  /* Themed scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--ks-bg-base); }
+  ::-webkit-scrollbar-thumb { background: var(--ks-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ks-text-muted); }
+
+  /* Themed text selection */
+  ::selection {
+    background: var(--ks-primary-subtle);
+    color: var(--ks-primary);
   }
 }
+
+/* Keyframes for micro-animations */
+@keyframes ks-slide-in-right {
+  from { transform: translateX(12px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes ks-fade-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+@keyframes ks-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.animate-ks-modal    { animation: ks-scale-in      200ms cubic-bezier(0.16,1,0.3,1) both; }
+.animate-ks-toast    { animation: ks-slide-in-right 200ms ease-out both; }
+.animate-ks-dropdown { animation: ks-fade-up        150ms ease-out both; }
+.animate-ks-scale-in { animation: ks-scale-in      150ms cubic-bezier(0.16,1,0.3,1) both; }
+.animate-ks-fade-up  { animation: ks-fade-up       200ms ease-out both; }
 
 @keyframes tour-fade-in {
   from {
@@ -147,13 +248,13 @@
 
 @keyframes tour-spotlight-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(103, 232, 249, 0.5), 0 0 0 9999px rgba(15, 23, 42, 0.58);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5), 0 0 0 9999px rgba(15, 23, 42, 0.58);
   }
   70% {
-    box-shadow: 0 0 0 14px rgba(103, 232, 249, 0), 0 0 0 9999px rgba(15, 23, 42, 0.58);
+    box-shadow: 0 0 0 14px rgba(99, 102, 241, 0), 0 0 0 9999px rgba(15, 23, 42, 0.58);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(103, 232, 249, 0), 0 0 0 9999px rgba(15, 23, 42, 0.58);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0), 0 0 0 9999px rgba(15, 23, 42, 0.58);
   }
 }
 
@@ -170,16 +271,26 @@
 }
 
 .app-bg {
+  background-color: var(--ks-bg-base);
+  color: var(--ks-text-primary);
   background:
-    radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.09), transparent 35%),
-    radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.08), transparent 30%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.08), transparent 35%),
+    radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.06), transparent 30%),
+    var(--ks-bg-base);
+}
+
+[data-theme="light"] .app-bg {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.07), transparent 35%),
+    radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.05), transparent 30%),
+    linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
 }
 
 .app-surface {
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  background: var(--ks-bg-card);
+  border: 1px solid var(--ks-border);
+  color: var(--ks-text-primary);
+  box-shadow: var(--ks-shadow);
   backdrop-filter: blur(6px);
 }
 
@@ -229,19 +340,20 @@
 }
 
 .ui-btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: var(--ks-primary);
   color: #ffffff;
   border-radius: 0.75rem;
-  border: 1px solid rgba(29, 78, 216, 0.35);
+  border: 1px solid var(--ks-primary);
   padding: 0.625rem 1rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
   transition: all 180ms ease;
 }
 
 .ui-btn-primary:hover {
-  filter: brightness(1.04);
+  background: var(--ks-primary-hover);
+  filter: brightness(1.05);
 }
 
 .ui-btn-primary:active {
@@ -249,9 +361,9 @@
 }
 
 .ui-btn-secondary {
-  background: rgba(255, 255, 255, 0.95);
-  color: #475569;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: var(--ks-bg-card);
+  color: var(--ks-text-secondary);
+  border: 1px solid var(--ks-border);
   border-radius: 0.75rem;
   padding: 0.625rem 1rem;
   font-size: 0.9375rem;
@@ -260,15 +372,16 @@
 }
 
 .ui-btn-secondary:hover {
-  background: #f8fafc;
+  background: var(--ks-bg-overlay);
+  color: var(--ks-text-primary);
 }
 
 .ui-field {
   width: 100%;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: var(--ks-bg-card);
+  border: 1px solid var(--ks-border);
   border-radius: 0.75rem;
-  color: #334155;
+  color: var(--ks-text-primary);
   font-size: 0.9375rem;
   padding: 0.625rem 0.75rem;
   outline: none;
@@ -276,18 +389,19 @@
 }
 
 .ui-field:focus {
-  border-color: rgba(59, 130, 246, 0.75);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: var(--ks-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .ui-modal-header {
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
-  background: linear-gradient(135deg, rgba(236, 254, 255, 0.8), rgba(239, 246, 255, 0.75));
+  border-bottom: 1px solid var(--ks-border);
+  background: var(--ks-bg-elevated);
 }
 
 .ui-modal-body {
   padding: 1.5rem;
+  background: var(--ks-bg-card);
 }
 
 .ui-modal-footer {
@@ -297,5 +411,6 @@
   gap: 0.625rem;
   padding-top: 1.25rem;
   margin-top: 1rem;
-  border-top: 1px solid rgba(226, 232, 240, 0.85);
+  border-top: 1px solid var(--ks-border);
+  background: var(--ks-bg-elevated);
 }

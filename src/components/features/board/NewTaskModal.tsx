@@ -21,15 +21,15 @@ interface NewTaskModalProps {
 }
 
 const categoryConfig: Record<string, { label: string; color: string }> = {
-    NEW_FEATURE: { label: 'Feature', color: 'bg-blue-100 text-blue-700 ring-1 ring-blue-200' },
-    EPIC: { label: 'Epic', color: 'bg-purple-100 text-purple-700 ring-1 ring-purple-200' },
-    STORY: { label: 'Story', color: 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200' },
-    TASK: { label: 'Task', color: 'bg-gray-100 text-gray-600 ring-1 ring-gray-200' },
-    SUB_TASK: { label: 'Sub-task', color: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200' },
-    BUG: { label: 'Bug', color: 'bg-red-100 text-red-700 ring-1 ring-red-200' },
-    ENHANCEMENT: { label: 'Enhancement', color: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' },
-    PATCH: { label: 'Patch', color: 'bg-orange-100 text-orange-700 ring-1 ring-orange-200' },
-    HOTFIX: { label: 'Hotfix', color: 'bg-rose-100 text-rose-700 ring-1 ring-rose-200' },
+    NEW_FEATURE: { label: 'Feature', color: 'bg-[--ks-primary-subtle] text-[--ks-primary] ring-1 ring-[--ks-primary]/30' },
+    EPIC: { label: 'Epic', color: 'bg-purple-500/15 text-purple-600 dark:text-purple-300 ring-1 ring-purple-500/30' },
+    STORY: { label: 'Story', color: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-500/30' },
+    TASK: { label: 'Task', color: 'bg-[--ks-bg-card] text-[--ks-text-secondary] ring-1 ring-[--ks-border]' },
+    SUB_TASK: { label: 'Sub-task', color: 'bg-[--ks-bg-card] text-[--ks-text-muted] ring-1 ring-[--ks-border]' },
+    BUG: { label: 'Bug', color: 'bg-red-500/15 text-red-600 dark:text-red-300 ring-1 ring-red-500/30' },
+    ENHANCEMENT: { label: 'Enhancement', color: 'bg-[--ks-accent-subtle] text-[--ks-accent] ring-1 ring-[--ks-accent]/30' },
+    PATCH: { label: 'Patch', color: 'bg-orange-500/15 text-orange-600 dark:text-orange-300 ring-1 ring-orange-500/30' },
+    HOTFIX: { label: 'Hotfix', color: 'bg-rose-500/15 text-rose-600 dark:text-rose-300 ring-1 ring-rose-500/30' },
 };
 
 function PriorityIcon({ priority, className = '' }: { priority: string; className?: string }) {
@@ -87,7 +87,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
         { value: 'NONE', label: 'None' },
     ];
 
-    const cat = categoryConfig[category] ?? { label: category, color: 'bg-gray-100 text-gray-600' };
+    const cat = categoryConfig[category] ?? { label: category, color: 'bg-[--ks-bg-card] text-[--ks-text-secondary]' };
     const selectedMember = members.find(m => m.user.id === assigneeId);
 
     const reset = () => {
@@ -152,8 +152,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     {/* Breadcrumb + title input */}
                     <div className="mb-5">
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">{columnTitle}</span>
-                            <span className="text-gray-300 text-xs">›</span>
+                            <span className="text-xs text-[--ks-text-muted] font-medium uppercase tracking-wide">{columnTitle}</span>
+                            <span className="text-[--ks-text-muted] text-xs">›</span>
                             <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${cat.color}`}>
                                 {cat.label}
                             </span>
@@ -165,12 +165,12 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                            className="w-full text-[22px] font-bold text-gray-900 placeholder-gray-300 bg-transparent border-0 border-b-2 border-transparent focus:border-blue-500 focus:outline-none pb-1 transition-colors"
+                            className="w-full text-[22px] font-bold text-[--ks-text-primary] placeholder-[--ks-text-muted] bg-transparent border-0 border-b-2 border-transparent focus:border-[--ks-primary] focus:outline-none pb-1 transition-colors"
                         />
                     </div>
 
                     {errorMsg && (
-                        <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+                        <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg">
                             <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                             </svg>
@@ -179,11 +179,11 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     )}
 
                     {/* Description */}
-                    <div className="mb-5 app-surface rounded-2xl border border-slate-200/70 p-4">
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Description</h3>
+                    <div className="mb-5 app-surface rounded-2xl border border-[--ks-border] p-4">
+                        <h3 className="text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide mb-1.5">Description</h3>
                         <textarea
                             data-tour="new-task-description"
-                            className="w-full h-36 px-3 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-transparent text-sm text-gray-700 placeholder-gray-400 resize-none transition-all"
+                            className="w-full h-36 px-3 py-2.5 bg-[--ks-bg-card] border border-[--ks-border] rounded-xl focus:ring-2 focus:ring-[--ks-primary] focus:bg-[--ks-bg-card] focus:border-transparent text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] resize-none transition-all"
                             placeholder="Add a more detailed description…"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -191,19 +191,19 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Comments placeholder */}
-                    <div className="flex-1 bg-slate-50 rounded-2xl flex flex-col items-center justify-center gap-2 border border-dashed border-slate-200 min-h-44">
-                        <svg className="w-9 h-9 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex-1 bg-[--ks-bg-overlay] rounded-2xl flex flex-col items-center justify-center gap-2 border border-dashed border-[--ks-border] min-h-44">
+                        <svg className="w-9 h-9 text-[--ks-text-muted]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        <p className="text-sm text-slate-500 font-medium">Comments unlock after the task is created.</p>
+                        <p className="text-sm text-[--ks-text-muted] font-medium">Comments unlock after the task is created.</p>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-end gap-2 pt-5 mt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-end gap-2 pt-5 mt-4 border-t border-[--ks-border]">
                         <Tooltip text="Close without creating this task" position="top">
                             <button
                                 onClick={handleClose}
-                                className="px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                                className="px-4 py-2 text-sm text-[--ks-text-secondary] font-medium hover:bg-[--ks-bg-overlay] rounded-lg transition-colors"
                             >
                                 Cancel
                             </button>
@@ -229,18 +229,18 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                 </div>
 
                 {/* ── RIGHT: Sidebar ───────────────────────────────────── */}
-                <div className="w-full md:w-80 shrink-0 flex flex-col gap-2 bg-slate-50/95 border-l border-slate-200/70 p-5 rounded-r-2xl overflow-y-auto">
+                <div className="w-full md:w-80 shrink-0 flex flex-col gap-2 bg-[--ks-bg-elevated] border-l border-[--ks-border] p-5 rounded-r-2xl overflow-y-auto">
 
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.18em] mb-1">Task Settings</p>
+                    <p className="text-[10px] font-bold text-[--ks-text-muted] uppercase tracking-[0.18em] mb-1">Task Settings</p>
 
                     {/* Template */}
-                    <div className="mb-3 rounded-xl border border-slate-200/70 bg-slate-50/35 p-3">
+                    <div className="mb-3 rounded-xl border border-[--ks-border] bg-[--ks-bg-card] p-3">
                         <SideSectionTitle label="Template" dotColor="bg-slate-500" />
                         <Tooltip text="Choose a template to prefill task details" position="left">
                             <select
                                 value={selectedTemplateId}
                                 onChange={(e) => setSelectedTemplateId(e.target.value)}
-                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] cursor-pointer hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                             >
                                 <option value="">Start blank</option>
                                 {templates.map((template) => (
@@ -255,23 +255,23 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                                 type="button"
                                 onClick={handleApplyTemplate}
                                 disabled={!selectedTemplateId}
-                                className="mt-2 w-full px-3 py-2 rounded-lg bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-2 w-full px-3 py-2 rounded-lg bg-[--ks-bg-overlay] border border-[--ks-border] text-xs font-semibold text-[--ks-text-secondary] hover:text-[--ks-text-primary] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Apply Template
                             </button>
                         </Tooltip>
-                        <p className="text-[10px] text-gray-400 mt-1">Pick one and click Apply to prefill this form.</p>
+                        <p className="text-[10px] text-[--ks-text-muted] mt-1">Pick one and click Apply to prefill this form.</p>
                     </div>
 
                     {/* Category */}
-                    <div className="mb-3 rounded-xl border border-indigo-200/70 bg-indigo-50/35 p-3">
+                    <div className="mb-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3">
                         <SideSectionTitle label="Category" dotColor="bg-indigo-500" />
                         <Tooltip text="Set task type to improve reporting and filtering" position="left">
                             <select
                                 data-tour="new-task-category"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value as TaskCategory)}
-                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] cursor-pointer hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                             >
                                 <option value={TaskCategory.NEW_FEATURE}>Feature</option>
                                 <option value={TaskCategory.EPIC}>Epic</option>
@@ -287,7 +287,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Priority */}
-                    <div className="mb-3 rounded-xl border border-rose-200/70 bg-rose-50/35 p-3">
+                    <div className="mb-3 rounded-xl border border-rose-500/20 bg-rose-500/5 p-3">
                         <SideSectionTitle label="Priority" dotColor="bg-rose-500" />
                         <div data-tour="new-task-priority" className="grid grid-cols-2 gap-1.5">
                             {priorityOptions.map((opt) => (
@@ -296,8 +296,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                                     type="button"
                                     onClick={() => setPriority(opt.value)}
                                     className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs font-semibold transition-colors ${priority === opt.value
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
+                                        ? 'bg-[--ks-primary] text-white border-[--ks-primary]'
+                                        : 'bg-[--ks-bg-card] text-[--ks-text-secondary] border border-[--ks-border] hover:border-[--ks-primary] hover:text-[--ks-text-primary]'
                                         }`}
                                 >
                                     {opt.value !== 'NONE' ? (
@@ -312,18 +312,18 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Assignee */}
-                    <div className="mb-3 rounded-xl border border-emerald-200/70 bg-emerald-50/35 p-3">
+                    <div className="mb-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
                         <SideSectionTitle label="Assignee" dotColor="bg-emerald-500" />
                         {selectedMember ? (
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-6 h-6 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[10px] font-bold text-white">
                                     {selectedMember.user.name?.[0]?.toUpperCase() ?? 'U'}
                                 </div>
-                                <span className="text-xs font-medium text-gray-700 truncate">{selectedMember.user.name || selectedMember.user.email}</span>
+                                <span className="text-xs font-medium text-[--ks-text-primary] truncate">{selectedMember.user.name || selectedMember.user.email}</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 mb-2 text-gray-400">
-                                <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-[10px]">?</div>
+                            <div className="flex items-center gap-2 mb-2 text-[--ks-text-muted]">
+                                <div className="w-6 h-6 rounded-full border-2 border-dashed border-[--ks-border] flex items-center justify-center text-[10px]">?</div>
                                 <span className="text-xs">Unassigned</span>
                             </div>
                         )}
@@ -332,7 +332,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                                 data-tour="new-task-assignee"
                                 value={assigneeId}
                                 onChange={(e) => setAssigneeId(e.target.value)}
-                                className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                                className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] cursor-pointer hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                             >
                                 <option value="">Unassigned</option>
                                 {members.map((m) => (
@@ -345,7 +345,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     {/* Tags */}
-                    <div className="mb-3 rounded-xl border border-fuchsia-200/70 bg-fuchsia-50/30 p-3">
+                    <div className="mb-3 rounded-xl border border-fuchsia-500/20 bg-fuchsia-50/30 p-3">
                         <SideSectionTitle label="Tags" dotColor="bg-fuchsia-500" />
                         <input
                             type="text"
@@ -353,40 +353,40 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             placeholder="Frontend, UI, Backend…"
                             value={tagsInput}
                             onChange={(e) => setTagsInput(e.target.value)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 placeholder-gray-400 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                         />
-                        <p className="text-[10px] text-gray-400 mt-1">Comma separated</p>
+                        <p className="text-[10px] text-[--ks-text-muted] mt-1">Comma separated</p>
                     </div>
 
                     {/* Due date */}
-                    <div className="mb-3 rounded-xl border border-amber-200/70 bg-amber-50/35 p-3">
+                    <div className="mb-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3">
                         <SideSectionTitle label="Due Date" dotColor="bg-amber-500" />
                         <input
                             type="datetime-local"
                             value={dueAt}
                             onChange={(e) => setDueAt(e.target.value)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                         />
                     </div>
 
                     {/* Reminder */}
-                    <div className="mb-3 rounded-xl border border-cyan-200/70 bg-cyan-50/35 p-3">
-                        <SideSectionTitle label="Reminder" dotColor="bg-cyan-500" />
+                    <div className="mb-3 rounded-xl border border-[--ks-primary]/25 bg-[--ks-primary-subtle] p-3">
+                        <SideSectionTitle label="Reminder" dotColor="bg-[--ks-primary]" />
                         <input
                             type="datetime-local"
                             value={reminderAt}
                             onChange={(e) => setReminderAt(e.target.value)}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                         />
                     </div>
 
                     {/* Recurrence */}
-                    <div className="mb-3 rounded-xl border border-violet-200/70 bg-violet-50/35 p-3">
+                    <div className="mb-3 rounded-xl border border-violet-500/20 bg-violet-500/5 p-3">
                         <SideSectionTitle label="Recurrence" dotColor="bg-violet-500" />
                         <select
                             value={recurrence}
                             onChange={(e) => setRecurrence(e.target.value as 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY')}
-                            className="w-full px-2.5 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all outline-none"
+                            className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] cursor-pointer hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                         >
                             <option value="NONE">None</option>
                             <option value="DAILY">Daily</option>
@@ -395,8 +395,8 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                         </select>
                     </div>
 
-                    <div className="border-t border-gray-200 mt-auto pt-4">
-                        <p className="text-[10px] text-gray-400 text-center">New task · {columnTitle}</p>
+                    <div className="border-t border-[--ks-border] mt-auto pt-4">
+                        <p className="text-[10px] text-[--ks-text-muted] text-center">New task · {columnTitle}</p>
                     </div>
                 </div>
             </div>
