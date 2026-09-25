@@ -7,19 +7,17 @@ import PusherServer from 'pusher';
  * specific dependencies into the browser build and cause Vercel build failures.
  * For client subscriptions, import `getPusherClient` from `pusher.ts`.
  */
-const isConfigured = Boolean(
-    process.env.PUSHER_APP_ID &&
-    process.env.NEXT_PUBLIC_PUSHER_KEY &&
-    process.env.PUSHER_SECRET &&
-    process.env.NEXT_PUBLIC_PUSHER_CLUSTER
-);
+const appId = process.env.PUSHER_APP_ID?.trim();
+const key = process.env.NEXT_PUBLIC_PUSHER_KEY?.trim();
+const secret = process.env.PUSHER_SECRET?.trim();
+const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER?.trim();
 
-const realPusher = isConfigured
+const realPusher = (appId && key && secret && cluster)
     ? new PusherServer({
-        appId: process.env.PUSHER_APP_ID!,
-        key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
-        secret: process.env.PUSHER_SECRET!,
-        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+        appId,
+        key,
+        secret,
+        cluster,
         useTLS: true,
     })
     : null;

@@ -10,15 +10,19 @@ import PusherClient from 'pusher-js';
 let clientInstance: PusherClient | null = null;
 
 export const getPusherClient = (): PusherClient | null => {
-    if (!process.env.NEXT_PUBLIC_PUSHER_KEY || !process.env.NEXT_PUBLIC_PUSHER_CLUSTER) {
+    const key = process.env.NEXT_PUBLIC_PUSHER_KEY?.trim();
+    const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER?.trim();
+
+    if (!key || !cluster) {
         return null;
     }
 
     if (!clientInstance) {
-        clientInstance = new PusherClient(
-            process.env.NEXT_PUBLIC_PUSHER_KEY,
-            { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER }
-        );
+        try {
+            clientInstance = new PusherClient(key, { cluster });
+        } catch {
+            return null;
+        }
     }
 
     return clientInstance;
