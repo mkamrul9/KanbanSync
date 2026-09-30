@@ -133,7 +133,7 @@ export default function BoardSettingsModal({
                             <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                     </div>
-                    <h2 className="text-xl font-bold text-[--ks-text-primary]">Board Settings</h2>
+                    <h2 className="text-xl font-semibold text-[--ks-text-primary]">Board Settings</h2>
                     <p className="text-sm text-[--ks-text-muted] mt-0.5">Edit board details and maintain your active workflow columns.</p>
                 </div>
 

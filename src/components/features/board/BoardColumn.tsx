@@ -90,7 +90,7 @@ export default memo(function BoardColumn({ column, boardId, userRole, members, t
                     <svg className="w-3 h-3 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                     </svg>
-                    <span className="text-[10px] font-semibold text-red-500 uppercase tracking-wider">Over WIP limit</span>
+                    <span className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Over WIP limit</span>
                 </div>
             )}
 

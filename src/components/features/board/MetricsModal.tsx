@@ -35,7 +35,7 @@ function KpiCard({
                 <span className="text-xs font-semibold uppercase tracking-widest opacity-70">{label}</span>
                 <span className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-xl">{icon}</span>
             </div>
-            <div className="text-3xl font-bold tracking-tight">{value}</div>
+            <div className="text-2xl font-semibold tracking-tight">{value}</div>
             <div className="text-xs opacity-70 font-medium">{sub}</div>
             <div className="text-[11px] opacity-50 leading-relaxed mt-1 border-t border-white/20 pt-2">{def}</div>
             {/* decorative circle */}
@@ -169,7 +169,7 @@ function ThroughputTrendBars({ points }: { points: Array<{ date: string; complet
                 return (
                     <div key={p.date} className="flex-1 flex flex-col items-center gap-1" title={`${p.date}: ${p.completed} completed`}>
                         <div className="w-full max-w-4 rounded-md bg-[--ks-primary]" style={{ height: `${height}%` }} />
-                        <span className="text-[9px] text-[--ks-text-muted]">{p.date.slice(8)}</span>
+                        <span className="text-[11px] text-[--ks-text-muted]">{p.date.slice(8)}</span>
                     </div>
                 );
             })}
@@ -226,13 +226,13 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[--ks-primary-subtle] border border-[--ks-primary]/25 flex items-center justify-center text-2xl">📊</div>
                         <div>
-                            <h2 className="text-lg font-bold text-[--ks-text-primary] tracking-tight">Board Metrics</h2>
+                            <h2 className="text-xl font-semibold text-[--ks-text-primary] tracking-tight">Board Metrics</h2>
                             <p className="text-xs text-[--ks-text-muted]">{board.title} · Flow &amp; efficiency overview</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-9 h-9 rounded-full bg-[--ks-bg-overlay] hover:bg-red-500/20 border border-[--ks-border] transition-colors flex items-center justify-center text-[--ks-text-muted] hover:text-red-400 text-lg leading-none"
+                        className="w-9 h-9 rounded-full bg-[--ks-bg-overlay] hover:bg-red-500/20 border border-[--ks-border] transition-colors flex items-center justify-center text-[--ks-text-muted] hover:text-red-400 text-[17px] leading-none"
                         aria-label="Close metrics"
                     >
                         ✕
@@ -284,7 +284,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                         {/* WIP per column */}
                         <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                             <div className="flex items-center gap-2 mb-5">
-                                <span className="text-base font-bold text-[--ks-text-primary]">WIP by Column</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">WIP by Column</span>
                                 <span className="ml-auto text-xs text-[--ks-text-muted]">total {metrics.wip.total}</span>
                             </div>
                             <div className="flex flex-col gap-3">
@@ -298,7 +298,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                         {/* Work Item Age */}
                         <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                             <div className="flex items-center gap-2 mb-5">
-                                <span className="text-base font-bold text-[--ks-text-primary]">Work Item Age</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">Work Item Age</span>
                                 <span className="ml-auto text-xs text-[--ks-text-muted]">active tasks</span>
                             </div>
                             <div className="flex flex-col gap-3">
@@ -307,7 +307,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                                 ))}
                                 {metrics.workItemAges.length === 0 && (
                                     <div className="flex flex-col items-center gap-2 py-6 text-[--ks-text-muted]">
-                                        <span className="text-3xl">✅</span>
+                                        <span className="text-2xl">✅</span>
                                         <span className="text-sm">No active tasks — all done!</span>
                                     </div>
                                 )}
@@ -325,7 +325,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <span className="text-base font-bold text-[--ks-text-primary]">Cumulative Flow Diagram</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">Cumulative Flow Diagram</span>
                                 <p className="text-xs text-[--ks-text-muted] mt-0.5">Approx. based on current column state · last 14 days</p>
                             </div>
                             {/* Legend */}
@@ -342,7 +342,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-base font-bold text-[--ks-text-primary]">Overdue Heatmap</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">Overdue Heatmap</span>
                                 <span className="text-xs text-[--ks-text-muted]">by column</span>
                             </div>
                             <div className="space-y-3">
@@ -363,7 +363,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
 
                         <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-base font-bold text-[--ks-text-primary]">Team Workload</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">Team Workload</span>
                                 <span className="text-xs text-[--ks-text-muted]">active tasks</span>
                             </div>
                             <div className="space-y-2">
@@ -379,7 +379,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
 
                         <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-base font-bold text-[--ks-text-primary]">Throughput Trend</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">Throughput Trend</span>
                                 <span className="text-xs text-[--ks-text-muted]">last 14 days</span>
                             </div>
                             <ThroughputTrendBars points={metrics.throughputTrend} />
@@ -387,7 +387,7 @@ export default function MetricsModal({ board, isOpen, onClose }: Props) {
 
                         <div className="rounded-2xl app-surface border border-[--ks-border] p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-4">
-                                <span className="text-base font-bold text-[--ks-text-primary]">SLA Breaches</span>
+                                <span className="text-[15px] font-semibold text-[--ks-text-primary]">SLA Breaches</span>
                                 <span className="text-xs text-[--ks-text-muted]">cycle time &gt; 7d</span>
                             </div>
                             <div className="space-y-2 max-h-28 overflow-auto pr-1">

@@ -59,7 +59,7 @@ function PriorityIcon({ priority, className = '' }: { priority: string; classNam
 
 function SideSectionTitle({ label, dotColor }: { label: string; dotColor: string }) {
     return (
-        <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.16em] mb-2 flex items-center gap-1.5">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[--ks-text-muted] mb-2 flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
             {label}
         </p>
@@ -165,14 +165,14 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                            className="w-full text-[22px] font-bold text-[--ks-text-primary] placeholder-[--ks-text-muted] bg-transparent border-0 border-b-2 border-transparent focus:border-[--ks-primary] focus:outline-none pb-1 transition-colors"
+                            className="w-full text-xl font-semibold text-[--ks-text-primary] placeholder-[--ks-text-muted] bg-transparent border-0 border-b-2 border-transparent focus:border-[--ks-primary] focus:outline-none pb-1 transition-colors"
                         />
                     </div>
 
                     {errorMsg && (
                         <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-lg">
                             <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                             </svg>
                             {errorMsg}
                         </div>
@@ -231,7 +231,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                 {/* ── RIGHT: Sidebar ───────────────────────────────────── */}
                 <div className="w-full md:w-80 shrink-0 flex flex-col gap-2 bg-[--ks-bg-elevated] border-l border-[--ks-border] p-5 rounded-r-2xl overflow-y-auto">
 
-                    <p className="text-[10px] font-bold text-[--ks-text-muted] uppercase tracking-[0.18em] mb-1">Task Settings</p>
+                    <p className="text-[11px] font-semibold text-[--ks-text-muted] uppercase tracking-widest mb-1">Task Settings</p>
 
                     {/* Template */}
                     <div className="mb-3 rounded-xl border border-[--ks-border] bg-[--ks-bg-card] p-3">
@@ -260,7 +260,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                                 Apply Template
                             </button>
                         </Tooltip>
-                        <p className="text-[10px] text-[--ks-text-muted] mt-1">Pick one and click Apply to prefill this form.</p>
+                        <p className="text-[11px] text-[--ks-text-muted] mt-1">Pick one and click Apply to prefill this form.</p>
                     </div>
 
                     {/* Category */}
@@ -316,14 +316,14 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                         <SideSectionTitle label="Assignee" dotColor="bg-emerald-500" />
                         {selectedMember ? (
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="w-6 h-6 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[10px] font-bold text-white">
+                                <div className="w-6 h-6 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[11px] font-semibold text-white">
                                     {selectedMember.user.name?.[0]?.toUpperCase() ?? 'U'}
                                 </div>
                                 <span className="text-xs font-medium text-[--ks-text-primary] truncate">{selectedMember.user.name || selectedMember.user.email}</span>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2 mb-2 text-[--ks-text-muted]">
-                                <div className="w-6 h-6 rounded-full border-2 border-dashed border-[--ks-border] flex items-center justify-center text-[10px]">?</div>
+                                <div className="w-6 h-6 rounded-full border-2 border-dashed border-[--ks-border] flex items-center justify-center text-[11px]">?</div>
                                 <span className="text-xs">Unassigned</span>
                             </div>
                         )}
@@ -355,7 +355,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                             onChange={(e) => setTagsInput(e.target.value)}
                             className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] hover:border-[--ks-primary] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] transition-all outline-none"
                         />
-                        <p className="text-[10px] text-[--ks-text-muted] mt-1">Comma separated</p>
+                        <p className="text-[11px] text-[--ks-text-muted] mt-1">Comma separated</p>
                     </div>
 
                     {/* Due date */}
@@ -396,7 +396,7 @@ export default function NewTaskModal({ isOpen, onClose, boardId, columnId, colum
                     </div>
 
                     <div className="border-t border-[--ks-border] mt-auto pt-4">
-                        <p className="text-[10px] text-[--ks-text-muted] text-center">New task · {columnTitle}</p>
+                        <p className="text-[11px] text-[--ks-text-muted] text-center">New task · {columnTitle}</p>
                     </div>
                 </div>
             </div>

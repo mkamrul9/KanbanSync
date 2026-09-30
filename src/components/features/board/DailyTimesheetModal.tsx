@@ -113,7 +113,7 @@ export default function DailyTimesheetModal({ isOpen, onClose, tasks }: DailyTim
 
                         <div className="mt-4 rounded-xl border border-[--ks-success]/25 bg-[--ks-success-subtle] p-3">
                             <p className="text-sm uppercase tracking-wide font-semibold text-[--ks-success]">Total Logged</p>
-                            <p className="text-2xl font-bold text-[--ks-success] mt-1">{Math.round((totalMinutes / 60) * 10) / 10}h</p>
+                            <p className="text-2xl font-semibold text-[--ks-success] mt-1">{Math.round((totalMinutes / 60) * 10) / 10}h</p>
                             <p className="text-xs text-[--ks-text-muted] mt-1">{totalMinutes} minutes</p>
                         </div>
 

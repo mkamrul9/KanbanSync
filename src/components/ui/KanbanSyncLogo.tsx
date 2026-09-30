@@ -9,7 +9,7 @@ interface KanbanSyncLogoProps {
 export default function KanbanSyncLogo({
     showText = true,
     className = 'w-8 h-8',
-    textClassName = 'text-xl font-bold text-[--ks-text-primary] tracking-tight hidden sm:block'
+    textClassName = 'text-[15px] font-semibold text-[--ks-text-primary] tracking-tight hidden sm:block'
 }: KanbanSyncLogoProps) {
     return (
         <div className="flex items-center gap-3">

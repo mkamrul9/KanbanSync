@@ -264,7 +264,7 @@ export default async function DashboardPage({
                 <div className="mb-8 app-surface rounded-3xl p-6 md:p-7 border border-[--ks-border] anim-fade-up" data-tour="dashboard-title">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-[--ks-text-primary] tracking-tight">Your Boards</h1>
+                            <h1 className="text-2xl font-bold text-[--ks-text-primary] tracking-tight">Your Boards</h1>
                             <p className="text-[--ks-text-muted] mt-1">Welcome back, {session.user.name}</p>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-[--ks-text-muted]">
@@ -298,7 +298,7 @@ export default async function DashboardPage({
                 <section className="mb-8 grid grid-cols-1 xl:grid-cols-2 gap-5">
                     <div className="app-surface rounded-2xl border border-[--ks-border] p-5">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-[--ks-text-primary]">Due This Week</h2>
+                            <h2 className="text-[17px] font-semibold text-[--ks-text-primary]">Due This Week</h2>
                             <span className="text-sm text-[--ks-text-muted]">{dueSoonTasks.length} tasks</span>
                         </div>
                         {dueSoonTasks.length === 0 ? (
@@ -327,7 +327,7 @@ export default async function DashboardPage({
 
                     <div className="app-surface rounded-2xl border border-[--ks-border] p-5">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold text-[--ks-text-primary]">Recent Activity</h2>
+                            <h2 className="text-[17px] font-semibold text-[--ks-text-primary]">Recent Activity</h2>
                             <span className="text-sm text-[--ks-text-muted]">Live board events</span>
                         </div>
                         {recentActivity.length === 0 ? (
@@ -348,7 +348,7 @@ export default async function DashboardPage({
                                                     // eslint-disable-next-line @next/next/no-img-element
                                                     <img src={activity.actor.image} alt={actorName} className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5" />
                                                 ) : (
-                                                    <div className="w-7 h-7 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                                    <div className="w-7 h-7 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white text-[11px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
                                                         {initials}
                                                     </div>
                                                 )}
@@ -395,7 +395,7 @@ export default async function DashboardPage({
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img src={member.image} alt={member.name ?? member.email ?? 'User'} className="w-10 h-10 rounded-full object-cover" />
                                             ) : (
-                                                <div className="w-10 h-10 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white text-sm font-bold flex items-center justify-center">
+                                                <div className="w-10 h-10 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white text-xs font-semibold flex items-center justify-center">
                                                     {memberInitials}
                                                 </div>
                                             )}
@@ -409,7 +409,7 @@ export default async function DashboardPage({
                                             <div>
                                                 <div className="flex items-center justify-between mb-1">
                                                     <p className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide">Tasks</p>
-                                                    <p className="text-xs font-bold text-[--ks-text-primary]">{completedCount}/{assignedCount}</p>
+                                                    <p className="text-xs font-semibold text-[--ks-text-primary]">{completedCount}/{assignedCount}</p>
                                                 </div>
                                                 <div className="w-full h-1.5 rounded-full bg-[--ks-border] overflow-hidden">
                                                     <div className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400" style={{ width: `${Math.min(completionRate, 100)}%` }} />
@@ -420,7 +420,7 @@ export default async function DashboardPage({
                                             <div className="pt-2 border-t border-[--ks-border]">
                                                 <div className="flex items-center justify-between">
                                                     <p className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide">Time Logged</p>
-                                                    <p className="text-sm font-bold text-[--ks-text-primary]">{hoursLogged}h</p>
+                                                    <p className="text-sm font-semibold text-[--ks-text-primary]">{hoursLogged}h</p>
                                                 </div>
                                                 <p className="text-xs text-[--ks-text-muted] mt-1">{totalMinutesLogged} minutes</p>
                                             </div>
@@ -428,7 +428,7 @@ export default async function DashboardPage({
                                             <div className="pt-2 border-t border-[--ks-border]">
                                                 <div className="flex items-center justify-between">
                                                     <p className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide">Activity</p>
-                                                    <p className="text-sm font-bold text-[--ks-text-primary]">{member.taskActivities.length}</p>
+                                                    <p className="text-sm font-semibold text-[--ks-text-primary]">{member.taskActivities.length}</p>
                                                 </div>
                                                 <p className="text-xs text-[--ks-text-muted] mt-1">events logged</p>
                                             </div>
@@ -468,7 +468,7 @@ export default async function DashboardPage({
                                 </svg>
                             </div>
                             <p className="text-xl font-semibold text-[--ks-text-primary]">No boards yet</p>
-                            <p className="text-[--ks-text-muted] mt-1 text-base">Click &ldquo;Create Board&rdquo; in the navbar to get started.</p>
+                            <p className="text-[--ks-text-muted] mt-1 text-sm">Click &ldquo;Create Board&rdquo; in the navbar to get started.</p>
                         </div>
                     ) : (
                         <div className="anim-fade-up">

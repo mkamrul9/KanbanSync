@@ -262,7 +262,7 @@ export default function NotificationsBell({ userId }: { userId: string }) {
                     <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6z" fill="currentColor" />
                 </svg>
                 {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 bg-red-500 text-white text-[11px] font-semibold rounded-full flex items-center justify-center px-1">
                         {unreadCount}
                     </span>
                 )}

@@ -36,6 +36,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     // 1. Check explicit user preference
     const stored = localStorage.getItem('ks-theme') as Theme | null;
     if (stored === 'light' || stored === 'dark') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setThemeState(stored);
       applyTheme(stored);
       return;

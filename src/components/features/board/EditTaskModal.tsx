@@ -43,7 +43,7 @@ export default function EditTaskModal({ isOpen, onClose, task, boardId }: EditTa
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg">
             {/* Header */}
             <div className="px-7 pt-7 pb-4">
-                <h2 className="text-lg font-bold text-[--ks-text-primary] leading-tight">Edit Task</h2>
+                <h2 className="text-xl font-semibold text-[--ks-text-primary] leading-tight">Edit Task</h2>
                 <p className="text-sm text-[--ks-text-muted] mt-0.5">Update title, category, priority and tags.</p>
             </div>
 
