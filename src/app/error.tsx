@@ -8,8 +8,8 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
             <div className="w-full max-w-2xl rounded-3xl app-surface overflow-hidden anim-panel-in">
                 <div className="p-8 sm:p-10">
                     <p className="text-xs tracking-[0.22em] uppercase text-[--ks-primary] font-semibold mb-3">KanbanSync</p>
-                    <h1 className="text-3xl sm:text-4xl font-black leading-tight mb-3 text-[--ks-text-primary]">Something went wrong while loading this page.</h1>
-                    <p className="text-[--ks-text-secondary] text-sm sm:text-base leading-relaxed">
+                    <h1 className="text-2xl font-bold leading-tight mb-3 text-[--ks-text-primary]">Something went wrong while loading this page.</h1>
+                    <p className="text-[--ks-text-secondary] text-sm leading-relaxed">
                         The good news: your data is still safe. This is usually temporary.
                         Try reloading this page or jump back to your dashboard.
                     </p>

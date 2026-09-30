@@ -13,9 +13,9 @@ export default async function SignupPage({
         <div className="min-h-screen app-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full app-surface border border-[--ks-border] p-10 rounded-3xl shadow-xl anim-panel-in">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-extrabold text-[--ks-text-primary] tracking-tight">
+                    <h1 className="text-2xl font-bold text-[--ks-text-primary] tracking-tight">
                         Create your account
-                    </h2>
+                    </h1>
                     <p className="mt-2 text-sm text-[--ks-text-secondary]">
                         Sign up with your email and password.
                     </p>

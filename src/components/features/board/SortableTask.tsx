@@ -19,25 +19,25 @@ function PriorityIcon({ priority, className = '' }: { priority: string; classNam
     if (priority === 'URGENT') return (
         <span className={`flex items-center gap-1 ${className}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
-            <span className="text-[10px] font-medium text-red-500">Urgent</span>
+            <span className="text-[11px] font-medium text-red-500">Urgent</span>
         </span>
     );
     if (priority === 'HIGH') return (
         <span className={`flex items-center gap-1 ${className}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
-            <span className="text-[10px] font-medium text-orange-500">High</span>
+            <span className="text-[11px] font-medium text-orange-500">High</span>
         </span>
     );
     if (priority === 'MEDIUM') return (
         <span className={`flex items-center gap-1 ${className}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
-            <span className="text-[10px] font-medium text-sky-500">Med</span>
+            <span className="text-[11px] font-medium text-sky-500">Med</span>
         </span>
     );
     if (priority === 'LOW') return (
         <span className={`flex items-center gap-1 ${className}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
-            <span className="text-[10px] font-medium text-slate-400">Low</span>
+            <span className="text-[11px] font-medium text-slate-400">Low</span>
         </span>
     );
     return null;
@@ -84,7 +84,7 @@ function AssigneeAvatar({ name, image }: { name?: string | null; image?: string 
     const initial = name?.[0]?.toUpperCase() ?? '?';
     return (
         <div
-            className="w-6 h-6 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-[--ks-bg-card] shrink-0 overflow-hidden"
+            className="w-6 h-6 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-[11px] font-semibold text-white flex items-center justify-center ring-2 ring-[--ks-bg-card] shrink-0 overflow-hidden"
             title={name ?? 'Assigned'}
         >
             {image
@@ -200,7 +200,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                     <div className="flex items-center justify-between gap-2 mb-2">
                         {/* Left cluster: badge + priority + avatar */}
                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide border shrink-0 ${getCategoryColor(task.category)}`}>
+                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide border shrink-0 ${getCategoryColor(task.category)}`}>
                                 {task.category.replace(/_/g, ' ')}
                             </span>
                             {hasPriority && (
@@ -254,12 +254,12 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                     {hasTags && (
                         <div className="flex flex-wrap gap-1 mt-1">
                             {task.tags.slice(0, 3).map((tag, i) => (
-                                <span key={i} className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-md border truncate max-w-20 ${tagColorFor(tag)}`}>
+                                <span key={i} className={`px-1.5 py-0.5 text-[11px] font-semibold rounded-md border truncate max-w-20 ${tagColorFor(tag)}`}>
                                     #{tag}
                                 </span>
                             ))}
                             {task.tags.length > 3 && (
-                                <span className="px-1.5 py-0.5 bg-[--ks-bg-card] text-[--ks-text-muted] text-[10px] rounded-md border border-[--ks-border]">
+                                <span className="px-1.5 py-0.5 bg-[--ks-bg-card] text-[--ks-text-muted] text-[11px] rounded-md border border-[--ks-border]">
                                     +{task.tags.length - 3}
                                 </span>
                             )}
@@ -268,11 +268,11 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     {dueAt && (
                         <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                            <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'}`}>
+                            <span className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full border ${isOverdue ? 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'}`}>
                                 {isOverdue ? 'Overdue' : 'Due'} {dueAt.toLocaleDateString()}
                             </span>
                             {hasGitLink && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30 shadow-sm">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30 shadow-sm">
                                     <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                         <path d="M8 17l-5 5V2h20v20l-5-5" />
                                     </svg>
@@ -284,7 +284,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     {!dueAt && hasGitLink && (
                         <div className="mt-2">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30 shadow-sm">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30 shadow-sm">
                                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                     <path d="M8 17l-5 5V2h20v20l-5-5" />
                                 </svg>
@@ -295,7 +295,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
 
                     {subtaskTotal > 0 && (
                         <div className="mt-2.5">
-                            <div className="flex items-center justify-between text-[10px] text-[--ks-text-muted] mb-1">
+                            <div className="flex items-center justify-between text-[11px] text-[--ks-text-muted] mb-1">
                                 <span>Checklist</span>
                                 <span>{subtaskDone}/{subtaskTotal}</span>
                             </div>
@@ -330,7 +330,7 @@ export default memo(function SortableTask({ task, boardId, members, currentUserE
                                 </svg>
                             </div>
                             <div className="min-w-0">
-                                <h2 className="text-lg font-semibold text-[--ks-text-primary]">Archive Task</h2>
+                                <h2 className="text-[17px] font-semibold text-[--ks-text-primary]">Archive Task</h2>
                                 <p className="text-sm text-[--ks-text-muted] mt-1 leading-relaxed">
                                     You are about to archive
                                     <span className="font-semibold text-[--ks-text-primary]"> &ldquo;{task.title}&rdquo;</span>.

@@ -759,7 +759,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                             </svg>
                             Filters
                             {countActiveFilters(filters) > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[--ks-primary] text-white text-xs font-bold flex items-center justify-center leading-none">
+                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[--ks-primary] text-white text-[11px] font-semibold flex items-center justify-center leading-none">
                                     {countActiveFilters(filters)}
                                 </span>
                             )}

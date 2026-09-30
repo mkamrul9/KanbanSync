@@ -16,7 +16,7 @@ export default function BoardHeader({ board, userRole, userId }: BoardHeaderProp
 
     return (
         <header className="flex justify-between items-center p-6 bg-[--ks-bg-elevated] text-[--ks-text-primary] border-b border-[--ks-border]">
-            <h1 className="text-2xl font-bold">{board.title}</h1>
+            <h1 className="text-xl font-semibold">{board.title}</h1>
 
             <div className="flex items-center gap-4">
                 {/* Show avatars of current members here later */}

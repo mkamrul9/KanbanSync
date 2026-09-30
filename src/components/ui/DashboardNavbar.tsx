@@ -125,54 +125,56 @@ export default function DashboardNavbar({
                         </button>
 
                         {userMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-[--ks-bg-elevated] rounded-xl border border-[--ks-border] shadow-[--ks-shadow-lg] py-1 z-50 animate-ks-dropdown">
+                            <div className="absolute right-0 mt-2 w-60 bg-[var(--ks-bg-elevated)] rounded-2xl border border-[var(--ks-border)] shadow-[var(--ks-shadow-lg)] p-1.5 z-50 animate-ks-dropdown backdrop-blur-md">
                                 {/* User info */}
-                                <div className="px-4 py-3 border-b border-[--ks-border]">
-                                    <p className="text-sm font-semibold text-[--ks-text-primary] truncate">{userName}</p>
-                                    <p className="text-xs text-[--ks-text-muted] truncate">{userEmail}</p>
+                                <div className="px-3.5 py-3 border-b border-[var(--ks-border)] mb-1">
+                                    <p className="text-sm font-semibold text-[var(--ks-text-primary)] truncate">{userName}</p>
+                                    <p className="text-xs text-[var(--ks-text-muted)] truncate mt-0.5">{userEmail}</p>
                                 </div>
 
-                                <Link
-                                    href="/help"
-                                    onClick={() => setUserMenuOpen(false)}
-                                    className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors"
-                                >
-                                    <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[--ks-text-muted]" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 18h.01M10.5 8.5a1.5 1.5 0 113 0c0 1-1.5 1.5-1.5 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                                        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                                    </svg>
-                                    Help
-                                </Link>
+                                <div className="space-y-0.5">
+                                    <Link
+                                        href="/help"
+                                        onClick={() => setUserMenuOpen(false)}
+                                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-[var(--ks-text-secondary)] hover:text-[var(--ks-text-primary)] hover:bg-[var(--ks-bg-overlay)] transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[var(--ks-text-muted)]" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 18h.01M10.5 8.5a1.5 1.5 0 113 0c0 1-1.5 1.5-1.5 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                                        </svg>
+                                        Help
+                                    </Link>
 
-                                <Link
-                                    href="/about"
-                                    onClick={() => setUserMenuOpen(false)}
-                                    className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors"
-                                >
-                                    <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[--ks-text-muted]" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                                        <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                                    </svg>
-                                    About Us
-                                </Link>
+                                    <Link
+                                        href="/about"
+                                        onClick={() => setUserMenuOpen(false)}
+                                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-[var(--ks-text-secondary)] hover:text-[var(--ks-text-primary)] hover:bg-[var(--ks-bg-overlay)] transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[var(--ks-text-muted)]" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                                            <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                        </svg>
+                                        About Us
+                                    </Link>
 
-                                <Link
-                                    href="/contact"
-                                    onClick={() => setUserMenuOpen(false)}
-                                    className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors"
-                                >
-                                    <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[--ks-text-muted]" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="2" />
-                                        <path d="M4 8l8 6 8-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    Contact Us
-                                </Link>
+                                    <Link
+                                        href="/contact"
+                                        onClick={() => setUserMenuOpen(false)}
+                                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-[var(--ks-text-secondary)] hover:text-[var(--ks-text-primary)] hover:bg-[var(--ks-bg-overlay)] transition-colors"
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-[var(--ks-text-muted)]" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="2" />
+                                            <path d="M4 8l8 6 8-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        Contact Us
+                                    </Link>
+                                </div>
 
                                 {/* Menu items */}
-                                <form action={signOutAction}>
+                                <form action={signOutAction} className="border-t border-[var(--ks-border)] mt-1.5 pt-1.5">
                                     <button
                                         type="submit"
-                                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-[--ks-danger-subtle] transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-[var(--ks-danger)] hover:bg-[var(--ks-danger-subtle)] transition-colors"
                                     >
                                         <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -261,15 +263,15 @@ export default function DashboardNavbar({
                         </button>
 
                         {userMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-[--ks-bg-elevated] rounded-xl border border-[--ks-border] shadow-[--ks-shadow-lg] py-1 z-50 animate-ks-dropdown">
-                                <div className="px-4 py-3 border-b border-[--ks-border]">
-                                    <p className="text-sm font-semibold text-[--ks-text-primary] truncate">{userName}</p>
-                                    <p className="text-xs text-[--ks-text-muted] truncate">{userEmail}</p>
+                            <div className="absolute right-0 mt-2 w-60 bg-[var(--ks-bg-elevated)] rounded-2xl border border-[var(--ks-border)] shadow-[var(--ks-shadow-lg)] p-1.5 z-50 animate-ks-dropdown backdrop-blur-md">
+                                <div className="px-3.5 py-3 border-b border-[var(--ks-border)] mb-1">
+                                    <p className="text-sm font-semibold text-[var(--ks-text-primary)] truncate">{userName}</p>
+                                    <p className="text-xs text-[var(--ks-text-muted)] truncate mt-0.5">{userEmail}</p>
                                 </div>
-                                <form action={signOutAction}>
+                                <form action={signOutAction} className="pt-0.5">
                                     <button
                                         type="submit"
-                                        className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-[--ks-danger-subtle] transition-colors"
+                                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-[var(--ks-danger)] hover:bg-[var(--ks-danger-subtle)] transition-colors"
                                     >
                                         <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

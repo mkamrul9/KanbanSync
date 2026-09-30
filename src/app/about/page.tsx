@@ -21,10 +21,10 @@ export default function AboutPage() {
             <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
                 <section className="app-surface rounded-2xl p-5 sm:p-8">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[--ks-primary]">About Us</p>
-                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[--ks-text-primary] sm:text-4xl">
+                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-[--ks-text-primary]">
                         We build calm, high-clarity project execution tools
                     </h1>
-                    <p className="mt-3 text-sm text-[--ks-text-secondary] sm:text-base">
+                    <p className="mt-3 text-sm text-[--ks-text-secondary]">
                         KanbanSync helps teams turn scattered tasks into a focused, accountable, and measurable workflow.
                     </p>
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -36,14 +36,14 @@ export default function AboutPage() {
                 <section className="grid gap-4 md:grid-cols-3">
                     {values.map((value) => (
                         <article key={value.title} className="app-surface rounded-2xl p-5">
-                            <h2 className="text-base font-bold text-[--ks-text-primary]">{value.title}</h2>
+                            <h2 className="text-[15px] font-semibold text-[--ks-text-primary]">{value.title}</h2>
                             <p className="mt-2 text-sm text-[--ks-text-secondary]">{value.text}</p>
                         </article>
                     ))}
                 </section>
 
                 <section className="app-surface rounded-2xl p-5 sm:p-8">
-                    <h2 className="text-xl font-bold tracking-tight text-[--ks-text-primary] sm:text-2xl">What KanbanSync includes</h2>
+                    <h2 className="text-xl font-semibold tracking-tight text-[--ks-text-primary]">What KanbanSync includes</h2>
                     <ul className="mt-4 grid gap-3 text-sm text-[--ks-text-secondary] sm:grid-cols-2">
                         <li className="rounded-xl border border-[--ks-border] bg-[--ks-bg-card] p-3 text-[--ks-text-primary]">Boards with role-based collaboration</li>
                         <li className="rounded-xl border border-[--ks-border] bg-[--ks-bg-card] p-3 text-[--ks-text-primary]">Drag-and-drop workflow with real-time updates</li>

@@ -10,12 +10,12 @@ export default function NotFound() {
                     Not Found
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl font-black text-[--ks-text-primary] leading-tight mb-3">
+                <h1 className="text-2xl font-bold text-[--ks-text-primary] leading-tight mb-3">
                     This board does not exist
                     <br />
                     or you no longer have access.
                 </h1>
-                <p className="text-[--ks-text-secondary] leading-relaxed mb-8">
+                <p className="text-sm text-[--ks-text-secondary] leading-relaxed mb-8">
                     The link may be outdated, the board might have been removed,
                     or your membership has changed.
                 </p>

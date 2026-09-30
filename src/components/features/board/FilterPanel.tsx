@@ -200,7 +200,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
         >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[--ks-border] bg-[--ks-bg-card]/80 backdrop-blur-sm">
-                <span className="font-semibold text-[--ks-text-primary] text-base">Filters & Sort</span>
+                <span className="text-[15px] font-semibold text-[--ks-text-primary]">Filters & Sort</span>
                 <div className="flex items-center gap-2">
                     {countActiveFilters(filters) > 0 && (
                         <button
@@ -330,7 +330,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onChange, member
                                 // eslint-disable-next-line @next/next/no-img-element
                                 ? <img src={m.user.image} alt="" className="w-6 h-6 rounded-full shrink-0 object-cover" />
                                 : (
-                                    <span className="w-6 h-6 rounded-full bg-[--ks-primary-subtle] text-[--ks-primary] flex items-center justify-center text-xs font-bold shrink-0">
+                                    <span className="w-6 h-6 rounded-full bg-[--ks-primary-subtle] text-[--ks-primary] flex items-center justify-center text-[11px] font-semibold shrink-0">
                                         {(m.user.name ?? m.user.email ?? '?')[0].toUpperCase()}
                                     </span>
                                 )

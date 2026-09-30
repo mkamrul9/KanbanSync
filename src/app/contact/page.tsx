@@ -55,8 +55,8 @@ export default function ContactPage() {
             <div className="mx-auto max-w-3xl">
                 <section className="app-surface rounded-2xl p-5 sm:p-8">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[--ks-primary]">Contact Us</p>
-                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[--ks-text-primary] sm:text-4xl">Send us a message</h1>
-                    <p className="mt-3 text-sm text-[--ks-text-secondary] sm:text-base">
+                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-[--ks-text-primary]">Send us a message</h1>
+                    <p className="mt-3 text-sm text-[--ks-text-secondary]">
                         Tell us what you need help with, what feature you want, or what is not working.
                     </p>
 
