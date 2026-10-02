@@ -5,6 +5,7 @@ import Link from 'next/link';
 import BoardsGrid from '../../components/ui/BoardsGrid';
 import DashboardNavbar from '../../components/ui/DashboardNavbar';
 import ToastContainer from '../../components/ui/ToastContainer';
+import CreateBoardModal from '../../components/ui/CreateBoardModal';
 import DashboardOnboardingTour from '../../components/onboarding/DashboardOnboardingTour';
 import { dispatchPendingTaskRemindersAcrossBoards } from '../../lib/reminders';
 import { isBoardArchived } from '../../lib/archiveMarkers';
@@ -267,11 +268,12 @@ export default async function DashboardPage({
                             <h1 className="text-3xl font-bold text-[--ks-text-primary] tracking-tight">Your Boards</h1>
                             <p className="text-[--ks-text-muted] mt-1">Welcome back, {session.user.name}</p>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-[--ks-text-muted]">
+                        <div className="flex items-center gap-3 text-sm text-[--ks-text-muted] flex-wrap">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[--ks-bg-card] border border-[--ks-border] text-[--ks-text-secondary]">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
                                 {activeBoardCount} active board{activeBoardCount === 1 ? '' : 's'}
                             </span>
+                            <CreateBoardModal />
                         </div>
                     </div>
                 </div>
