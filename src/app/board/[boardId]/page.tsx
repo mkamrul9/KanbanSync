@@ -3,8 +3,8 @@ import KanbanBoard from '../../../components/features/board/KanbanBoard';
 import { notFound } from 'next/navigation';
 import { getUserRole } from '../../../lib/permission';
 import BoardNavbar from '../../../components/ui/BoardNavbar';
+import BoardSubHeader from '../../../components/features/board/BoardSubHeader';
 import { auth, signOut } from '../../../../auth';
-import Link from 'next/link';
 import BoardOnboardingTour from '../../../components/onboarding/BoardOnboardingTour';
 import { dispatchPendingTaskRemindersForUser } from '../../../lib/reminders';
 
@@ -70,20 +70,8 @@ export default async function BoardPage({
                 signOutAction={signOutAction}
             />
 
-            {/* Subheader: back button */}
-            <div className="app-surface border-b border-[--ks-border]">
-                <div className="px-6 py-3 flex items-center gap-3">
-                    <Link
-                        href="/dashboard"
-                        className="flex items-center gap-1.5 text-sm font-medium text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors shrink-0 group"
-                    >
-                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Back to Boards
-                    </Link>
-                </div>
-            </div>
+            {/* Board subheader: back button, progress pill, actions */}
+            <BoardSubHeader board={board} userRole={userRole} />
 
             <div className="flex-1 overflow-y-auto px-6 py-5">
                 <div className="app-surface rounded-2xl border border-[--ks-border] p-4 sm:p-5">

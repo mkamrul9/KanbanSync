@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useSyncExternalStore } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -20,8 +20,25 @@ export function useTheme() {
   return useContext(ThemeContext);
 }
 
+function getThemeSnapshot(): Theme {
+  if (typeof window === 'undefined') return 'dark';
+  const stored = localStorage.getItem('ks-theme') as Theme | null;
+  if (stored === 'light' || stored === 'dark') return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function subscribeToTheme(callback: () => void) {
+  window.addEventListener('storage', callback);
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    mq.removeEventListener('change', callback);
+  };
+}
+
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const theme = useSyncExternalStore<Theme>(subscribeToTheme, getThemeSnapshot, () => 'dark');
 
   const applyTheme = (next: Theme) => {
     document.documentElement.setAttribute('data-theme', next);
@@ -33,44 +50,20 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   };
 
   useEffect(() => {
-    // 1. Check explicit user preference
-    const stored = localStorage.getItem('ks-theme') as Theme | null;
-    if (stored === 'light' || stored === 'dark') {
-      setThemeState(stored);
-      applyTheme(stored);
-      return;
-    }
-
-    // 2. Fall back to OS preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const resolved: Theme = prefersDark ? 'dark' : 'light';
-    setThemeState(resolved);
-    applyTheme(resolved);
-
-    // 3. Listen for OS preference changes (only if no manual override)
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('ks-theme')) {
-        const next: Theme = e.matches ? 'dark' : 'light';
-        setThemeState(next);
-        applyTheme(next);
-      }
-    };
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const toggle = () => {
     const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    setThemeState(next);
     applyTheme(next);
     localStorage.setItem('ks-theme', next);
+    window.dispatchEvent(new Event('storage'));
   };
 
   const setTheme = (next: Theme) => {
-    setThemeState(next);
     applyTheme(next);
     localStorage.setItem('ks-theme', next);
+    window.dispatchEvent(new Event('storage'));
   };
 
   return (
