@@ -1,17 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useSyncExternalStore } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Sun, Moon } from 'lucide-react';
 
+const emptySubscribe = () => () => {};
+
 export default function ThemeToggle() {
   const { theme, toggle } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   if (!mounted) {
     return (

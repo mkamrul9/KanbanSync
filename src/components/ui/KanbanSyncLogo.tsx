@@ -8,19 +8,13 @@ interface KanbanSyncLogoProps {
 
 export default function KanbanSyncLogo({
     showText = true,
-    className = 'w-8 h-8',
-    textClassName = 'text-[15px] font-semibold text-[--ks-text-primary] tracking-tight hidden sm:block'
+    className = 'w-7 h-7',
+    textClassName = 'text-[15px] font-semibold text-[--ks-text-primary] tracking-tight hidden md:inline-block'
 }: KanbanSyncLogoProps) {
     return (
-        <div className="flex items-center gap-3">
-            <div className={`${className} bg-linear-to-br from-[--ks-primary] to-[--ks-accent] rounded-lg flex items-center justify-center shadow-sm`}>
-                {/* Board grid icon */}
-                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="3" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
-                    <rect x="14" y="3" width="7" height="5" rx="1.5" fill="currentColor" />
-                    <rect x="14" y="12" width="7" height="9" rx="1.5" fill="currentColor" opacity="0.9" />
-                    <rect x="3" y="16" width="7" height="5" rx="1.5" fill="currentColor" />
-                </svg>
+        <div className="flex items-center gap-2.5">
+            <div className={`${className} bg-[--ks-primary] rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0 select-none`}>
+                <span className="font-bold tracking-tight">K</span>
             </div>
             {showText && <span className={textClassName}>KanbanSync</span>}
         </div>
