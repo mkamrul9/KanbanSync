@@ -229,7 +229,7 @@ export default function GuidedTour({
                     <div className="ui-modal-header flex items-center justify-between gap-3">
                         <div>
                             <p className="text-[11px] uppercase tracking-[0.16em] text-[--ks-primary] font-semibold">{tourName}</p>
-                            <h3 className="text-base font-semibold text-[--ks-text-primary]">{step.title}</h3>
+                            <h3 className="text-[15px] font-semibold text-[--ks-text-primary]">{step.title}</h3>
                         </div>
                         <span className="text-xs text-[--ks-text-secondary] bg-[--ks-bg-card] px-2 py-1 rounded-full border border-[--ks-border]">{stepIndex + 1}/{steps.length}</span>
                     </div>

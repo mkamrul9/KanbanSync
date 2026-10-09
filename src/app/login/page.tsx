@@ -23,9 +23,9 @@ export default async function LoginPage({
                             <rect x="3" y="16" width="7" height="5" rx="1.5" fill="currentColor" />
                         </svg>
                     </div>
-                    <h2 className="text-3xl font-extrabold text-[--ks-text-primary] tracking-tight">
+                    <h1 className="text-2xl font-bold text-[--ks-text-primary] tracking-tight">
                         Welcome to KanbanSync
-                    </h2>
+                    </h1>
                     <p className="mt-2 text-sm text-[--ks-text-muted]">
                         Sign in to access boards, tasks, timelines, and team collaboration.
                     </p>

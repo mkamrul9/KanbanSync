@@ -56,7 +56,7 @@ export default function CyclePlannerModal({
         <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl">
             <div className="app-bg max-h-[85vh] overflow-hidden flex flex-col">
                 <div className="px-6 py-4 border-b border-[--ks-border] bg-[--ks-bg-elevated]/90">
-                    <h2 className="text-lg font-bold text-[--ks-text-primary]">Sprint / Cycle Planner</h2>
+                    <h2 className="text-xl font-semibold text-[--ks-text-primary]">Sprint / Cycle Planner</h2>
                     <p className="text-sm text-[--ks-text-muted] mt-1">Create cycles and mark one as active for board focus.</p>
                     <div className="mt-2 p-3 rounded-xl border border-sky-500/20 bg-sky-500/10">
                         <p className="text-sm font-semibold text-sky-400">How cycles work</p>

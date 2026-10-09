@@ -171,7 +171,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
                 </Tooltip>
             </div>
             <div>
-                <h2 className="text-[17px] font-semibold text-[--ks-text-primary] group-hover:text-[--ks-primary] transition-colors line-clamp-1 tracking-tight">
+                <h2 className="text-[15px] font-semibold text-[--ks-text-primary] group-hover:text-[--ks-primary] transition-colors line-clamp-1 tracking-tight">
                     {board.title}
                 </h2>
                 {board.description && (
@@ -197,7 +197,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
                     {pinnedBoards.length > 0 && (
                         <div className="mb-8">
                             <Tooltip text="Pinned boards appear at the top for quick access" position="right">
-                                <h2 className="text-base font-semibold text-[--ks-text-primary] mb-4">Pinned Boards</h2>
+                                <h2 className="text-[17px] font-semibold text-[--ks-text-primary] mb-4">Pinned Boards</h2>
                             </Tooltip>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                 {pinnedBoards.map((board) => renderBoardCard(board))}
@@ -207,7 +207,7 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
 
                     <div>
                         {pinnedBoards.length > 0 && unpinnedBoards.length > 0 && (
-                            <h2 className="text-base font-semibold text-[--ks-text-primary] mb-4">Other Boards</h2>
+                            <h2 className="text-[17px] font-semibold text-[--ks-text-primary] mb-4">Other Boards</h2>
                         )}
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             {visibleUnpinned.map((board) => renderBoardCard(board))}

@@ -110,7 +110,7 @@ export default function BoardAuditLogModal({ isOpen, onClose, board }: BoardAudi
                 <div className="px-6 pr-16 py-4 border-b border-[--ks-border] bg-[--ks-bg-elevated]/90 backdrop-blur-sm">
                     <div className="flex items-center justify-between gap-3">
                         <div>
-                            <h2 className="text-lg font-bold text-[--ks-text-primary]">Board Audit Log</h2>
+                            <h2 className="text-xl font-semibold text-[--ks-text-primary]">Board Audit Log</h2>
                             <p className="text-xs text-[--ks-text-muted] mt-0.5">Track comments and task activity across this board.</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -158,7 +158,7 @@ export default function BoardAuditLogModal({ isOpen, onClose, board }: BoardAudi
                             <div key={event.id} className="app-surface border border-[--ks-border] rounded-2xl px-4 py-3">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0 flex items-start gap-2.5">
-                                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white text-[11px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
                                             {(event.actorName[0] ?? 'A').toUpperCase()}
                                         </div>
                                         <div className="min-w-0">

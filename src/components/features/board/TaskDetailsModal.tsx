@@ -116,7 +116,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function SideSectionTitle({ label, dotColor }: { label: string; dotColor: string }) {
     return (
-        <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.16em] mb-2 flex items-center gap-1.5">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-[--ks-text-muted] mb-2 flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
             {label}
         </p>
@@ -660,7 +660,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 {cat.label}
                             </span>
                         </div>
-                        <h2 className="text-[24px] font-bold text-[--ks-text-primary] leading-tight">{task.title}</h2>
+                        <h2 className="text-xl font-semibold text-[--ks-text-primary] leading-tight">{task.title}</h2>
                         {isLeader && (
                             <div data-tour="task-template-save" className="mt-3 flex items-center gap-2">
                                 <input
@@ -685,7 +685,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     {/* Description */}
                     <div data-tour="task-checklist" className="mb-4 app-surface rounded-2xl border border-[--ks-border] p-4">
                         <div className="flex items-center justify-between mb-1.5">
-                            <h3 className="text-xs font-bold text-[--ks-text-secondary] uppercase tracking-[0.16em] flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[--ks-primary]" />Description</h3>
+                            <h3 className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[--ks-primary]" />Description</h3>
                             <span className={`text-[11px] transition-opacity duration-300 ${saved ? 'text-green-500 opacity-100' : 'opacity-0'}`}>
                                 ✓ Saved
                             </span>
@@ -707,7 +707,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                     {/* Subtasks */}
                     <div data-tour="task-attachments" className="mb-4 app-surface rounded-2xl border border-[--ks-border] p-4">
                         <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-xs font-bold text-[--ks-text-secondary] uppercase tracking-[0.16em] flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[--ks-accent]" />Checklist</h3>
+                            <h3 className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[--ks-accent]" />Checklist</h3>
                             <span className="text-[11px] text-[--ks-text-muted]">{doneSubtasks}/{subtasks.length} done</span>
                         </div>
 
@@ -769,7 +769,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
                     {/* Attachments */}
                     <div className="mb-4 app-surface rounded-2xl border border-[--ks-border] p-4">
-                        <h3 className="text-xs font-bold text-[--ks-text-secondary] uppercase tracking-[0.16em] flex items-center gap-2 mb-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />Attachments</h3>
+                        <h3 className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide flex items-center gap-2 mb-2"><span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />Attachments</h3>
 
                         <div className="space-y-2 mb-3 max-h-44 min-h-24 overflow-y-auto pr-1.5">
                             {attachments.length === 0 && (
@@ -831,7 +831,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
                     {/* Activity */}
                     <div className="flex flex-col app-surface rounded-2xl border border-[--ks-border] p-4 min-h-96 overflow-hidden pb-4">
-                        <h3 className="text-xs font-bold text-[--ks-text-secondary] uppercase tracking-[0.16em] mb-3 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Activity</h3>
+                        <h3 className="text-xs font-semibold text-[--ks-text-secondary] uppercase tracking-wide mb-3 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Activity</h3>
 
                         <div className="bg-[--ks-bg-overlay] rounded-2xl border border-[--ks-border] p-3 flex flex-col min-h-76 max-h-96">
                             {/* Comment list */}
@@ -841,7 +841,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                         <svg className="w-14 h-14 text-[--ks-text-muted]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                         </svg>
-                                        <p className="text-[--ks-text-primary] text-lg font-semibold">No activity yet</p>
+                                        <p className="text-[--ks-text-primary] text-[17px] font-semibold">No activity yet</p>
                                         <p className="text-[--ks-text-muted] text-sm max-w-md">Start the conversation by posting the first comment. Updates, comments, assignments, and checklist changes will appear here.</p>
                                     </div>
                                 )}
@@ -850,7 +850,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                         const comment = item.value as CommentType;
                                         return (
                                             <div key={item.id} className="flex gap-2.5">
-                                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5">
+                                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-semibold text-white shrink-0 mt-0.5">
                                                     {comment.user.name?.[0]?.toUpperCase() || 'U'}
                                                 </div>
                                                 <div className="flex-1 bg-[--ks-bg-card] rounded-xl px-3 py-2 shadow-sm border border-[--ks-border]">
@@ -867,7 +867,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     const activity = item.value as ActivityType;
                                     return (
                                         <div key={item.id} className="flex gap-2.5">
-                                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">
+                                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-[--ks-primary] to-[--ks-accent] text-white flex items-center justify-center text-[11px] font-semibold shrink-0 mt-0.5">
                                                 {(activity.actor?.name?.[0] ?? activity.actor?.email?.[0] ?? 'S').toUpperCase()}
                                             </div>
                                             <div className="flex-1 bg-[--ks-bg-card] rounded-xl px-3 py-2 border border-[--ks-border]">
@@ -888,7 +888,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                 {mentionQuery !== null && mentionSuggestions.length > 0 && (
                                     <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-[--ks-bg-elevated] border border-[--ks-border] rounded-xl shadow-xl z-50 overflow-hidden">
                                         <div className="px-3 py-1.5 border-b border-[--ks-border]">
-                                            <span className="text-[10px] font-bold text-[--ks-text-muted] uppercase tracking-widest">Mention a member</span>
+                                            <span className="text-[11px] font-semibold text-[--ks-text-muted] uppercase tracking-widest">Mention a member</span>
                                         </div>
                                         {mentionSuggestions.map(m => (
                                             <button
@@ -896,7 +896,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                                 onMouseDown={(e) => { e.preventDefault(); insertMention(m.user.email!); }}
                                                 className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-[--ks-bg-overlay] transition-colors text-left"
                                             >
-                                                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                                                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-[11px] font-semibold text-white shrink-0">
                                                     {m.user.name?.[0]?.toUpperCase() || 'U'}
                                                 </div>
                                                 <div className="min-w-0">
@@ -907,7 +907,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                         ))}
                                     </div>
                                 )}
-                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-400 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-400 to-purple-500 flex items-center justify-center text-[11px] font-semibold text-white shrink-0">
                                     {currentUserEmail?.[0]?.toUpperCase() || 'M'}
                                 </div>
                                 <div className="flex-1 flex items-center gap-2 bg-[--ks-bg-overlay] border border-[--ks-border] rounded-xl px-3 py-2 focus-within:border-[--ks-primary] focus-within:ring-2 focus-within:ring-[--ks-primary]/20 transition-all shadow-xs">
@@ -939,14 +939,14 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                 {/* ── RIGHT: Sidebar ───────────────────────────────────── */}
                 <div className="w-full md:w-80 shrink-0 flex flex-col gap-2 bg-[--ks-bg-elevated] border-l border-[--ks-border] p-5 rounded-r-2xl overflow-y-auto">
 
-                    <p className="text-[10px] font-bold text-[--ks-text-muted] uppercase tracking-[0.18em] mb-1">Task Settings</p>
+                    <p className="text-[11px] font-semibold text-[--ks-text-muted] uppercase tracking-widest mb-1">Task Settings</p>
 
                     {/* Assignee */}
                     <div className="mb-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
                         <SideSectionTitle label="Assignee" dotColor="bg-emerald-500" />
                         {assignee ? (
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[11px] font-bold text-white">
+                                <div className="w-7 h-7 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-[11px] font-semibold text-white">
                                     {assignee.user.name?.[0]?.toUpperCase() ?? 'U'}
                                 </div>
                                 <span className="text-sm font-medium text-[--ks-text-primary]">{assignee.user.name || assignee.user.email}</span>
@@ -1031,14 +1031,14 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     onBlur={handleTagsSave}
                                     onKeyDown={(e) => e.key === 'Enter' && handleTagsSave()}
                                 />
-                                <p className="text-[10px] text-[--ks-text-muted] mt-1">Comma separated · blur to save</p>
+                                <p className="text-[11px] text-[--ks-text-muted] mt-1">Comma separated · blur to save</p>
                             </>
                         ) : (
                             <div className="flex flex-wrap gap-1">
                                 {(task.tags ?? []).length === 0
                                     ? <span className="text-xs text-[--ks-text-muted] italic">No tags</span>
                                     : (task.tags ?? []).map((tag, i) => (
-                                        <span key={i} className="px-1.5 py-0.5 bg-[--ks-bg-card] text-[--ks-text-secondary] text-[10px] rounded border border-[--ks-border]">#{tag}</span>
+                                        <span key={i} className="px-1.5 py-0.5 bg-[--ks-bg-card] text-[--ks-text-secondary] text-[11px] rounded border border-[--ks-border]">#{tag}</span>
                                     ))
                                 }
                             </div>
@@ -1133,7 +1133,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                                     {blockedBy.slice(0, 3).map((dep) => (
                                         <p key={dep.id} className="text-[11px] text-[--ks-text-primary] bg-[--ks-bg-card] border border-[--ks-border] rounded-md px-2 py-1 truncate">{dep.task.title}</p>
                                     ))}
-                                    {blockedBy.length > 3 && <p className="text-[10px] text-[--ks-text-muted]">+{blockedBy.length - 3} more</p>}
+                                    {blockedBy.length > 3 && <p className="text-[11px] text-[--ks-text-muted]">+{blockedBy.length - 3} more</p>}
                                 </div>
                             </div>
                         )}
@@ -1249,7 +1249,7 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
                         <div className="mb-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg p-2.5">
                             <div className="flex items-center justify-between gap-2 mb-2">
                                 <p className="text-xs font-semibold text-teal-400">Live Timer</p>
-                                <span className="text-sm font-mono font-bold text-[--ks-text-primary]">{formatTimer(timerSeconds)}</span>
+                                <span className="text-sm font-mono font-semibold text-[--ks-text-primary]">{formatTimer(timerSeconds)}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-1.5 mb-2">
                                 <button
@@ -1469,8 +1469,8 @@ export default function TaskDetailsModal({ isOpen, onClose, task, boardId, membe
 
                     {/* Task ID */}
                     <div className="mt-auto pt-3 app-surface rounded-xl border border-[--ks-border] p-3">
-                        <p className="text-[10px] font-bold text-[--ks-text-muted] uppercase tracking-widest mb-1">Task ID</p>
-                        <code className="text-xs text-[--ks-text-muted] bg-[--ks-bg-overlay] px-2 py-0.5 rounded font-mono">
+                        <p className="text-[11px] font-semibold text-[--ks-text-muted] uppercase tracking-widest mb-1">Task ID</p>
+                        <code className="text-[11px] text-[--ks-text-muted] bg-[--ks-bg-overlay] px-2 py-0.5 rounded font-mono">
                             #{task.id.slice(-8).toUpperCase()}
                         </code>
                     </div>

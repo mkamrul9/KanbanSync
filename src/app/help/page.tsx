@@ -33,10 +33,10 @@ export default function HelpPage() {
             <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
                 <section className="app-surface rounded-2xl p-5 sm:p-8 anim-panel-in">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[--ks-primary]">Help Center</p>
-                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[--ks-text-primary] sm:text-4xl">
+                    <h1 className="mt-2 text-2xl font-bold tracking-tight text-[--ks-text-primary]">
                         Everything you need to use KanbanSync
                     </h1>
-                    <p className="mt-3 text-sm text-[--ks-text-secondary] sm:text-base">
+                    <p className="mt-3 text-sm text-[--ks-text-secondary]">
                         Start quickly, organize work clearly, and collaborate smoothly with your team.
                     </p>
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -47,21 +47,21 @@ export default function HelpPage() {
 
                 <section className="grid gap-4 md:grid-cols-3">
                     <article className="app-surface rounded-2xl p-5">
-                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[--ks-text-primary]">1. Set up</h2>
+                        <h2 className="text-sm font-semibold uppercase tracking-wider text-[--ks-text-primary]">1. Set up</h2>
                         <p className="mt-2 text-sm text-[--ks-text-secondary]">Create a board, define columns, and set WIP limits for healthier flow.</p>
                     </article>
                     <article className="app-surface rounded-2xl p-5">
-                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[--ks-text-primary]">2. Execute</h2>
+                        <h2 className="text-sm font-semibold uppercase tracking-wider text-[--ks-text-primary]">2. Execute</h2>
                         <p className="mt-2 text-sm text-[--ks-text-secondary]">Create tasks with assignees, due dates, priorities, tags, and categories.</p>
                     </article>
                     <article className="app-surface rounded-2xl p-5">
-                        <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-[--ks-text-primary]">3. Improve</h2>
+                        <h2 className="text-sm font-semibold uppercase tracking-wider text-[--ks-text-primary]">3. Improve</h2>
                         <p className="mt-2 text-sm text-[--ks-text-secondary]">Use analytics, audit logs, and cycle planning to improve delivery cadence.</p>
                     </article>
                 </section>
 
                 <section className="app-surface rounded-2xl p-5 sm:p-8">
-                    <h2 className="text-xl font-bold tracking-tight text-[--ks-text-primary] sm:text-2xl">FAQ</h2>
+                    <h2 className="text-xl font-semibold tracking-tight text-[--ks-text-primary]">FAQ</h2>
                     <div className="mt-4 space-y-3">
                         {faqs.map((item) => (
                             <details key={item.q} className="rounded-xl border border-[--ks-border] bg-[--ks-bg-card] p-4 text-[--ks-text-primary] transition-colors">
