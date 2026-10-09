@@ -23,9 +23,9 @@ const ARCHIVE_RETENTION_DAYS = 30;
 // Small chip for active filter display
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
     return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-sm font-medium">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[--ks-primary-subtle] text-[--ks-primary] border border-[--ks-primary]/20 text-sm font-medium">
             {label}
-            <button onClick={onRemove} className="ml-0.5 text-blue-400 hover:text-blue-700 transition-colors" aria-label="Remove filter">
+            <button onClick={onRemove} className="ml-0.5 text-[--ks-primary] hover:text-[--ks-primary-hover] transition-colors" aria-label="Remove filter">
                 <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
@@ -242,6 +242,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
     useEffect(() => {
         const pusher = getPusherClient();
+        if (!pusher) return;
+
         const channelName = `board-${initialBoard.id}`;
 
         // Subscribe to the specific board
@@ -616,14 +618,14 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
         <div className="flex flex-col w-full h-full">
             {/* Toast notification */}
             {toastMessage && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl shadow-2xl">
-                    <svg className="w-5 h-5 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-[--ks-bg-elevated] text-[--ks-text-primary] border border-[--ks-border] text-sm font-medium rounded-xl shadow-2xl">
+                    <svg className="w-5 h-5 shrink-0 text-[--ks-danger]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
                     <span>{toastMessage}</span>
                     <button
                         onClick={() => setToastMessage(null)}
-                        className="ml-2 text-gray-400 hover:text-white transition-colors"
+                        className="ml-2 text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
                         aria-label="Dismiss"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -648,14 +650,14 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         value={inputValue}
                         onChange={handleSearchChange}
                         placeholder="Search titles, descriptions, and comments..."
-                        className="w-full pl-10 pr-10 py-2.5 border border-slate-300 rounded-xl bg-white/90 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                        className="w-full pl-10 pr-10 py-2.5 border border-[--ks-border] rounded-xl bg-[--ks-bg-elevated] text-[--ks-text-primary] placeholder-[--ks-text-muted] shadow-sm focus:outline-none focus:ring-2 focus:ring-[--ks-primary] focus:border-transparent transition-shadow"
                     />
 
                     {/* Clear Button (Only shows if there is text) */}
                     {inputValue && (
                         <button
                             onClick={clearSearch}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -665,7 +667,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                     {/* Loading Indicator */}
                     {isPending && (
-                        <div className="absolute -right-24 top-2 text-sm text-gray-500 animate-pulse">
+                        <div className="absolute -right-24 top-2 text-sm text-[--ks-text-muted] animate-pulse">
                             Searching...
                         </div>
                     )}
@@ -677,23 +679,23 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         <button
                             onClick={() => setIsViewsOpen((o) => !o)}
                             data-tour="board-saved-views-button"
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[--ks-bg-elevated] border border-[--ks-border] shadow-sm hover:bg-[--ks-bg-card] hover:border-[--ks-border] transition-all text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] whitespace-nowrap"
                         >
                             Saved Views
                             {savedViews.length > 0 && (
-                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">{savedViews.length}</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-[--ks-bg-overlay] border border-[--ks-border] text-[--ks-text-muted]">{savedViews.length}</span>
                             )}
                         </button>
                     </Tooltip>
 
                     {isViewsOpen && (
-                        <div className="absolute top-full mt-2 left-0 z-40 w-64 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
-                            <div className="px-2 pb-2 mb-2 border-b border-slate-200 flex items-center justify-between">
-                                <p className="text-sm font-semibold text-slate-700">Saved Views</p>
+                        <div className="absolute top-full mt-2 left-0 z-40 w-64 bg-[--ks-bg-elevated] rounded-xl border border-[--ks-border] shadow-[--ks-shadow-lg] p-2 animate-ks-dropdown">
+                            <div className="px-2 pb-2 mb-2 border-b border-[--ks-border] flex items-center justify-between">
+                                <p className="text-sm font-semibold text-[--ks-text-primary]">Saved Views</p>
                                 <button
                                     type="button"
                                     onClick={() => setIsViewsOpen(false)}
-                                    className="w-7 h-7 flex items-center justify-center rounded-full text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 shadow-sm transition-colors"
+                                    className="w-7 h-7 flex items-center justify-center rounded-lg text-[--ks-text-muted] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] border border-[--ks-border] shadow-sm transition-colors"
                                     aria-label="Close saved views"
                                 >
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -704,12 +706,12 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                             {savedViews.length === 0 ? (
                                 <div className="px-2 py-2 space-y-1">
-                                    <p className="text-sm text-slate-500">No saved views yet.</p>
-                                    <p className="text-xs text-slate-400">Open Filters, set your filters, enter a view name in Saved Views, then click Save.</p>
+                                    <p className="text-sm text-[--ks-text-muted]">No saved views yet.</p>
+                                    <p className="text-xs text-[--ks-text-muted]/80">Open Filters, set your filters, enter a view name in Saved Views, then click Save.</p>
                                 </div>
                             ) : (
                                 savedViews.map((view) => (
-                                    <div key={view.id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-white/80">
+                                    <div key={view.id} className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg hover:bg-[--ks-bg-overlay]">
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -717,14 +719,14 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                                 setFilterNow(Date.now());
                                                 setIsViewsOpen(false);
                                             }}
-                                            className="text-sm font-medium text-slate-700 truncate text-left"
+                                            className="text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] truncate text-left"
                                         >
                                             {view.name}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => setSavedViews((prev) => prev.filter((v) => v.id !== view.id))}
-                                            className="text-xs text-slate-400 hover:text-red-600"
+                                            className="text-xs text-[--ks-text-muted] hover:text-red-500"
                                         >
                                             Delete
                                         </button>
@@ -732,7 +734,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                 ))
                             )}
                             {savedViews.length > 0 && (
-                                <p className="text-xs text-slate-400 px-2 pt-2 border-t border-slate-200 mt-2">Create new views from the Filters panel saved-views section.</p>
+                                <p className="text-xs text-[--ks-text-muted] px-2 pt-2 border-t border-[--ks-border] mt-2">Create new views from the Filters panel saved-views section.</p>
                             )}
                         </div>
                     )}
@@ -748,8 +750,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                             }}
                             data-tour="board-filter-button"
                             className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl border shadow-sm transition-all text-sm font-medium whitespace-nowrap ${countActiveFilters(filters) > 0
-                                ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
-                                : 'bg-white/90 text-gray-700 border-slate-300 hover:bg-white hover:border-slate-400'
+                                ? 'bg-[--ks-primary] text-white border-[--ks-primary] hover:bg-[--ks-primary-hover]'
+                                : 'bg-[--ks-bg-elevated] text-[--ks-text-secondary] border-[--ks-border] hover:bg-[--ks-bg-card] hover:text-[--ks-text-primary]'
                                 }`}
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -757,7 +759,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                             </svg>
                             Filters
                             {countActiveFilters(filters) > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white text-blue-600 border border-blue-600 text-xs font-bold flex items-center justify-center leading-none">
+                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[--ks-primary] text-white text-xs font-bold flex items-center justify-center leading-none">
                                     {countActiveFilters(filters)}
                                 </span>
                             )}
@@ -792,7 +794,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     <button
                         onClick={() => setIsMetricsOpen(true)}
                         data-tour="board-metrics-button"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[--ks-bg-elevated] border border-[--ks-border] shadow-sm hover:bg-[--ks-bg-card] hover:border-[--ks-border] transition-all text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] whitespace-nowrap"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -805,7 +807,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     <button
                         onClick={() => setIsAuditOpen(true)}
                         data-tour="board-audit-button"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[--ks-bg-elevated] border border-[--ks-border] shadow-sm hover:bg-[--ks-bg-card] hover:border-[--ks-border] transition-all text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] whitespace-nowrap"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -818,7 +820,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     <button
                         onClick={() => setIsCycleOpen(true)}
                         data-tour="board-cycles-button"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[--ks-bg-elevated] border border-[--ks-border] shadow-sm hover:bg-[--ks-bg-card] hover:border-[--ks-border] transition-all text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] whitespace-nowrap"
                     >
                         Cycles
                     </button>
@@ -828,7 +830,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                     <button
                         onClick={() => setIsTimesheetOpen(true)}
                         data-tour="board-timesheet-button"
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/90 border border-slate-300 shadow-sm hover:bg-white hover:border-slate-400 transition-all text-sm font-medium text-gray-700 whitespace-nowrap"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[--ks-bg-elevated] border border-[--ks-border] shadow-sm hover:bg-[--ks-bg-card] hover:border-[--ks-border] transition-all text-sm font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] whitespace-nowrap"
                     >
                         Timesheet
                     </button>
@@ -844,21 +846,21 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                     setIsArchiveOpen((o) => !o);
                                 }}
                                 data-tour="board-archive-button"
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50/90 border border-rose-200 shadow-sm hover:bg-rose-100 hover:border-rose-300 transition-all text-sm font-semibold text-rose-700 whitespace-nowrap"
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 shadow-sm hover:bg-rose-500/20 transition-all text-sm font-semibold text-rose-500 whitespace-nowrap"
                             >
                                 Archived
-                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-rose-200 text-rose-600">{archivedTasks.length + archivedColumns.length}</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-[--ks-bg-elevated] border border-rose-500/30 text-rose-500">{archivedTasks.length + archivedColumns.length}</span>
                             </button>
                         </Tooltip>
 
                         {isArchiveOpen && (
-                            <div className="absolute top-full mt-2 left-0 z-40 w-84 app-bg rounded-xl border border-slate-200 shadow-xl p-2">
-                                <div className="px-2 pb-2 mb-2 border-b border-slate-200 flex items-center justify-between">
-                                    <p className="text-sm font-semibold text-slate-700">Archive</p>
+                            <div className="absolute top-full mt-2 left-0 z-40 w-84 bg-[--ks-bg-elevated] rounded-xl border border-[--ks-border] shadow-[--ks-shadow-lg] p-2 animate-ks-dropdown">
+                                <div className="px-2 pb-2 mb-2 border-b border-[--ks-border] flex items-center justify-between">
+                                    <p className="text-sm font-semibold text-[--ks-text-primary]">Archive</p>
                                     <button
                                         type="button"
                                         onClick={() => setIsArchiveOpen(false)}
-                                        className="w-7 h-7 flex items-center justify-center rounded-full text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 shadow-sm transition-colors"
+                                        className="w-7 h-7 flex items-center justify-center rounded-lg text-[--ks-text-muted] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] border border-[--ks-border] shadow-sm transition-colors"
                                         aria-label="Close archive panel"
                                     >
                                         <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -867,8 +869,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                     </button>
                                 </div>
 
-                                <div className="px-2 pb-2 border-b border-slate-200 mb-2 space-y-2">
-                                    <p className="text-xs text-slate-500">
+                                <div className="px-2 pb-2 border-b border-[--ks-border] mb-2 space-y-2">
+                                    <p className="text-xs text-[--ks-text-muted]">
                                         Unified archive hub for tasks and columns. Restore window: {ARCHIVE_RETENTION_DAYS} days.
                                     </p>
                                     <input
@@ -876,21 +878,21 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                         value={archiveSearch}
                                         onChange={(e) => setArchiveSearch(e.target.value)}
                                         placeholder="Search archived tasks and columns..."
-                                        className="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none"
+                                        className="w-full px-2.5 py-2 bg-[--ks-bg-card] border border-[--ks-border] rounded-lg text-sm text-[--ks-text-primary] placeholder-[--ks-text-muted] focus:ring-2 focus:ring-[--ks-primary]/20 focus:border-[--ks-primary] outline-none"
                                     />
                                 </div>
 
-                                <div className="px-2 pb-2 border-b border-slate-200 mb-2">
+                                <div className="px-2 pb-2 border-b border-[--ks-border] mb-2">
                                     <div className="flex items-center justify-between mb-2">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Archived Tasks</p>
-                                        <span className="text-xs text-slate-400">{filteredArchivedTasks.length}</span>
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-[--ks-text-muted]">Archived Tasks</p>
+                                        <span className="text-xs text-[--ks-text-muted]">{filteredArchivedTasks.length}</span>
                                     </div>
                                     <div className="space-y-2 mb-2">
                                         <button
                                             type="button"
                                             onClick={handleRestoreVisibleArchivedTasks}
                                             disabled={isRestoringTask || filteredArchivedTasks.length === 0}
-                                            className="w-full text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1.5 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                            className="w-full text-sm font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1.5 rounded-md hover:bg-emerald-500/20 disabled:opacity-50"
                                         >
                                             Restore visible tasks ({filteredArchivedTasks.length})
                                         </button>
@@ -898,27 +900,27 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                                             type="button"
                                             onClick={handlePurgeExpiredArchivedTasks}
                                             disabled={isPurgingExpiredArchived || expiredArchivedTasks.length === 0}
-                                            className="w-full text-sm font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
+                                            className="w-full text-sm font-semibold text-rose-500 bg-rose-500/10 border border-rose-500/20 px-2 py-1.5 rounded-md hover:bg-rose-500/20 disabled:opacity-50"
                                         >
                                             {isPurgingExpiredArchived ? 'Purging tasks...' : `Purge expired tasks (${expiredArchivedTasks.length})`}
                                         </button>
                                     </div>
 
                                     {filteredArchivedTasks.length === 0 ? (
-                                        <p className="text-sm text-slate-400">No archived tasks found.</p>
+                                        <p className="text-sm text-[--ks-text-muted]">No archived tasks found.</p>
                                     ) : (
                                         <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
                                             {filteredArchivedTasks.map((task) => (
-                                                <div key={task.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
+                                                <div key={task.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-[--ks-bg-overlay]">
                                                     <div className="min-w-0">
-                                                        <p className="text-sm font-semibold text-slate-700 truncate">{task.title}</p>
-                                                        <p className="text-xs text-slate-400">{task.category.replace(/_/g, ' ')}</p>
+                                                        <p className="text-sm font-semibold text-[--ks-text-primary] truncate">{task.title}</p>
+                                                        <p className="text-xs text-[--ks-text-muted]">{task.category.replace(/_/g, ' ')}</p>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRestoreTask(task.id)}
                                                         disabled={isRestoringTask}
-                                                        className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                                        className="text-xs font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md hover:bg-emerald-500/20 disabled:opacity-50"
                                                     >
                                                         Restore
                                                     </button>
@@ -930,36 +932,36 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                                 <div className="px-2">
                                     <div className="flex items-center justify-between mb-2">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Archived Columns</p>
-                                        <span className="text-xs text-slate-400">{filteredArchivedColumns.length}</span>
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-[--ks-text-muted]">Archived Columns</p>
+                                        <span className="text-xs text-[--ks-text-muted]">{filteredArchivedColumns.length}</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={handlePurgeExpiredArchivedColumns}
                                         disabled={isManagingColumnsArchive || expiredArchivedColumns.length === 0}
-                                        className="w-full mb-2 text-sm font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1.5 rounded-md hover:bg-rose-100 disabled:opacity-50"
+                                        className="w-full mb-2 text-sm font-semibold text-rose-500 bg-rose-500/10 border border-rose-500/20 px-2 py-1.5 rounded-md hover:bg-rose-500/20 disabled:opacity-50"
                                     >
                                         {isManagingColumnsArchive ? 'Purging columns...' : `Purge expired columns (${expiredArchivedColumns.length})`}
                                     </button>
 
                                     {filteredArchivedColumns.length === 0 ? (
-                                        <p className="text-sm text-slate-400">No archived columns found.</p>
+                                        <p className="text-sm text-[--ks-text-muted]">No archived columns found.</p>
                                     ) : (
                                         <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                                             {filteredArchivedColumns.map((column) => {
                                                 const parsed = parseColumnArchive(column.title);
                                                 const expired = isArchiveExpired(parsed.archivedAt, ARCHIVE_RETENTION_DAYS);
                                                 return (
-                                                    <div key={column.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-white/80">
+                                                    <div key={column.id} className="flex items-start justify-between gap-2 px-2 py-2 rounded-lg hover:bg-[--ks-bg-overlay]">
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-semibold text-slate-700 truncate">{parsed.original || 'Untitled column'}</p>
-                                                            <p className="text-xs text-slate-400">{column.tasks.length} task{column.tasks.length === 1 ? '' : 's'}</p>
+                                                            <p className="text-sm font-semibold text-[--ks-text-primary] truncate">{parsed.original || 'Untitled column'}</p>
+                                                            <p className="text-xs text-[--ks-text-muted]">{column.tasks.length} task{column.tasks.length === 1 ? '' : 's'}</p>
                                                         </div>
                                                         <button
                                                             type="button"
                                                             onClick={() => handleRestoreColumn(column.id)}
                                                             disabled={isManagingColumnsArchive || expired}
-                                                            className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md hover:bg-emerald-100 disabled:opacity-50"
+                                                            className="text-xs font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md hover:bg-emerald-500/20 disabled:opacity-50"
                                                         >
                                                             {expired ? 'Expired' : 'Restore'}
                                                         </button>
@@ -979,7 +981,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         onClick={() => setShowCurrentCycleOnly((v) => !v)}
                         className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl transition-all text-sm font-semibold border ${showCurrentCycleOnly
                             ? 'bg-emerald-600 text-white border-emerald-600'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                            : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20'
                             }`}
                     >
                         Current Cycle
@@ -989,7 +991,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                 {currentUserId && (
                     <button
                         onClick={applyMyTasksPreset}
-                        className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-700 hover:bg-cyan-100 transition-all text-sm font-semibold"
+                        className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[--ks-primary-subtle] border border-[--ks-primary]/25 text-[--ks-primary] hover:opacity-90 transition-all text-sm font-semibold"
                     >
                         My Tasks
                     </button>
@@ -997,7 +999,7 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
 
                 <button
                     onClick={applyStaleTasksPreset}
-                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 transition-all text-sm font-semibold"
+                    className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[--ks-warning-subtle] border border-[--ks-warning]/25 text-[--ks-warning] hover:opacity-90 transition-all text-sm font-semibold"
                 >
                     Stale Tasks
                 </button>
@@ -1113,8 +1115,8 @@ export default function KanbanBoard({ initialBoard, userRole, currentUserEmail }
                         // We render a clone of the task here. 
                         // We wrap it in a div that mimics the SortableTask styling 
                         // but without the sorting hooks attached.
-                        <div className="bg-white p-4 rounded-lg shadow-2xl border-2 border-blue-500 cursor-grabbing rotate-2 scale-105 transition-transform">
-                            <h3 className="text-sm font-medium text-gray-900">{activeTask.title}</h3>
+                        <div className="bg-[--ks-bg-elevated] text-[--ks-text-primary] p-4 rounded-lg shadow-2xl border-2 border-[--ks-primary] cursor-grabbing rotate-2 scale-105 transition-transform">
+                            <h3 className="text-sm font-medium text-[--ks-text-primary]">{activeTask.title}</h3>
                         </div>
                     ) : null}
                 </DragOverlay>

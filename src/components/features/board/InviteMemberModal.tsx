@@ -12,9 +12,9 @@ interface InviteMemberModalProps {
 }
 
 const roleConfig: Record<string, { emoji: string; label: string; desc: string; color: string }> = {
-    [BoardRole.MEMBER]: { emoji: 'M', label: 'Member', desc: 'Can work on tasks and move cards except for Done', color: 'text-blue-600 bg-blue-50 ring-blue-200' },
-    [BoardRole.REVIEWER]: { emoji: 'R', label: 'Reviewer', desc: 'Can approve tasks to Done', color: 'text-amber-600 bg-amber-50 ring-amber-200' },
-    [BoardRole.LEADER]: { emoji: 'L', label: 'Leader', desc: 'Full admin access to the board', color: 'text-violet-600 bg-violet-50 ring-violet-200' },
+    [BoardRole.MEMBER]: { emoji: 'M', label: 'Member', desc: 'Can work on tasks and move cards except for Done', color: 'text-[--ks-primary] bg-[--ks-primary-subtle] ring-[--ks-primary]/25' },
+    [BoardRole.REVIEWER]: { emoji: 'R', label: 'Reviewer', desc: 'Can approve tasks to Done', color: 'text-[--ks-warning] bg-[--ks-warning-subtle] ring-[--ks-warning]/25' },
+    [BoardRole.LEADER]: { emoji: 'L', label: 'Leader', desc: 'Full admin access to the board', color: 'text-[--ks-accent] bg-[--ks-accent-subtle] ring-[--ks-accent]/25' },
 };
 
 export default function InviteMemberModal({ isOpen, onClose, boardId }: InviteMemberModalProps) {
@@ -59,39 +59,39 @@ export default function InviteMemberModal({ isOpen, onClose, boardId }: InviteMe
                 <div className="ui-modal-header">
 
                     {/* Header */}
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-cyan-200 shadow-sm flex items-center justify-center text-cyan-700 mb-3">
+                    <div className="w-12 h-12 rounded-2xl bg-[--ks-bg-card] border border-[--ks-border] shadow-xs flex items-center justify-center text-[--ks-primary] mb-3">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">Invite Team Member</h2>
-                    <p className="text-sm text-gray-600 mt-0.5">They&apos;ll get board access with the role you choose.</p>
+                    <h2 className="text-xl font-bold text-[--ks-text-primary]">Invite Team Member</h2>
+                    <p className="text-sm text-[--ks-text-muted] mt-0.5">They&apos;ll get board access with the role you choose.</p>
                 </div>
 
                 <div className="p-7">
 
                     {/* Error */}
                     {errorMsg && (
-                        <div className="mb-4 flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+                        <div className="mb-4 flex items-center gap-2 px-3 py-2.5 bg-[--ks-danger-subtle] border border-[--ks-danger]/25 text-[--ks-danger] text-sm rounded-lg">
                             <span className="shrink-0"></span> {errorMsg}
                         </div>
                     )}
 
                     {/* Success */}
                     {success && (
-                        <div className="mb-4 flex items-center gap-2 px-3 py-2.5 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+                        <div className="mb-4 flex items-center gap-2 px-3 py-2.5 bg-[--ks-success-subtle] border border-[--ks-success]/25 text-[--ks-success] text-sm rounded-lg">
                             <span className="shrink-0"></span> Invite sent! Closing…
                         </div>
                     )}
 
-                    <div className="flex flex-col gap-4 app-surface border border-slate-200/70 rounded-2xl p-4">
+                    <div className="flex flex-col gap-4 app-surface border border-[--ks-border] rounded-2xl p-4">
                         {/* Email */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                            <label className="block text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide mb-1.5">
                                 Email Address
                             </label>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">@</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[--ks-text-muted] text-sm">@</span>
                                 <input
                                     ref={emailRef}
                                     type="email"
@@ -105,7 +105,7 @@ export default function InviteMemberModal({ isOpen, onClose, boardId }: InviteMe
 
                         {/* Role */}
                         <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                            <label className="block text-xs font-semibold text-[--ks-text-muted] uppercase tracking-wide mb-1.5">
                                 Board Role
                             </label>
                             <select
