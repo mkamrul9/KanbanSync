@@ -5,6 +5,7 @@ import Link from 'next/link';
 import NotificationsBell from './NotificationsBell';
 import KanbanSyncLogo from './KanbanSyncLogo';
 import ThemeToggle from './ThemeToggle';
+import { Menu, X } from 'lucide-react';
 
 type Props = {
     userId: string;
@@ -23,6 +24,7 @@ export default function DashboardNavbar({
     signOutAction,
 }: Props) {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -35,15 +37,44 @@ export default function DashboardNavbar({
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    useEffect(() => {
+        const onToggle = () => setSidebarOpen((v) => !v);
+        const onClose = () => setSidebarOpen(false);
+        window.addEventListener('ks-toggle-mobile-sidebar', onToggle);
+        window.addEventListener('ks-close-mobile-sidebar', onClose);
+        return () => {
+            window.removeEventListener('ks-toggle-mobile-sidebar', onToggle);
+            window.removeEventListener('ks-close-mobile-sidebar', onClose);
+        };
+    }, []);
+
     const initials = userName
         ? userName.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
         : (userEmail?.[0]?.toUpperCase() ?? '?');
 
     return (
-        <nav className="sticky top-0 z-40 w-full h-14 bg-[--ks-bg-elevated] border-b border-[--ks-border]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3 sm:gap-4">
+        <nav
+            className="ks-navbar sticky top-0 z-40 w-full h-14 bg-ks-bg-elevated border-b border-ks-border shadow-xs"
+            style={{ backgroundColor: 'var(--ks-bg-elevated)', borderBottomColor: 'var(--ks-border)' }}
+        >
+            <div className="px-4 sm:px-6 h-full flex items-center justify-between gap-3 sm:gap-4">
                 {/* ── Brand + Breadcrumb ────────────────────────────── */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    {/* Mobile sidebar toggle button with dynamic Menu/X state */}
+                    <button
+                        type="button"
+                        onClick={() => window.dispatchEvent(new Event('ks-toggle-mobile-sidebar'))}
+                        className={`md:hidden p-1.5 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[--ks-primary]/40 shrink-0 ${
+                            sidebarOpen
+                                ? 'bg-[--ks-primary-subtle] text-[--ks-primary] border-[--ks-primary]/30'
+                                : 'border-[--ks-border] text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay]'
+                        }`}
+                        aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                        aria-expanded={sidebarOpen}
+                    >
+                        {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                    </button>
+
                     <Link
                         href="/dashboard"
                         className="flex items-center gap-2.5 shrink-0 transition-opacity duration-[150ms] hover:opacity-85"
@@ -53,9 +84,9 @@ export default function DashboardNavbar({
                     </Link>
 
                     {/* Breadcrumb — hidden below sm: */}
-                    <div className="hidden sm:flex items-center gap-2 text-sm text-[--ks-text-muted] min-w-0">
-                        <span className="text-[--ks-text-muted]/60 select-none">›</span>
-                        <span className="text-[--ks-text-primary] font-medium truncate">
+                    <div className="hidden sm:flex items-center gap-2 text-sm text-[var(--ks-text-muted)] min-w-0">
+                        <span className="text-[var(--ks-text-muted)]/60 select-none">›</span>
+                        <span className="text-[var(--ks-text-primary)] font-medium truncate">
                             Dashboard
                         </span>
                     </div>
@@ -72,7 +103,7 @@ export default function DashboardNavbar({
                         <button
                             type="button"
                             onClick={() => setUserMenuOpen((v) => !v)}
-                            className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-[--ks-primary]/30 transition-all duration-[150ms] p-0.5 focus:outline-none"
+                            className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-indigo-500/30 transition-all duration-[150ms] p-0.5 focus:outline-none"
                             aria-label="User menu"
                             aria-expanded={userMenuOpen}
                         >
@@ -84,7 +115,7 @@ export default function DashboardNavbar({
                                     className="w-8 h-8 rounded-full object-cover"
                                 />
                             ) : (
-                                <span className="w-8 h-8 rounded-full bg-[--ks-primary] text-white text-xs font-semibold flex items-center justify-center shadow-xs">
+                                <span className="w-8 h-8 rounded-full bg-indigo-600 bg-[var(--ks-primary)] text-white text-xs font-semibold flex items-center justify-center shadow-xs">
                                     {initials}
                                 </span>
                             )}

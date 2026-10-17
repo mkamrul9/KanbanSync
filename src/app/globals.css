@@ -129,6 +129,11 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+.ks-navbar {
+  background-color: var(--ks-bg-elevated) !important;
+  border-bottom: 1px solid var(--ks-border) !important;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
