@@ -17,14 +17,21 @@ interface SidebarItemProps {
     href: string;
     badge?: number | string;
     isActive?: boolean;
-    onClick?: () => void;
+    onSelect?: () => void;
 }
 
-function SidebarItem({ icon: Icon, label, href, badge, isActive, onClick }: SidebarItemProps) {
+function SidebarItem({ icon: Icon, label, href, badge, isActive, onSelect }: SidebarItemProps) {
+    const handleClick = (e: React.MouseEvent) => {
+        if (onSelect) {
+            e.preventDefault();
+            onSelect();
+        }
+    };
+
     return (
         <Link
             href={href}
-            onClick={onClick}
+            onClick={handleClick}
             className={`
                 group flex items-center justify-between px-3 py-2 rounded-[8px] text-[13px] font-medium
                 transition-colors duration-150 select-none
@@ -63,9 +70,13 @@ function SidebarItem({ icon: Icon, label, href, badge, isActive, onClick }: Side
 export default function Sidebar({
     boardCount,
     archiveCount,
+    activeTab,
+    onSelectTab,
 }: {
     boardCount?: number;
     archiveCount?: number;
+    activeTab?: string;
+    onSelectTab?: (tab: string) => void;
 }) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -75,9 +86,10 @@ export default function Sidebar({
     const isSettings = pathname === '/settings';
 
     // Route / Tab matching
-    const isHomeActive = isDashboard && currentTab === 'overview';
-    const isArchiveActive = isDashboard && currentTab === 'archive';
-    const isBoardsActive = isDashboard && !isHomeActive && !isArchiveActive;
+    const effectiveTab = activeTab !== undefined ? activeTab : (currentTab || 'boards');
+    const isHomeActive = isDashboard && effectiveTab === 'overview';
+    const isArchiveActive = isDashboard && effectiveTab === 'archive';
+    const isBoardsActive = isDashboard && (effectiveTab === 'boards' || (!isHomeActive && !isArchiveActive));
 
     const startTour = () => {
         window.dispatchEvent(new Event('ks-open-dashboard-tour'));
@@ -100,6 +112,7 @@ export default function Sidebar({
                     label="Home"
                     href="/dashboard?tab=overview"
                     isActive={isHomeActive}
+                    onSelect={isDashboard && onSelectTab ? () => onSelectTab('overview') : undefined}
                 />
 
                 <SidebarItem
@@ -108,6 +121,7 @@ export default function Sidebar({
                     href="/dashboard"
                     badge={boardCount}
                     isActive={isBoardsActive}
+                    onSelect={isDashboard && onSelectTab ? () => onSelectTab('boards') : undefined}
                 />
 
                 <SidebarItem
@@ -116,6 +130,7 @@ export default function Sidebar({
                     href="/dashboard?tab=archive"
                     badge={archiveCount && archiveCount > 0 ? archiveCount : undefined}
                     isActive={isArchiveActive}
+                    onSelect={isDashboard && onSelectTab ? () => onSelectTab('archive') : undefined}
                 />
 
                 <SidebarItem
