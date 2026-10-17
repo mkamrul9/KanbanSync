@@ -12,7 +12,6 @@ import {
     Compass,
     X,
 } from 'lucide-react';
-import KanbanSyncLogo from './KanbanSyncLogo';
 
 interface SidebarItemProps {
     icon: React.ComponentType<{ className?: string }>;
@@ -86,6 +85,11 @@ export default function Sidebar({
     const currentTab = searchParams.get('tab');
     const [mobileOpen, setMobileOpen] = useState(false);
 
+    const closeMobileDrawer = () => {
+        setMobileOpen(false);
+        window.dispatchEvent(new Event('ks-close-mobile-sidebar'));
+    };
+
     useEffect(() => {
         const toggleHandler = () => setMobileOpen((prev) => !prev);
         const closeHandler = () => setMobileOpen(false);
@@ -94,7 +98,7 @@ export default function Sidebar({
         window.addEventListener('ks-close-mobile-sidebar', closeHandler);
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setMobileOpen(false);
+            if (e.key === 'Escape') closeMobileDrawer();
         };
         window.addEventListener('keydown', handleKeyDown);
 
@@ -107,7 +111,7 @@ export default function Sidebar({
 
     // Close mobile drawer when route or tab changes
     useEffect(() => {
-        setMobileOpen(false);
+        closeMobileDrawer();
     }, [pathname, searchParams]);
 
     const isDashboard = pathname === '/dashboard';
@@ -132,7 +136,7 @@ export default function Sidebar({
                 isActive={isHomeActive}
                 onSelect={() => {
                     if (isDashboard && onSelectTab) onSelectTab('overview');
-                    if (isMobile) setMobileOpen(false);
+                    if (isMobile) closeMobileDrawer();
                 }}
             />
 
@@ -144,7 +148,7 @@ export default function Sidebar({
                 isActive={isBoardsActive}
                 onSelect={() => {
                     if (isDashboard && onSelectTab) onSelectTab('boards');
-                    if (isMobile) setMobileOpen(false);
+                    if (isMobile) closeMobileDrawer();
                 }}
             />
 
@@ -156,7 +160,7 @@ export default function Sidebar({
                 isActive={isArchiveActive}
                 onSelect={() => {
                     if (isDashboard && onSelectTab) onSelectTab('archive');
-                    if (isMobile) setMobileOpen(false);
+                    if (isMobile) closeMobileDrawer();
                 }}
             />
 
@@ -165,7 +169,7 @@ export default function Sidebar({
                 label="Settings"
                 href="/settings"
                 isActive={isSettings}
-                onSelect={isMobile ? () => setMobileOpen(false) : undefined}
+                onSelect={isMobile ? closeMobileDrawer : undefined}
             />
         </>
     );
@@ -176,7 +180,7 @@ export default function Sidebar({
                 type="button"
                 onClick={() => {
                     startTour();
-                    if (isMobile) setMobileOpen(false);
+                    if (isMobile) closeMobileDrawer();
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13px] font-medium text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors duration-150"
             >
@@ -189,7 +193,7 @@ export default function Sidebar({
                 label="Help Center"
                 href="/help"
                 isActive={pathname === '/help'}
-                onSelect={isMobile ? () => setMobileOpen(false) : undefined}
+                onSelect={isMobile ? closeMobileDrawer : undefined}
             />
         </div>
     );
@@ -198,8 +202,12 @@ export default function Sidebar({
         <>
             {/* Desktop Sticky Sidebar — Visible on md: and above */}
             <aside
+                style={{
+                    backgroundColor: 'var(--ks-bg-elevated)',
+                    borderRightColor: 'var(--ks-border)',
+                }}
                 className="hidden md:flex flex-col w-[220px] shrink-0 h-[calc(100vh-56px)] sticky top-14
-                           bg-[--ks-bg-elevated] border-r border-[--ks-border] pt-4 pb-6 gap-1 px-2 select-none justify-between"
+                           border-r pt-4 pb-6 gap-1 px-2 select-none justify-between"
             >
                 <div className="flex flex-col gap-1">
                     <div className="px-3 py-1 mb-1">
@@ -214,38 +222,37 @@ export default function Sidebar({
                 {renderBottomSection(false)}
             </aside>
 
-            {/* Mobile Off-Canvas Drawer — Visible on < md: when triggered via hamburger button */}
+            {/* Mobile Off-Canvas Drawer — Pinned under top-14 navbar, solid opaque surface, clean crisp backdrop */}
             {mobileOpen && (
-                <div className="fixed inset-0 z-50 md:hidden">
-                    {/* Backdrop Overlay */}
+                <div className="fixed inset-0 top-14 z-40 md:hidden">
+                    {/* Clean Backdrop Overlay — subtle dim, NO blur */}
                     <div
-                        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
-                        onClick={() => setMobileOpen(false)}
+                        className="fixed inset-0 top-14 bg-black/40 transition-opacity animate-fade-in"
+                        onClick={closeMobileDrawer}
                         aria-hidden="true"
                     />
 
-                    {/* Drawer Content */}
+                    {/* Drawer Content — 100% opaque elevated background */}
                     <aside
-                        className="fixed inset-y-0 left-0 w-64 max-w-[85vw] bg-[--ks-bg-elevated] border-r border-[--ks-border] shadow-2xl flex flex-col justify-between p-4 z-10 animate-ks-slide-in-right"
+                        style={{
+                            backgroundColor: 'var(--ks-bg-elevated)',
+                            borderRightColor: 'var(--ks-border)',
+                        }}
+                        className="fixed top-14 bottom-0 left-0 w-64 max-w-[80vw] border-r shadow-2xl flex flex-col justify-between p-3.5 z-10 animate-ks-slide-in-right select-none"
                     >
                         <div className="flex flex-col gap-1">
-                            {/* Drawer Header with Logo and Close Button */}
-                            <div className="flex items-center justify-between pb-3 mb-2 border-b border-[--ks-border]">
-                                <KanbanSyncLogo />
-                                <button
-                                    type="button"
-                                    onClick={() => setMobileOpen(false)}
-                                    className="p-1 rounded-lg text-[--ks-text-muted] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors"
-                                    aria-label="Close navigation menu"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            <div className="px-2 py-1 mb-1">
+                            <div className="flex items-center justify-between px-2 py-1.5 mb-1 border-b border-[--ks-border]">
                                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[--ks-text-muted]">
                                     Navigation
                                 </span>
+                                <button
+                                    type="button"
+                                    onClick={closeMobileDrawer}
+                                    className="p-1 rounded-md text-[--ks-text-muted] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors"
+                                    aria-label="Close navigation menu"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
 
                             {renderNavItems(true)}

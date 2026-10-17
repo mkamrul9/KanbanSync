@@ -5,7 +5,7 @@ import Link from 'next/link';
 import NotificationsBell from './NotificationsBell';
 import KanbanSyncLogo from './KanbanSyncLogo';
 import ThemeToggle from './ThemeToggle';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 type Props = {
     userId: string;
@@ -24,6 +24,7 @@ export default function DashboardNavbar({
     signOutAction,
 }: Props) {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -34,6 +35,17 @@ export default function DashboardNavbar({
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    useEffect(() => {
+        const onToggle = () => setSidebarOpen((v) => !v);
+        const onClose = () => setSidebarOpen(false);
+        window.addEventListener('ks-toggle-mobile-sidebar', onToggle);
+        window.addEventListener('ks-close-mobile-sidebar', onClose);
+        return () => {
+            window.removeEventListener('ks-toggle-mobile-sidebar', onToggle);
+            window.removeEventListener('ks-close-mobile-sidebar', onClose);
+        };
     }, []);
 
     const initials = userName
@@ -48,14 +60,19 @@ export default function DashboardNavbar({
             <div className="px-4 sm:px-6 h-full flex items-center justify-between gap-3 sm:gap-4">
                 {/* ── Brand + Breadcrumb ────────────────────────────── */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    {/* Mobile hamburger menu toggle — visible on mobile/tablet (< md:) */}
+                    {/* Mobile sidebar toggle button with dynamic Menu/X state */}
                     <button
                         type="button"
                         onClick={() => window.dispatchEvent(new Event('ks-toggle-mobile-sidebar'))}
-                        className="md:hidden p-1.5 rounded-lg border border-[--ks-border] text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay] transition-colors focus:outline-none focus:ring-2 focus:ring-[--ks-primary]/40 shrink-0"
-                        aria-label="Toggle navigation menu"
+                        className={`md:hidden p-1.5 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-[--ks-primary]/40 shrink-0 ${
+                            sidebarOpen
+                                ? 'bg-[--ks-primary-subtle] text-[--ks-primary] border-[--ks-primary]/30'
+                                : 'border-[--ks-border] text-[--ks-text-secondary] hover:text-[--ks-text-primary] hover:bg-[--ks-bg-overlay]'
+                        }`}
+                        aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                        aria-expanded={sidebarOpen}
                     >
-                        <Menu className="w-4 h-4" />
+                        {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
                     </button>
 
                     <Link
