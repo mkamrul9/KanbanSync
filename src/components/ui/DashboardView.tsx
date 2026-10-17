@@ -179,6 +179,43 @@ export default function DashboardView({
                     </div>
                 </div>
 
+                {/* Mobile Segmented View Tabs — visible on mobile/tablet (< md:), hidden on desktop */}
+                <div className="md:hidden flex items-center gap-1 p-1 rounded-xl bg-[--ks-bg-card] border border-[--ks-border] mb-6">
+                    <button
+                        type="button"
+                        onClick={() => handleSelectTab('overview')}
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${
+                            currentTab === 'overview'
+                                ? 'bg-[--ks-primary] text-white shadow-xs'
+                                : 'text-[--ks-text-secondary] hover:text-[--ks-text-primary]'
+                        }`}
+                    >
+                        Home
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSelectTab('boards')}
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${
+                            currentTab === 'boards'
+                                ? 'bg-[--ks-primary] text-white shadow-xs'
+                                : 'text-[--ks-text-secondary] hover:text-[--ks-text-primary]'
+                        }`}
+                    >
+                        My Boards {activeBoardCount > 0 ? `(${activeBoardCount})` : ''}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSelectTab('archive')}
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${
+                            currentTab === 'archive'
+                                ? 'bg-[--ks-primary] text-white shadow-xs'
+                                : 'text-[--ks-text-secondary] hover:text-[--ks-text-primary]'
+                        }`}
+                    >
+                        Archive {archivedBoardCount > 0 ? `(${archivedBoardCount})` : ''}
+                    </button>
+                </div>
+
                 {/* Overview View */}
                 {currentTab === 'overview' ? (
                     <div className="space-y-8 animate-fade-in">
