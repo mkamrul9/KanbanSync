@@ -44,7 +44,7 @@ export default function DashboardNavbar({
             className="ks-navbar sticky top-0 z-40 w-full h-14 bg-ks-bg-elevated border-b border-ks-border shadow-xs"
             style={{ backgroundColor: 'var(--ks-bg-elevated)', borderBottomColor: 'var(--ks-border)' }}
         >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3 sm:gap-4">
+            <div className="px-4 sm:px-6 h-full flex items-center justify-between gap-3 sm:gap-4">
                 {/* ── Brand + Breadcrumb ────────────────────────────── */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <Link

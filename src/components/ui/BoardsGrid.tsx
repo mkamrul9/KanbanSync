@@ -7,20 +7,41 @@ import { isArchiveExpired, parseBoardArchive } from '../../lib/archiveMarkers';
 import { useToast } from './ToastContainer';
 import Tooltip from './Tooltip';
 import EmptyState from './EmptyState';
+import AvatarStack from './AvatarStack';
 
 type Board = {
     id: string;
     title: string;
     description: string | null;
     createdAt: Date;
+    members?: Array<{
+        user?: {
+            id?: string;
+            name?: string | null;
+            email?: string | null;
+            image?: string | null;
+        } | null;
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+    }>;
+    taskCount?: number;
 };
 
 const PAGE_SIZE = 6;
 const ARCHIVE_RETENTION_DAYS = 30;
 
-export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId?: string }) {
+export default function BoardsGrid({
+    boards,
+    userId,
+    initialShowArchived = false,
+}: {
+    boards: Board[];
+    userId?: string;
+    initialShowArchived?: boolean;
+}) {
     const [showAll, setShowAll] = useState(false);
-    const [showArchived, setShowArchived] = useState(false);
+    const [showArchived, setShowArchived] = useState(initialShowArchived);
     const [isPending, startTransition] = useTransition();
     const [pinnedBoardIds, setPinnedBoardIds] = useState<Set<string>>(new Set());
     const { success, error } = useToast();
@@ -126,61 +147,66 @@ export default function BoardsGrid({ boards, userId }: { boards: Board[]; userId
             href={`/board/${board.id}`}
             key={board.id}
             data-tour={board.id === firstBoardForTour ? 'open-board-card' : undefined}
-            className="relative bg-[--ks-bg-card] border border-[--ks-border] hover:border-[--ks-primary]/50 shadow-[--ks-shadow] p-5 rounded-[14px] transition-all duration-150 group h-44 flex flex-col justify-between overflow-hidden"
+            className="group block rounded-[14px] bg-[--ks-bg-card] border border-[--ks-border] hover:border-[--ks-primary]/40 transition-all duration-150 p-4 overflow-hidden relative shadow-[--ks-shadow]"
         >
             {/* Top accent stripe — 3px, indigo→violet gradient */}
-            <span className="absolute top-0 inset-x-0 h-[3px] bg-linear-to-r from-[--ks-primary] to-[--ks-accent] rounded-t-[14px]" />
+            <span className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-indigo-500 to-violet-500 rounded-t-[14px]" />
 
-            <div className="absolute top-3.5 right-3.5 flex items-center gap-1.5">
-                <Tooltip text={pinnedBoardIds.has(board.id) ? 'Unpin board' : 'Pin board to top'} position="left">
-                    <button
-                        type="button"
-                        data-tour={board.id === firstBoardForTour ? 'dashboard-pin-board' : undefined}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            togglePin(board.id, board.title);
-                        }}
-                        className="p-1.5 rounded-md border border-[--ks-border] hover:bg-[--ks-bg-overlay] text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
-                        aria-label={pinnedBoardIds.has(board.id) ? 'Unpin board' : 'Pin board'}
-                    >
-                        {pinnedBoardIds.has(board.id) ? (
-                            <svg className="w-3.5 h-3.5 fill-current text-[--ks-primary]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z" />
-                            </svg>
-                        ) : (
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M12 2v20M2 12h20" />
-                            </svg>
-                        )}
-                    </button>
-                </Tooltip>
-                <Tooltip text="Archive board" position="left">
-                    <button
-                        type="button"
-                        data-tour={board.id === firstBoardForTour ? 'dashboard-archive-board' : undefined}
-                        onClick={(e) => onArchiveBoard(e, board.id, board.title)}
-                        disabled={isPending}
-                        className="p-1.5 rounded-md border border-amber-500/20 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 disabled:opacity-60 transition-colors"
-                        aria-label="Archive board"
-                    >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 15V7a2 2 0 00-2-2H5a2 2 0 00-2 2v8M8 6v8M12 6v8M16 6v8M3 18h18" />
-                        </svg>
-                    </button>
-                </Tooltip>
-            </div>
-            <div>
-                <h2 className="text-[17px] font-semibold text-[--ks-text-primary] group-hover:text-[--ks-primary] transition-colors line-clamp-1 tracking-tight">
+            <div className="flex items-start justify-between gap-2">
+                <h3 className="text-[15px] font-semibold text-[--ks-text-primary] mt-2 truncate group-hover:text-[--ks-primary] transition-colors flex-1">
                     {board.title}
-                </h2>
-                {board.description && (
-                    <p className="text-xs text-[--ks-text-muted] mt-1.5 line-clamp-2">{board.description}</p>
-                )}
+                </h3>
+                <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                    <Tooltip text={pinnedBoardIds.has(board.id) ? 'Unpin board' : 'Pin board to top'} position="left">
+                        <button
+                            type="button"
+                            data-tour={board.id === firstBoardForTour ? 'dashboard-pin-board' : undefined}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                togglePin(board.id, board.title);
+                            }}
+                            className="p-1 rounded-md border border-[--ks-border] hover:bg-[--ks-bg-overlay] text-[--ks-text-muted] hover:text-[--ks-text-primary] transition-colors"
+                            aria-label={pinnedBoardIds.has(board.id) ? 'Unpin board' : 'Pin board'}
+                        >
+                            {pinnedBoardIds.has(board.id) ? (
+                                <svg className="w-3.5 h-3.5 fill-current text-[--ks-primary]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M12 2v20M2 12h20" />
+                                </svg>
+                            )}
+                        </button>
+                    </Tooltip>
+                    <Tooltip text="Archive board" position="left">
+                        <button
+                            type="button"
+                            data-tour={board.id === firstBoardForTour ? 'dashboard-archive-board' : undefined}
+                            onClick={(e) => onArchiveBoard(e, board.id, board.title)}
+                            disabled={isPending}
+                            className="p-1 rounded-md border border-amber-500/20 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 disabled:opacity-60 transition-colors"
+                            aria-label="Archive board"
+                        >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15V7a2 2 0 00-2-2H5a2 2 0 00-2 2v8M8 6v8M12 6v8M16 6v8M3 18h18" />
+                            </svg>
+                        </button>
+                    </Tooltip>
+                </div>
             </div>
-            <span className="text-xs font-medium text-[--ks-primary] group-hover:underline transition-colors flex items-center gap-1">
-                Open board &rarr;
-            </span>
+
+            <p className="text-xs text-[--ks-text-muted] mt-1 line-clamp-2 min-h-[2.5em]">
+                {board.description || 'No description provided.'}
+            </p>
+
+            <div className="flex items-center justify-between mt-4 pt-2 border-t border-[--ks-border]/50">
+                <AvatarStack members={board.members} max={3} />
+                <span className="text-[11px] text-[--ks-text-muted] font-medium">
+                    {board.taskCount ?? 0} {board.taskCount === 1 ? 'task' : 'tasks'}
+                </span>
+            </div>
         </Link>
     );
 
