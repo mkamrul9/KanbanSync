@@ -40,7 +40,10 @@ export default function DashboardNavbar({
         : (userEmail?.[0]?.toUpperCase() ?? '?');
 
     return (
-        <nav className="sticky top-0 z-40 w-full h-14 bg-[--ks-bg-elevated] border-b border-[--ks-border]">
+        <nav
+            className="ks-navbar sticky top-0 z-40 w-full h-14 bg-ks-bg-elevated border-b border-ks-border shadow-xs"
+            style={{ backgroundColor: 'var(--ks-bg-elevated)', borderBottomColor: 'var(--ks-border)' }}
+        >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3 sm:gap-4">
                 {/* ── Brand + Breadcrumb ────────────────────────────── */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -53,9 +56,9 @@ export default function DashboardNavbar({
                     </Link>
 
                     {/* Breadcrumb — hidden below sm: */}
-                    <div className="hidden sm:flex items-center gap-2 text-sm text-[--ks-text-muted] min-w-0">
-                        <span className="text-[--ks-text-muted]/60 select-none">›</span>
-                        <span className="text-[--ks-text-primary] font-medium truncate">
+                    <div className="hidden sm:flex items-center gap-2 text-sm text-[var(--ks-text-muted)] min-w-0">
+                        <span className="text-[var(--ks-text-muted)]/60 select-none">›</span>
+                        <span className="text-[var(--ks-text-primary)] font-medium truncate">
                             Dashboard
                         </span>
                     </div>
@@ -72,7 +75,7 @@ export default function DashboardNavbar({
                         <button
                             type="button"
                             onClick={() => setUserMenuOpen((v) => !v)}
-                            className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-[--ks-primary]/30 transition-all duration-[150ms] p-0.5 focus:outline-none"
+                            className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-indigo-500/30 transition-all duration-[150ms] p-0.5 focus:outline-none"
                             aria-label="User menu"
                             aria-expanded={userMenuOpen}
                         >
@@ -84,7 +87,7 @@ export default function DashboardNavbar({
                                     className="w-8 h-8 rounded-full object-cover"
                                 />
                             ) : (
-                                <span className="w-8 h-8 rounded-full bg-[--ks-primary] text-white text-xs font-semibold flex items-center justify-center shadow-xs">
+                                <span className="w-8 h-8 rounded-full bg-indigo-600 bg-[var(--ks-primary)] text-white text-xs font-semibold flex items-center justify-center shadow-xs">
                                     {initials}
                                 </span>
                             )}
